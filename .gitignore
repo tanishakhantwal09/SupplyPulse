@@ -1,0 +1,12 @@
+.env
+__pycache__/
+*.pyc
+.history/
+dataset/raw/
+dataset/enriched/
+dataset/final/
+dataset/master/
+dataset/clean/
+dataset/synthetic/
+notebooks/.ipynb_checkpoints/
+Research papers/
