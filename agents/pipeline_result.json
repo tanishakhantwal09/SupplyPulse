@@ -1,16 +1,16 @@
 {
-  "disrupted_port": "Port of Mundra",
-  "severity": "CRITICAL",
-  "decision": "REROUTE",
-  "recommended_alternate_port": "Port of Jebel Ali (Dubai)",
-  "alternate_port_country": "UAE",
-  "distance_nm": 813.6,
-  "additional_transit_days": 2.0,
-  "rerouting_cost_usd": 65902,
-  "total_financial_impact_usd": 4643178541.856,
+  "disrupted_port": "Port of Savannah",
+  "severity": "MEDIUM",
+  "decision": "MONITOR",
+  "recommended_alternate_port": "Port of New York-New Jersey",
+  "alternate_port_country": "USA",
+  "distance_nm": 618.3,
+  "additional_transit_days": 1.5,
+  "rerouting_cost_usd": 33388,
+  "total_financial_impact_usd": 261275156.4672,
   "financial_alert": true,
   "top_priority_commodity": "Oil and Petrochemicals",
-  "inventory_exposure_usd": 19526400000,
+  "inventory_exposure_usd": 538080000,
   "agents_activated": [
     "supervisor",
     "route_optimization",
@@ -18,6 +18,6 @@
     "financial_auditor",
     "supervisor_final"
   ],
-  "total_response_time_seconds": 4.58,
-  "confidence": "91%"
+  "total_response_time_seconds": 5.12,
+  "confidence": "71%"
 }
