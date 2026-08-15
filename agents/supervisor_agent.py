@@ -4,17 +4,18 @@ import pandas as pd
 from dotenv import load_dotenv
 from langchain_groq import ChatGroq
 from langchain_core.messages import HumanMessage, SystemMessage
+from rich.console import Console
+from rich.panel import Panel
 
 load_dotenv()
+console = Console()
 
-# Initialize Groq LLM
 llm = ChatGroq(
     api_key=os.getenv("GROQ_API_KEY"),
     model_name="llama-3.3-70b-versatile",
     temperature=0.1
 )
 
-# Load reference databases
 with open("dataset/reference/ports.json") as f:
     ports = json.load(f)
 with open("dataset/reference/routes.json") as f:
@@ -56,7 +57,7 @@ Be concise but comprehensive."""
 DISRUPTION EVENT DETECTED:
 
 Event Date: {disruption_event['event_date']}
-Location: {disruption_event['event_location']}
+Location: {disruption_event.get('event_location', 'N/A')}
 Nearest Port: {disruption_event['nearest_port_name']}
 Country: {disruption_event['nearest_port_country']}
 Severity: {disruption_event['severity'].upper()}
@@ -90,28 +91,35 @@ As Supervisor Agent, provide:
         HumanMessage(content=user_prompt)
     ]
 
-    print(f"\n{'='*60}")
-    print(f"SUPPLYPULSE — SUPERVISOR AGENT ACTIVATED")
-    print(f"{'='*60}")
-    print(f"Processing disruption at: {disruption_event['nearest_port_name']}")
-    print(f"Severity: {disruption_event['severity'].upper()}")
-    print(f"Querying Groq LLM (Llama 3 70B)...")
-    print(f"{'='*60}\n")
+    console.print(Panel(
+        "[bold blue]SUPERVISOR AGENT[/bold blue]\nReceiving disruption event and coordinating response...",
+        border_style="blue"
+    ))
+    console.print(f"  [yellow]→[/yellow] Disrupted port: [bold]{disruption_event['nearest_port_name']}[/bold]")
+    console.print(f"  [yellow]→[/yellow] Severity: [bold red]{disruption_event['severity'].upper()}[/bold red]")
+    console.print(f"  [yellow]→[/yellow] Location: {disruption_event.get('event_location', 'N/A')}")
+    console.print(f"  [yellow]→[/yellow] Querying Groq LLM for situation assessment...")
 
     response = llm.invoke(messages)
+
+    console.print(Panel(
+        f"[bold green]SITUATION ASSESSMENT:[/bold green]\n{response.content}",
+        border_style="green",
+        title="Supervisor Agent — Output"
+    ))
+
     return response.content
 
 def run_test():
-    print("Loading validation dataset...")
+    console.print("Loading validation dataset...")
     df = pd.read_csv(
         r'C:\Users\tanis\Desktop\Minor project\dataset\final\validation_set_REAL_ONLY.csv',
         low_memory=False
     )
 
-    print(f"Total real validation events: {len(df):,}")
-    print("\nSelecting test cases from real data...\n")
+    console.print(f"Total real validation events: {len(df):,}")
+    console.print("\nSelecting test cases from real data...\n")
 
-    # Pick one critical, one high, one medium event
     critical = df[df['severity'] == 'critical'].iloc[0]
     high = df[df['severity'] == 'high'].iloc[0]
     medium = df[df['severity'] == 'medium'].iloc[0]
@@ -125,15 +133,8 @@ def run_test():
     results = []
 
     for label, event in test_cases:
-        print(f"\n{'#'*60}")
-        print(f"TEST CASE: {label}")
-        print(f"{'#'*60}")
-
+        console.print(f"\n[bold]TEST CASE: {label}[/bold]")
         response = supervisor_agent(event.to_dict())
-
-        print("SUPERVISOR AGENT RESPONSE:")
-        print(response)
-
         results.append({
             "test_case": label,
             "port": event['nearest_port_name'],
@@ -141,14 +142,11 @@ def run_test():
             "response": response
         })
 
-    # Save results
     with open("agents/supervisor_test_results.json", "w") as f:
         json.dump(results, f, indent=2)
 
-    print(f"\n{'='*60}")
-    print("ALL TEST CASES COMPLETE")
-    print(f"Results saved to: agents/supervisor_test_results.json")
-    print(f"{'='*60}")
+    console.print(f"\n[bold green]ALL TEST CASES COMPLETE[/bold green]")
+    console.print(f"Results saved to: agents/supervisor_test_results.json")
 
 if __name__ == "__main__":
     run_test()
