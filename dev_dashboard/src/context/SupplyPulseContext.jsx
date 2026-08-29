@@ -52,6 +52,7 @@ export function SupplyPulseProvider({ children }) {
   const [isPipelineRunning, setIsPipelineRunning] = useState(false);
   const [selectedScenarioIndex, setSelectedScenarioIndex] = useState(0);
   const [scenariosList] = useState(sampleScenarios || []);
+  const [menuOpen, setMenuOpen] = useState(false);
 
   // Initial event setup
   const currentRawScenario = scenariosList[selectedScenarioIndex] || scenariosList[0] || {};
@@ -187,7 +188,9 @@ export function SupplyPulseProvider({ children }) {
       selectScenario,
       portsData,
       commoditiesData,
-      routesData
+      routesData,
+      menuOpen,
+      setMenuOpen
     }}>
       {children}
     </SupplyPulseContext.Provider>
