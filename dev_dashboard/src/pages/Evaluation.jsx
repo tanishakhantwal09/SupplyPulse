@@ -21,7 +21,7 @@ export default function Evaluation() {
       sub="Formal quantitative comparison matching the Cambridge multi-agent benchmark methodology (arXiv: 2601.09680) across real-world validated maritime disruption scenarios."
     >
       {/* ── 1. Key Performance Metric Open Strip ───────────────────────── */}
-      <section className="grid grid-cols-1 md:grid-cols-3 gap-10 mb-16 border-b border-white/[0.06] pb-14">
+      <section className="grid grid-cols-1 md:grid-cols-3 gap-10 mb-16 border-b border-[rgba(225,29,72,0.25)] pb-14">
         <div>
           <span className="cred-label text-neutral-500 block mb-2">Decision F1-Score</span>
           <div className="mono text-5xl sm:text-6xl font-bold text-emerald-400 my-2">
@@ -66,14 +66,14 @@ export default function Evaluation() {
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse">
               <thead>
-                <tr className="border-b border-white/[0.08] bg-white/[0.02]">
+                <tr className="border-b border-[rgba(225,29,72,0.3)] bg-white/[0.02]">
                   <th className="py-5 px-8 text-xs font-bold uppercase tracking-wider text-neutral-400">Metric</th>
                   <th className="py-5 px-8 text-xs font-bold uppercase tracking-wider text-emerald-400">SupplyPulse (Multi-Agent)</th>
                   <th className="py-5 px-8 text-xs font-bold uppercase tracking-wider text-neutral-400">Brintrup et al. Baseline</th>
                   <th className="py-5 px-8 text-xs font-bold uppercase tracking-wider text-white">Delta</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-white/[0.05]">
+              <tbody className="divide-y divide-[rgba(225,29,72,0.22)]">
                 {BENCHMARK_METRICS.map((row) => (
                   <tr key={row.name} className="hover:bg-white/[0.02] transition-colors">
                     <td className="py-5 px-8 text-sm font-semibold text-white">{row.name}</td>

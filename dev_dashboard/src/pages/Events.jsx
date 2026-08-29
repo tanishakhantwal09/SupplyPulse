@@ -37,7 +37,7 @@ export default function Events() {
       }
     >
       {/* ── 1. Search & Filter Controls ─────────────────────────────────── */}
-      <section className="mb-12 flex flex-wrap items-center justify-between gap-6 border-b border-white/[0.06] pb-8">
+      <section className="mb-12 flex flex-wrap items-center justify-between gap-6 border-b border-[rgba(225,29,72,0.25)] pb-8">
         {/* Search Bar */}
         <div className="relative w-full max-w-md">
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-500" />
@@ -46,7 +46,7 @@ export default function Events() {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search port, country, disruption type, or scenario ID…"
-            className="w-full rounded-xl bg-white/[0.03] border border-white/[0.07] pl-11 pr-5 py-3 text-xs sm:text-sm text-white placeholder:text-neutral-500 focus:border-white/[0.2] focus:outline-none transition-colors"
+            className="w-full bg-white/[0.03] border border-[rgba(225,29,72,0.3)] pl-11 pr-5 py-3 text-xs sm:text-sm text-white placeholder:text-neutral-500 focus:border-[rgba(225,29,72,0.7)] focus:outline-none transition-colors"
           />
         </div>
 
@@ -77,9 +77,10 @@ export default function Events() {
             <CredCard
               key={sc.scenario_id || idx}
               onClick={() => selectScenario(idx)}
+              cursorLabel="Load"
               className={`p-7 flex flex-col justify-between min-h-[280px] ${
                 isSelected
-                  ? 'bg-[#15151F] border-rose-500/60 shadow-[0_0_30px_rgba(225,29,72,0.2)]'
+                  ? 'bg-[rgba(225,29,72,0.08)] border-[rgba(225,29,72,0.7)]'
                   : ''
               }`}
             >
@@ -98,7 +99,7 @@ export default function Events() {
                   {sc.disruption_type?.replace(/_/g, ' ')}
                 </span>
 
-                <div className="grid grid-cols-2 gap-4 pt-4 border-t border-white/[0.06] text-xs text-neutral-400">
+                <div className="grid grid-cols-2 gap-4 pt-4 border-t border-[rgba(225,29,72,0.25)] text-xs text-neutral-400">
                   <div>
                     <span className="cred-label block text-[10px] text-neutral-500 mb-0.5">
                       Duration
@@ -118,7 +119,7 @@ export default function Events() {
                 </div>
               </div>
 
-              <div className="mt-6 pt-4 border-t border-white/[0.06] flex items-center justify-between">
+              <div className="mt-6 pt-4 border-t border-[rgba(225,29,72,0.25)] flex items-center justify-between">
                 {isSelected ? (
                   <span className="flex items-center gap-1.5 text-xs font-bold text-rose-400">
                     <CheckCircle2 className="h-4 w-4" /> Active Scenario

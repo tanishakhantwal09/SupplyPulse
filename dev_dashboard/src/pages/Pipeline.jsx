@@ -215,7 +215,7 @@ export default function PipelinePage() {
               <div className="text-xl sm:text-2xl font-black tracking-tight text-rose-500">
                 {pipelineResult?.decision || 'REROUTE'}
               </div>
-              <div className="border-l border-white/[0.08] pl-6">
+              <div className="border-l border-[rgba(225,29,72,0.3)] pl-6">
                 <div className="text-base sm:text-lg font-bold text-white tracking-tight">
                   {pipelineResult?.disrupted_port} ➔ {pipelineResult?.recommended_alternate_port}
                 </div>
@@ -262,18 +262,19 @@ export default function PipelinePage() {
               <button
                 key={node.id}
                 onClick={() => setActiveNode(node.id)}
-                className={`relative flex flex-col justify-between rounded-2xl p-5 text-left transition-all duration-200 cursor-pointer min-h-[140px] ${
+                data-cursor-label="Inspect"
+                className={`relative flex flex-col justify-between p-5 text-left transition-all duration-200 cursor-pointer min-h-[140px] ${
                   executing
-                    ? 'bg-rose-500/15 border border-rose-500/50'
+                    ? 'bg-[rgba(225,29,72,0.14)] border border-[rgba(225,29,72,0.7)]'
                     : isSelected
-                    ? 'bg-[#181822] border border-white/[0.25] shadow-2xl scale-[1.02]'
-                    : 'bg-[#0E0E13] border border-white/[0.07] hover:border-white/[0.15] hover:bg-[#121218]'
+                    ? 'bg-[#0C0C11] border border-[rgba(225,29,72,0.55)]'
+                    : 'bg-[#0A0A0D] border border-[rgba(225,29,72,0.25)] hover:border-[rgba(225,29,72,0.55)]'
                 }`}
               >
                 <div className="flex items-center justify-between mb-4">
-                  <div className={`flex h-9 w-9 items-center justify-center rounded-xl transition-colors ${
+                  <div className={`flex h-9 w-9 items-center justify-center transition-colors ${
                     isSelected || executing
-                      ? 'bg-rose-600 text-white shadow-md'
+                      ? 'bg-[#E11D48] text-white'
                       : 'bg-white/[0.06] text-neutral-400'
                   }`}>
                     <Icon className="h-4 w-4" />
@@ -310,7 +311,7 @@ export default function PipelinePage() {
           {/* Left Column: Node Schematic & System Prompt */}
           <div className="lg:col-span-7 flex flex-col gap-6">
             <CredCard elevated hover={false} className="p-8 sm:p-10">
-              <div className="flex items-start justify-between border-b border-white/[0.07] pb-6 mb-6">
+              <div className="flex items-start justify-between border-b border-[rgba(225,29,72,0.25)] pb-6 mb-6">
                 <div>
                   <span className="cred-label text-rose-400">{currentNode.type}</span>
                   <h3 className="cred-hero text-2xl font-bold text-white mt-1">
@@ -318,7 +319,7 @@ export default function PipelinePage() {
                   </h3>
                   <p className="mono text-xs text-neutral-400 mt-1">{currentNode.agentName}</p>
                 </div>
-                <span className="mono rounded-full bg-emerald-500/10 border border-emerald-500/25 px-3 py-1 text-[10px] font-bold text-emerald-400">
+                <span className="mono border border-emerald-500/30 bg-emerald-500/[0.07] px-3 py-1 text-[10px] font-bold text-emerald-400 uppercase tracking-wider">
                   ● ACTIVE NODE
                 </span>
               </div>
@@ -343,14 +344,14 @@ export default function PipelinePage() {
                   <FileCode2 className="h-4 w-4 text-rose-400" />
                   <span>System Prompt & Role Definition</span>
                 </div>
-                <pre className="mono max-h-60 overflow-y-auto whitespace-pre-wrap rounded-2xl bg-[#08080C] border border-white/[0.07] p-5 text-xs leading-relaxed text-neutral-300">
+                <pre className="mono max-h-60 overflow-y-auto whitespace-pre-wrap rounded-2xl bg-[#08080C] border border-[rgba(225,29,72,0.25)] p-5 text-xs leading-relaxed text-neutral-300">
                   {currentNode.systemPrompt}
                 </pre>
               </div>
 
               {/* Summary Callout */}
-              <div className="rounded-2xl bg-rose-500/10 border border-rose-500/25 px-6 py-4 text-xs text-neutral-300 leading-relaxed">
-                <b className="text-rose-400 font-bold">Node Output Summary: </b>
+              <div className="border border-[rgba(225,29,72,0.3)] bg-[rgba(225,29,72,0.07)] px-6 py-4 text-xs text-neutral-300 leading-relaxed">
+                <b className="text-[#E11D48] font-bold uppercase tracking-wider">Node Output Summary: </b>
                 <span>{currentNode.summary}</span>
               </div>
             </CredCard>

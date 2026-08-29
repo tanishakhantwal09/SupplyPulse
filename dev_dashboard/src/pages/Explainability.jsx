@@ -87,9 +87,9 @@ export default function Explainability() {
         {pillars.map((p) => (
           <CredCard key={p.title} elevated hover={false} className="p-8 flex flex-col justify-between">
             <div>
-              <div className="flex items-center justify-between border-b border-white/[0.06] pb-5 mb-6">
+              <div className="flex items-center justify-between border-b border-[rgba(225,29,72,0.25)] pb-5 mb-6">
                 <div className="flex items-center gap-3">
-                  <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-rose-500/10 text-rose-400">
+                  <div className="flex h-9 w-9 items-center justify-center bg-[rgba(225,29,72,0.12)] border border-[rgba(225,29,72,0.35)] text-[#E11D48]">
                     <p.icon className="h-4.5 w-4.5" />
                   </div>
                   <h3 className="text-base font-bold text-white tracking-tight">{p.title}</h3>
@@ -100,7 +100,7 @@ export default function Explainability() {
               </div>
 
               {/* Rows (Clean Dividers, No Nested Inset Boxes) */}
-              <div className="divide-y divide-white/[0.04] mb-6">
+              <div className="divide-y divide-[rgba(225,29,72,0.2)] mb-6">
                 {p.rows.map((row) => (
                   <div key={row.label} className="flex items-center justify-between gap-3 py-2.5 text-xs">
                     <span className="cred-label text-[10px] text-neutral-500">{row.label}</span>
@@ -113,8 +113,8 @@ export default function Explainability() {
             </div>
 
             {/* Formula & Explanatory Note */}
-            <div className="mt-4 pt-4 border-t border-white/[0.06] space-y-3">
-              <div className="mono text-[11px] text-rose-400 overflow-x-auto bg-black/40 p-3 rounded-lg border border-white/[0.04]">
+            <div className="mt-4 pt-4 border-t border-[rgba(225,29,72,0.25)] space-y-3">
+              <div className="mono text-[11px] text-[#E11D48] overflow-x-auto bg-black/40 p-3 border border-[rgba(225,29,72,0.2)]">
                 {p.formula}
               </div>
               <p className="text-xs text-neutral-400 leading-relaxed">

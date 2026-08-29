@@ -93,7 +93,7 @@ export default function StatePage() {
               >
                 <CredCard hover={false} className="h-full p-8 flex flex-col justify-between">
                   <div>
-                    <div className="flex items-center justify-between border-b border-white/[0.06] pb-5 mb-6">
+                    <div className="flex items-center justify-between border-b border-[rgba(225,29,72,0.25)] pb-5 mb-6">
                       <span className="cred-label text-rose-400">
                         {key.replace('_', ' ')}
                       </span>
@@ -108,7 +108,7 @@ export default function StatePage() {
                       )}
                     </div>
 
-                    <div className="divide-y divide-white/[0.04]">
+                    <div className="divide-y divide-[rgba(225,29,72,0.2)]">
                       {Object.entries(fields).map(([fKey, fVal]) => (
                         <div
                           key={fKey}

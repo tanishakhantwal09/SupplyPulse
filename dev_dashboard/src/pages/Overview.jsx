@@ -109,7 +109,7 @@ export default function Overview() {
       }
     >
       {/* ── 1. Active Scenario Context Strip (Borderless Open Grid) ────────── */}
-      <section className="mb-14 grid grid-cols-2 lg:grid-cols-4 gap-8 border-b border-white/[0.06] pb-10">
+      <section className="mb-14 grid grid-cols-2 lg:grid-cols-4 gap-8 border-b border-[rgba(225,29,72,0.25)] pb-10">
         <div>
           <span className="cred-label block mb-1.5 text-neutral-500">Target Seaport</span>
           <div className="text-xl font-bold text-white tracking-tight truncate">{targetPort}</div>
@@ -139,7 +139,7 @@ export default function Overview() {
       <section className="mb-16">
         <CredCard elevated hover={false} className="p-8 sm:p-12">
           {/* Top Status Header */}
-          <div className="flex flex-wrap items-center justify-between gap-4 border-b border-white/[0.06] pb-6 mb-8">
+          <div className="flex flex-wrap items-center justify-between gap-4 border-b border-[rgba(225,29,72,0.25)] pb-6 mb-8">
             <div className="flex items-center gap-3">
               <span className="flex items-center gap-2 text-xs font-semibold text-emerald-400">
                 <CheckCircle2 className="h-4 w-4" />
@@ -172,7 +172,7 @@ export default function Overview() {
             </div>
 
             {/* Right: Autonomous Directive (No nested boxes) */}
-            <div className="lg:col-span-6 border-t lg:border-t-0 lg:border-l border-white/[0.06] pt-8 lg:pt-0 lg:pl-12 flex flex-col gap-6">
+            <div className="lg:col-span-6 border-t lg:border-t-0 lg:border-l border-[rgba(225,29,72,0.25)] pt-8 lg:pt-0 lg:pl-12 flex flex-col gap-6">
               <div className="flex items-center justify-between">
                 <span className="cred-label text-neutral-500">Autonomous Recommendation</span>
                 <span className="mono text-xs text-rose-400 font-bold tracking-wider">
@@ -181,7 +181,7 @@ export default function Overview() {
               </div>
 
               <div className="flex items-start gap-4">
-                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-rose-500/10 text-rose-400">
+                <div className="flex h-11 w-11 shrink-0 items-center justify-center border border-[rgba(225,29,72,0.4)] bg-[rgba(225,29,72,0.1)] text-[#E11D48]">
                   <Navigation className="h-5 w-5" />
                 </div>
                 <div>
@@ -194,7 +194,7 @@ export default function Overview() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-6 pt-4 border-t border-white/[0.06]">
+              <div className="grid grid-cols-2 gap-6 pt-4 border-t border-[rgba(225,29,72,0.25)]">
                 <div>
                   <span className="cred-label block mb-1 text-neutral-500">Transit Delay</span>
                   <span className="mono text-lg font-bold text-white">+{additionalDays} Days</span>
@@ -208,7 +208,7 @@ export default function Overview() {
           </div>
 
           {/* Bottom KPI Bar */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-6 pt-8 mt-10 border-t border-white/[0.06]">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-6 pt-8 mt-10 border-t border-[rgba(225,29,72,0.25)]">
             <div>
               <span className="cred-label block mb-1.5 text-neutral-500">Response Latency</span>
               <span className="mono text-xl font-bold text-white">{responseTime}s</span>
@@ -256,6 +256,7 @@ export default function Overview() {
             <CredCard
               key={agent.step}
               onClick={() => navigate('/pipeline')}
+              cursorLabel="Inspect"
               className="p-6 flex flex-col justify-between min-h-[250px]"
             >
               <div>
@@ -267,12 +268,12 @@ export default function Overview() {
                 </div>
                 <h3 className="text-base font-bold text-white mb-0.5">{agent.name}</h3>
                 <span className="text-xs text-neutral-400 block mb-3.5">{agent.role}</span>
-                <p className="text-xs text-neutral-400 leading-relaxed border-t border-white/[0.05] pt-3">
+                <p className="text-xs text-neutral-400 leading-relaxed border-t border-[rgba(225,29,72,0.22)] pt-3">
                   {agent.detail}
                 </p>
               </div>
 
-              <div className="mt-5 pt-3 border-t border-white/[0.05] flex items-center justify-between text-xs">
+              <div className="mt-5 pt-3 border-t border-[rgba(225,29,72,0.22)] flex items-center justify-between text-xs">
                 <span className="font-semibold text-neutral-300 truncate">{agent.status}</span>
                 <Sparkles className="h-3.5 w-3.5 text-rose-400 shrink-0 ml-1.5" />
               </div>
@@ -282,7 +283,7 @@ export default function Overview() {
       </section>
 
       {/* ── 4. Seaport Contingency Routing ───────────────────────────────── */}
-      <section className="mb-12 border-t border-white/[0.06] pt-10">
+      <section className="mb-12 border-t border-[rgba(225,29,72,0.25)] pt-10">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-center">
           <div>
             <span className="cred-label block mb-1.5 text-neutral-500">Disrupted Seaport</span>

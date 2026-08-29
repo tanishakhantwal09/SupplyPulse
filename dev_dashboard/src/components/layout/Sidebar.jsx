@@ -10,7 +10,7 @@ const NAV_SECTIONS = [
   {
     title: 'operations',
     items: [
-      { to: '/', label: 'overview', icon: LayoutGrid, end: true },
+      { to: '/app', label: 'overview', icon: LayoutGrid, end: true },
       { to: '/pipeline', label: 'pipeline', icon: Workflow },
       { to: '/events', label: 'signals', icon: Radio }
     ]

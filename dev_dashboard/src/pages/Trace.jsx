@@ -94,10 +94,11 @@ export default function Trace() {
                 <button
                   key={step.id}
                   onClick={() => setSelectedTraceStep(step.id)}
-                  className={`w-full flex items-center justify-between gap-4 rounded-xl p-4 text-left transition-all duration-150 cursor-pointer ${
+                  data-cursor-label="Inspect"
+                  className={`w-full flex items-center justify-between gap-4 p-4 text-left transition-all duration-150 cursor-pointer border ${
                     isSelected
-                      ? 'bg-rose-500/15 text-white'
-                      : 'bg-white/[0.02] hover:bg-white/[0.04]'
+                      ? 'bg-[rgba(225,29,72,0.12)] border-[rgba(225,29,72,0.5)] text-white'
+                      : 'bg-transparent border-transparent hover:bg-white/[0.03] hover:border-[rgba(225,29,72,0.25)]'
                   }`}
                 >
                   <div className="flex w-52 shrink-0 items-center gap-3">
@@ -105,12 +106,12 @@ export default function Trace() {
                     <span className="text-xs sm:text-sm font-bold text-white truncate">{step.agent}</span>
                   </div>
 
-                  <div className="relative mx-3 h-2 flex-1 overflow-hidden rounded-full bg-black/40">
+                  <div className="relative mx-3 h-2 flex-1 overflow-hidden bg-black/40">
                     <motion.div
                       initial={{ width: 0 }}
                       animate={{ width: `${Math.max(18, (parseFloat(step.latency) / 3.42) * 100)}%` }}
                       transition={{ delay: 0.1 + idx * 0.05, duration: 0.6 }}
-                      className={`h-full rounded-full ${BAR_SHADES[idx]}`}
+                      className={`h-full ${BAR_SHADES[idx]}`}
                       style={{ marginLeft: `${(step.timeMs / 3420) * 70}%` }}
                     />
                   </div>
@@ -138,10 +139,10 @@ export default function Trace() {
               <button
                 key={step.id}
                 onClick={() => setSelectedTraceStep(step.id)}
-                className={`w-full flex items-center justify-between rounded-xl p-3.5 text-left transition-all cursor-pointer ${
+                className={`w-full flex items-center justify-between p-3.5 text-left transition-all cursor-pointer border ${
                   selectedTraceStep === step.id
-                    ? 'bg-rose-500/15 border border-rose-500/40 text-white font-semibold'
-                    : 'text-neutral-400 hover:bg-white/[0.04] hover:text-white'
+                    ? 'bg-[rgba(225,29,72,0.12)] border-[rgba(225,29,72,0.5)] text-white font-semibold'
+                    : 'text-neutral-400 border-transparent hover:bg-white/[0.04] hover:text-white'
                 }`}
               >
                 <div>

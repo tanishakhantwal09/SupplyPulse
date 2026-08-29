@@ -47,6 +47,7 @@ export function CredCard({
   hover = true,
   elevated = false,
   crimson = false,
+  cursorLabel,
   onClick
 }) {
   const baseClass = crimson
@@ -60,6 +61,7 @@ export function CredCard({
   return (
     <div
       onClick={onClick}
+      data-cursor-label={cursorLabel}
       className={`relative overflow-hidden ${baseClass} ${hoverClass} ${className}`}
     >
       {children}
@@ -70,7 +72,7 @@ export function CredCard({
 // Alias for backward compatibility across legacy imports
 export const Panel = CredCard;
 
-/* ── Severity & Status Badges (Tasteful & Minimal Typography) ──────────────── */
+/* ── Severity & Status Badges (pulsr bracket style) ───────────────────── */
 export function SeverityBadge({ severity, className = '' }) {
   const s = (severity || 'NORMAL').toUpperCase();
 
@@ -85,9 +87,11 @@ export function SeverityBadge({ severity, className = '' }) {
 
   return (
     <span
-      className={`inline-flex items-center text-[11px] font-bold tracking-wider uppercase ${textColor} ${className}`}
+      className={`inline-flex items-center gap-1.5 text-[11px] font-bold tracking-wider uppercase ${textColor} ${className}`}
     >
+      <span className="opacity-60">[</span>
       {s}
+      <span className="opacity-60">]</span>
     </span>
   );
 }
@@ -144,10 +148,10 @@ export function CredStat({
   );
 }
 
-/* ── Liquid Pill Segmented Control / Tabs ────────────────────────────────── */
+/* ── Segmented Control / Tabs (pulsr square hairline style) ────────────── */
 export function CredSegmentedTabs({ tabs, activeTab, onChange, className = '' }) {
   return (
-    <div className={`inline-flex items-center gap-1.5 rounded-full bg-[#0E0E13] p-1.5 border border-white/[0.08] shadow-inner ${className}`}>
+    <div className={`inline-flex items-stretch border border-[rgba(225,29,72,0.35)] ${className}`}>
       {tabs.map((tab) => {
         const active = activeTab === tab.id;
         const Icon = tab.icon;
@@ -155,7 +159,7 @@ export function CredSegmentedTabs({ tabs, activeTab, onChange, className = '' })
           <button
             key={tab.id}
             onClick={() => onChange(tab.id)}
-            className={`relative flex items-center gap-2 rounded-full px-5 py-2.5 text-xs font-semibold tracking-tight transition-colors duration-200 cursor-pointer ${
+            className={`relative flex items-center gap-2 px-5 py-2.5 text-[11px] font-semibold uppercase tracking-[0.1em] transition-colors duration-200 cursor-pointer ${
               active ? 'text-white' : 'text-neutral-400 hover:text-neutral-200'
             }`}
           >
@@ -163,13 +167,13 @@ export function CredSegmentedTabs({ tabs, activeTab, onChange, className = '' })
               <motion.span
                 layoutId="cred-active-tab-pill"
                 transition={{ type: 'spring', stiffness: 450, damping: 35 }}
-                className="absolute inset-0 rounded-full bg-white/[0.12] border border-white/[0.15] shadow-sm"
+                className="absolute inset-0 bg-[#E11D48]"
               />
             )}
-            {Icon && <Icon className={`relative z-10 h-3.5 w-3.5 ${active ? 'text-rose-400' : ''}`} />}
+            {Icon && <Icon className={`relative z-10 h-3.5 w-3.5 ${active ? 'text-white' : ''}`} />}
             <span className="relative z-10">{tab.label}</span>
             {tab.count !== undefined && (
-              <span className="mono relative z-10 text-[10px] text-neutral-400 font-normal">
+              <span className="mono relative z-10 text-[10px] font-normal opacity-70">
                 ({tab.count})
               </span>
             )}
@@ -180,7 +184,7 @@ export function CredSegmentedTabs({ tabs, activeTab, onChange, className = '' })
   );
 }
 
-/* ── Luxury JSON & State Code Viewer ─────────────────────────────────────── */
+/* ── JSON & State Code Viewer (pulsr hairline panel) ────────────────────── */
 export function JsonBlock({ data, title = '', maxH = 'max-h-[380px]' }) {
   const [copied, setCopied] = useState(false);
   const jsonStr = typeof data === 'string' ? data : JSON.stringify(data, null, 2);
@@ -192,13 +196,13 @@ export function JsonBlock({ data, title = '', maxH = 'max-h-[380px]' }) {
   };
 
   return (
-    <div className="overflow-hidden rounded-2xl border border-white/[0.08] bg-[#0A0A0E] shadow-2xl">
+    <div className="overflow-hidden border border-[rgba(225,29,72,0.28)] bg-[#0A0A0D]">
       {title && (
-        <div className="flex items-center justify-between border-b border-white/[0.06] bg-white/[0.02] px-5 py-3">
-          <span className="mono text-[11px] font-semibold tracking-wider uppercase text-neutral-400">{title}</span>
+        <div className="flex items-center justify-between border-b border-[rgba(225,29,72,0.2)] px-5 py-3">
+          <span className="pl-label text-[11px] font-semibold tracking-[0.14em] uppercase text-neutral-400">{title}</span>
           <button
             onClick={handleCopy}
-            className="flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-[11px] font-medium text-neutral-400 hover:bg-white/[0.08] hover:text-white transition-colors cursor-pointer"
+            className="flex items-center gap-1.5 px-2.5 py-1 text-[11px] font-medium uppercase tracking-wider text-neutral-400 transition-colors hover:text-[#E11D48] cursor-pointer"
           >
             {copied ? (
               <>
@@ -214,20 +218,21 @@ export function JsonBlock({ data, title = '', maxH = 'max-h-[380px]' }) {
           </button>
         </div>
       )}
-      <pre className={`mono overflow-auto p-5 text-[12px] leading-relaxed text-neutral-300 ${maxH}`}>
+      <pre data-lenis-prevent className={`mono overflow-auto p-5 text-[12px] leading-relaxed text-neutral-300 ${maxH}`}>
         <code>{jsonStr}</code>
       </pre>
     </div>
   );
 }
 
-/* ── Motion & Animation Wrappers ─────────────────────────────────────────── */
+/* ── Motion & Animation Wrappers (pulsr rise) ──────────────────────────── */
 export function RiseItem({ children, className = '', delay = 0 }) {
   return (
     <motion.div
-      initial={{ opacity: 0, y: 16 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.45, delay, ease: [0.16, 1, 0.3, 1] }}
+      initial={{ opacity: 0, y: 32 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: '-60px' }}
+      transition={{ duration: 0.7, delay, ease: [0.16, 1, 0.3, 1] }}
       className={className}
     >
       {children}
