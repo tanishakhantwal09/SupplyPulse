@@ -7,7 +7,7 @@ console = Console()
 
 print("Loading validation dataset...")
 df = pd.read_csv(
-    r'C:\Users\tanis\Desktop\Minor project\dataset\final\validation_set_REAL_ONLY.csv',
+    r'dataset/final/validation_set_REAL_ONLY.csv',
     low_memory=False
 )
 
