@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 @theme {
-  --font-sans: "Plus Jakarta Sans", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-sans: "Poppins", "Plus Jakarta Sans", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 
   --color-canvas: #070709;
@@ -27,6 +27,36 @@
   color-scheme: dark;
 }
 
+/* ── Lenis smooth scrolling ─────────────────────────────────────────────── */
+html.lenis, html.lenis body {
+  height: auto;
+}
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+.lenis.lenis-smooth [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+.lenis.lenis-stopped {
+  overflow: hidden;
+}
+.lenis.lenis-scrolling iframe {
+  pointer-events: none;
+}
+
+/* ── Custom cursor (fine pointers only) ─────────────────────────────────── */
+@media (hover: hover) and (pointer: fine) {
+  body.pl-custom-cursor,
+  body.pl-custom-cursor * {
+    cursor: none !important;
+  }
+  body.pl-custom-cursor input,
+  body.pl-custom-cursor textarea,
+  body.pl-custom-cursor select {
+    cursor: text !important;
+  }
+}
+
 html, body, #root {
   min-height: 100%;
   width: 100%;
@@ -42,7 +72,6 @@ body {
   overflow-x: hidden;
 }
 
-/* Subtle CRED Ambient Glow in Background */
 body::before {
   content: '';
   position: fixed;
@@ -61,7 +90,6 @@ body::before {
   color: #FFFFFF;
 }
 
-/* ── Refined Minimal Scrollbars ─────────────────────────────────────────── */
 ::-webkit-scrollbar {
   width: 5px;
   height: 5px;
@@ -77,32 +105,34 @@ body::before {
   background: rgba(255, 255, 255, 0.25);
 }
 
-/* ── Typography Utilities ──────────────────────────────────────────────── */
 .mono {
   font-family: var(--font-mono);
   font-feature-settings: "tnum" 1;
 }
 
+/* ── Pulsr-style display typography ─────────────────────────────────────── */
 .cred-title {
-  font-family: var(--font-sans);
+  font-family: 'Space Grotesk', var(--font-sans);
   font-weight: 700;
-  letter-spacing: -0.035em;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
   color: #FFFFFF;
 }
 
 .cred-hero {
-  font-family: var(--font-sans);
-  font-weight: 800;
-  letter-spacing: -0.045em;
-  color: #FFFFFF;
+  font-family: 'Space Grotesk', var(--font-sans);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
   line-height: 1.05;
+  color: #FFFFFF;
 }
 
 .cred-label {
   font-family: var(--font-sans);
   font-size: 11px;
   font-weight: 600;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
   color: #8E8A99;
 }
@@ -113,67 +143,58 @@ body::before {
   line-height: 1.6;
 }
 
-/* ── CRED Luxury Slabs & Cards ─────────────────────────────────────────── */
+/* ── Pulsr panels: hairline crimson borders, square corners ────────────── */
 .cred-slab {
-  background: #0E0E13;
-  border: 1px solid rgba(255, 255, 255, 0.07);
-  border-top: 1px solid rgba(255, 255, 255, 0.11);
-  border-radius: 20px;
-  box-shadow: 0 8px 30px -10px rgba(0, 0, 0, 0.7);
-  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  background: #0A0A0D;
+  border: 1px solid rgba(225, 29, 72, 0.26);
+  border-radius: 0;
+  transition: border-color 0.25s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.25s ease;
 }
 
 .cred-slab-hover:hover {
-  border-color: rgba(255, 255, 255, 0.16);
-  border-top-color: rgba(255, 255, 255, 0.25);
-  transform: translateY(-2px);
-  box-shadow: 0 16px 40px -12px rgba(0, 0, 0, 0.85);
+  border-color: rgba(225, 29, 72, 0.6);
+  background-color: #0C0C10;
 }
 
 .cred-slab-elevated {
-  background: #14141B;
-  border: 1px solid rgba(255, 255, 255, 0.09);
-  border-top: 1px solid rgba(255, 255, 255, 0.15);
-  border-radius: 24px;
-  box-shadow: 0 16px 45px -12px rgba(0, 0, 0, 0.85);
+  background: #0B0B0F;
+  border: 1px solid rgba(225, 29, 72, 0.38);
+  border-radius: 0;
 }
 
 .cred-slab-crimson {
-  background: linear-gradient(180deg, rgba(225, 29, 72, 0.08) 0%, rgba(14, 14, 19, 0.95) 100%);
-  border: 1px solid rgba(225, 29, 72, 0.3);
-  border-top: 1px solid rgba(225, 29, 72, 0.5);
-  border-radius: 20px;
-  box-shadow: 0 12px 35px -10px rgba(225, 29, 72, 0.25);
+  background: rgba(225, 29, 72, 0.07);
+  border: 1px solid rgba(225, 29, 72, 0.5);
+  border-radius: 0;
 }
 
 .cred-inset {
-  background: rgba(0, 0, 0, 0.45);
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  border-radius: 16px;
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(225, 29, 72, 0.18);
+  border-radius: 0;
 }
 
-/* ── CRED Buttons ──────────────────────────────────────────────────────── */
+/* ── Pulsr buttons: square, uppercase ───────────────────────────────────── */
 .cred-btn-primary {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
-  background: #FFFFFF;
-  color: #070709;
+  background: #F1EFF5;
+  color: #0A0A0C;
   font-weight: 600;
-  font-size: 13px;
-  padding: 10px 22px;
-  border-radius: 9999px;
-  box-shadow: 0 4px 16px rgba(255, 255, 255, 0.15);
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 10px 20px;
+  border-radius: 0;
   transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
   cursor: pointer;
   border: none;
   user-select: none;
 }
 .cred-btn-primary:hover:not(:disabled) {
-  background: #EBE8F0;
-  transform: translateY(-1px);
-  box-shadow: 0 6px 22px rgba(255, 255, 255, 0.22);
+  background: #FFFFFF;
 }
 .cred-btn-primary:active:not(:disabled) {
   transform: scale(0.98);
@@ -191,10 +212,11 @@ body::before {
   background: #E11D48;
   color: #FFFFFF;
   font-weight: 600;
-  font-size: 13px;
-  padding: 10px 22px;
-  border-radius: 9999px;
-  box-shadow: 0 4px 20px rgba(225, 29, 72, 0.4);
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 10px 20px;
+  border-radius: 0;
   transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
   cursor: pointer;
   border: none;
@@ -202,8 +224,6 @@ body::before {
 }
 .cred-btn-crimson:hover:not(:disabled) {
   background: #F43F5E;
-  transform: translateY(-1px);
-  box-shadow: 0 6px 26px rgba(225, 29, 72, 0.55);
 }
 .cred-btn-crimson:active:not(:disabled) {
   transform: scale(0.98);
@@ -218,22 +238,23 @@ body::before {
   align-items: center;
   justify-content: center;
   gap: 8px;
-  background: rgba(255, 255, 255, 0.05);
+  background: transparent;
   color: #E2DFE9;
   font-weight: 500;
-  font-size: 13px;
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
   padding: 10px 20px;
-  border-radius: 9999px;
-  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 0;
+  border: 1px solid rgba(225, 29, 72, 0.45);
   transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
   cursor: pointer;
   user-select: none;
 }
 .cred-btn-secondary:hover:not(:disabled) {
-  background: rgba(255, 255, 255, 0.09);
-  border-color: rgba(255, 255, 255, 0.18);
+  border-color: rgba(225, 29, 72, 0.9);
+  background: rgba(225, 29, 72, 0.08);
   color: #FFFFFF;
-  transform: translateY(-1px);
 }
 .cred-btn-secondary:active:not(:disabled) {
   transform: scale(0.98);

@@ -1,0 +1,177 @@
+/* ── SupplyPulse landing — pulsr.io design language, crimson palette ────── */
+
+.pl-page {
+  --pl-bg: #070709;
+  --pl-ink: #f1eff5;
+  --pl-muted: #9b96a5;
+  --pl-accent: #e11d48;
+  --pl-accent-soft: rgba(225, 29, 72, 0.3);
+  --pl-accent-faint: rgba(225, 29, 72, 0.12);
+  --pl-dark: #16090c;
+  font-family: 'Poppins', 'Plus Jakarta Sans', system-ui, sans-serif;
+  background: var(--pl-bg);
+  color: var(--pl-ink);
+}
+
+/* Typography roles (pulsr: Chillax / Mackay italic / Poppins / Fragment Mono) */
+.pl-display {
+  font-family: 'Space Grotesk', 'Plus Jakarta Sans', sans-serif;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+.pl-serif {
+  font-family: 'Instrument Serif', Georgia, serif;
+  font-style: italic;
+  font-weight: 400;
+  letter-spacing: 0;
+}
+.pl-label {
+  font-family: 'Poppins', sans-serif;
+  font-weight: 400;
+}
+.pl-mono {
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-feature-settings: 'tnum' 1;
+}
+
+/* Sliding underline link (pulsr CONTACT / nav links) */
+.pl-link {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+}
+.pl-link .pl-link-line {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -4px;
+  height: 1px;
+  background: currentColor;
+  transform: scaleX(0);
+  transform-origin: 100% 50%;
+  transition: transform 0.32s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.pl-link:hover .pl-link-line,
+.pl-link:focus-visible .pl-link-line {
+  transform: scaleX(1);
+}
+
+/* Bracketed CTA — [ LABEL ] with hover underline */
+.pl-bracket {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  text-decoration: none;
+  color: inherit;
+}
+.pl-bracket .pl-bracket-line {
+  position: absolute;
+  left: 19px;
+  right: 19px;
+  bottom: -6px;
+  height: 1px;
+  background: currentColor;
+  transform: scaleX(0);
+  transform-origin: 100% 50%;
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.pl-bracket:hover .pl-bracket-line,
+.pl-bracket:focus-visible .pl-bracket-line {
+  transform: scaleX(1);
+}
+.pl-bracket svg {
+  flex: none;
+}
+
+/* Slow rotation for star / dashed circle */
+.pl-spin {
+  animation: pl-spin 48s linear infinite;
+}
+.pl-spin-fast {
+  animation: pl-spin 22s linear infinite;
+}
+@keyframes pl-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Live pulsing dot */
+.pl-pulse {
+  position: relative;
+}
+.pl-pulse::after {
+  content: '';
+  position: absolute;
+  inset: -4px;
+  border-radius: 9999px;
+  border: 1px solid var(--pl-accent);
+  animation: pl-ping 1.8s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
+@keyframes pl-ping {
+  0% { transform: scale(0.6); opacity: 0.9; }
+  80%, 100% { transform: scale(1.8); opacity: 0; }
+}
+
+/* Console shimmer for the running agent row */
+.pl-shimmer {
+  background: linear-gradient(
+    90deg,
+    var(--pl-accent-faint) 0%,
+    rgba(225, 29, 72, 0.55) 50%,
+    var(--pl-accent-faint) 100%
+  );
+  background-size: 200% 100%;
+  animation: pl-shimmer 1.4s linear infinite;
+}
+@keyframes pl-shimmer {
+  to { background-position: -200% 0; }
+}
+
+/* Thin technical borders (pulsr rgba(195,237,161,.3) → crimson) */
+.pl-border-soft {
+  border-color: var(--pl-accent-soft);
+}
+
+/* Giant footer wordmark */
+.pl-wordmark {
+  font-family: 'Space Grotesk', 'Plus Jakarta Sans', sans-serif;
+  font-weight: 700;
+  letter-spacing: -0.04em;
+  text-transform: lowercase;
+  font-size: clamp(44px, 12.2vw, 214px);
+  line-height: 0.94;
+  user-select: none;
+}
+
+/* Footer email underline input */
+.pl-email {
+  background: transparent;
+  border: none;
+  border-bottom: 2.4px solid var(--pl-dark);
+  border-radius: 0;
+  outline: none;
+  color: var(--pl-dark);
+  font-family: 'Poppins', sans-serif;
+  font-weight: 500;
+  transition: border-color 0.2s ease;
+}
+.pl-email::placeholder {
+  color: var(--pl-dark);
+  opacity: 0.55;
+}
+.pl-email:focus {
+  border-bottom-color: #070709;
+}
+
+/* Reveal-on-scroll helper base */
+.pl-reveal {
+  will-change: transform, opacity;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pl-spin, .pl-spin-fast, .pl-shimmer, .pl-pulse::after {
+    animation: none;
+  }
+}
