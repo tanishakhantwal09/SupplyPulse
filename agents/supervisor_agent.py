@@ -12,7 +12,7 @@ console = Console()
 
 llm = ChatGroq(
     api_key=os.getenv("GROQ_API_KEY"),
-    model_name="llama-3.3-70b-versatile",
+    model_name="openai/gpt-oss-20b",
     temperature=0.1
 )
 
@@ -42,16 +42,22 @@ def supervisor_agent(disruption_event):
     route_info = get_route_info(route_ids)
     affected_commodities = json.loads(disruption_event['affected_commodities']) if isinstance(disruption_event['affected_commodities'], str) else disruption_event['affected_commodities']
 
-    system_prompt = """You are the Supervisor Agent of SupplyPulse, an autonomous supply chain disruption management system.
+    system_prompt = """You are the Supervisor Agent of SupplyPulse.
 
-Your role is to:
-1. Analyze incoming disruption events
-2. Assess the severity and impact
-3. Coordinate a response plan
-4. Delegate tasks to specialized agents
+You coordinate EXACTLY these 4 agents — no others:
+1. Route Optimization Agent
+2. Inventory Agent
+3. Financial Auditor Agent
+4. Supervisor Agent (yourself)
 
-Always respond in a structured, professional manner with clear action items.
-Be concise but comprehensive."""
+CRITICAL: NEVER mention any other agents. No Security Agent, Fleet Agent, Customs Agent, Legal Agent, Insurance Agent, Risk Agent, Communications Agent, or any others. Only the 4 listed above.
+
+Provide:
+1. SITUATION ASSESSMENT — what is happening and why it matters
+2. IMMEDIATE ACTIONS — operational steps in next 24 hours
+3. AGENT DELEGATION — list ONLY the 4 real agents above and their specific task
+4. REROUTING RECOMMENDATION — preliminary alternate port suggestion
+5. RISK LEVEL — overall risk rating"""
 
     user_prompt = f"""
 DISRUPTION EVENT DETECTED:

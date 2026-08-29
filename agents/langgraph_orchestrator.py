@@ -170,7 +170,7 @@ def build_graph():
 def run_supplypulse(event):
     console.print(Panel(
         "[bold white]SUPPLYPULSE — AUTONOMOUS SUPPLY CHAIN DISRUPTION RESPONSE SYSTEM[/bold white]\n"
-        "[dim]Multi-Agent LLM Framework | Powered by Groq Llama 3 | LangGraph Orchestration[/dim]",
+        "[dim]Multi-Agent LLM Framework | Powered by Groq LLM (GPT-OSS 120B) | LangGraph Orchestration[/dim]",
         border_style="white",
         padding=(1, 4)
     ))

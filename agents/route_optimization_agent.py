@@ -14,7 +14,7 @@ console = Console()
 
 llm = ChatGroq(
     api_key=os.getenv("GROQ_API_KEY"),
-    model_name="llama-3.3-70b-versatile",
+    model_name="openai/gpt-oss-20b",
     temperature=0.1
 )
 
@@ -68,9 +68,13 @@ def get_alternate_ports(disrupted_port_id, severity):
                 'commodities': alt_port.get('commodities', [])
             })
     
-    alternates.sort(key=lambda x: (
-        {'Low': 0, 'Medium': 1, 'High': 2}[x['risk_level']],
-        x['estimated_delay_days']
+            max_delay = max(a['estimated_delay_days'] for a in alternates) or 1
+    max_cost = max(a['estimated_cost_usd'] for a in alternates) or 1
+
+    alternates.sort(key=lambda alt: (
+        0.40 * {'Low': 0, 'Medium': 1, 'High': 2}[alt['risk_level']] +
+        0.35 * (alt['estimated_delay_days'] / max_delay) +
+        0.25 * (alt['estimated_cost_usd'] / max_cost)
     ))
     return alternates[:3]
 
