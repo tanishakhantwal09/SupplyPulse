@@ -1,0 +1,103 @@
+{
+  "metrics": {
+    "f1_rerouting": 0.9333333333333333,
+    "precision": 0.875,
+    "recall": 1.0,
+    "accuracy": 0.875,
+    "f1_financial_alert": 0.9333333333333333,
+    "plan_correctness": 0.625,
+    "avg_response_time_seconds": 26.37625,
+    "min_response_time_seconds": 5.66,
+    "max_response_time_seconds": 36.82,
+    "cost_per_analysis_usd": 0.0009
+  },
+  "comparison": {
+    "brintrup_2026_f1": "0.962-0.991",
+    "brintrup_2026_response_time_seconds": 229.8,
+    "brintrup_2026_cost_per_analysis": 0.0836,
+    "synapse_2026_plan_correctness": 0.71,
+    "synapse_2026_reasoning_quality": 0.77
+  },
+  "scenarios": [
+    {
+      "port": "Port of Mundra",
+      "severity": "critical",
+      "gt_reroute": true,
+      "pred_reroute": true,
+      "gt_alert": true,
+      "pred_alert": true,
+      "response_time": 5.66,
+      "confidence": "91%"
+    },
+    {
+      "port": "Port of Savannah",
+      "severity": "critical",
+      "gt_reroute": true,
+      "pred_reroute": true,
+      "gt_alert": true,
+      "pred_alert": true,
+      "response_time": 17.32,
+      "confidence": "91%"
+    },
+    {
+      "port": "Port of Houston",
+      "severity": "critical",
+      "gt_reroute": true,
+      "pred_reroute": true,
+      "gt_alert": true,
+      "pred_alert": true,
+      "response_time": 26.5,
+      "confidence": "91%"
+    },
+    {
+      "port": "Port of Savannah",
+      "severity": "critical",
+      "gt_reroute": true,
+      "pred_reroute": true,
+      "gt_alert": true,
+      "pred_alert": true,
+      "response_time": 33.47,
+      "confidence": "91%"
+    },
+    {
+      "port": "Port of Genoa",
+      "severity": "critical",
+      "gt_reroute": false,
+      "pred_reroute": true,
+      "gt_alert": true,
+      "pred_alert": true,
+      "response_time": 34.01,
+      "confidence": "91%"
+    },
+    {
+      "port": "Port of New York-New Jersey",
+      "severity": "critical",
+      "gt_reroute": true,
+      "pred_reroute": true,
+      "gt_alert": true,
+      "pred_alert": true,
+      "response_time": 24.96,
+      "confidence": "91%"
+    },
+    {
+      "port": "Port of New York-New Jersey",
+      "severity": "critical",
+      "gt_reroute": true,
+      "pred_reroute": true,
+      "gt_alert": false,
+      "pred_alert": true,
+      "response_time": 36.82,
+      "confidence": "91%"
+    },
+    {
+      "port": "Port Said",
+      "severity": "critical",
+      "gt_reroute": true,
+      "pred_reroute": true,
+      "gt_alert": true,
+      "pred_alert": true,
+      "response_time": 32.27,
+      "confidence": "91%"
+    }
+  ]
+}

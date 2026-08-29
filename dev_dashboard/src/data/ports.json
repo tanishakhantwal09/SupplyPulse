@@ -1,0 +1,1142 @@
+[
+  {
+    "port_id": "P001",
+    "name": "Port of Shanghai",
+    "country": "China",
+    "country_code": "CHN",
+    "lat": 31.2304,
+    "lon": 121.4737,
+    "region": "East Asia",
+    "annual_teu_millions": 47.3,
+    "port_type": "mega_hub",
+    "commodities": [
+      "electronics",
+      "textiles",
+      "machinery",
+      "consumer_goods",
+      "chemicals"
+    ],
+    "strategic_importance": "critical",
+    "alternate_ports": [
+      "P002",
+      "P004",
+      "P006"
+    ]
+  },
+  {
+    "port_id": "P002",
+    "name": "Port of Singapore",
+    "country": "Singapore",
+    "country_code": "SGP",
+    "lat": 1.2897,
+    "lon": 103.8501,
+    "region": "Southeast Asia",
+    "annual_teu_millions": 37.5,
+    "port_type": "mega_hub",
+    "commodities": [
+      "electronics",
+      "oil",
+      "chemicals",
+      "machinery",
+      "consumer_goods"
+    ],
+    "strategic_importance": "critical",
+    "alternate_ports": [
+      "P011",
+      "P012",
+      "P013"
+    ]
+  },
+  {
+    "port_id": "P003",
+    "name": "Port of Ningbo-Zhoushan",
+    "country": "China",
+    "country_code": "CHN",
+    "lat": 29.8683,
+    "lon": 121.544,
+    "region": "East Asia",
+    "annual_teu_millions": 33.4,
+    "port_type": "mega_hub",
+    "commodities": [
+      "electronics",
+      "machinery",
+      "chemicals",
+      "steel",
+      "textiles"
+    ],
+    "strategic_importance": "critical",
+    "alternate_ports": [
+      "P001",
+      "P004",
+      "P006"
+    ]
+  },
+  {
+    "port_id": "P004",
+    "name": "Port of Shenzhen",
+    "country": "China",
+    "country_code": "CHN",
+    "lat": 22.5431,
+    "lon": 114.0579,
+    "region": "East Asia",
+    "annual_teu_millions": 28.8,
+    "port_type": "mega_hub",
+    "commodities": [
+      "electronics",
+      "semiconductors",
+      "consumer_goods",
+      "textiles"
+    ],
+    "strategic_importance": "critical",
+    "alternate_ports": [
+      "P005",
+      "P001",
+      "P002"
+    ]
+  },
+  {
+    "port_id": "P005",
+    "name": "Port of Guangzhou",
+    "country": "China",
+    "country_code": "CHN",
+    "lat": 23.1291,
+    "lon": 113.2644,
+    "region": "East Asia",
+    "annual_teu_millions": 24.6,
+    "port_type": "major_hub",
+    "commodities": [
+      "consumer_goods",
+      "electronics",
+      "textiles",
+      "machinery"
+    ],
+    "strategic_importance": "high",
+    "alternate_ports": [
+      "P004",
+      "P001",
+      "P002"
+    ]
+  },
+  {
+    "port_id": "P006",
+    "name": "Port of Busan",
+    "country": "South Korea",
+    "country_code": "KOR",
+    "lat": 35.1796,
+    "lon": 129.0756,
+    "region": "East Asia",
+    "annual_teu_millions": 22.7,
+    "port_type": "mega_hub",
+    "commodities": [
+      "electronics",
+      "automobiles",
+      "steel",
+      "machinery",
+      "chemicals"
+    ],
+    "strategic_importance": "critical",
+    "alternate_ports": [
+      "P007",
+      "P001",
+      "P002"
+    ]
+  },
+  {
+    "port_id": "P007",
+    "name": "Port of Tokyo-Yokohama",
+    "country": "Japan",
+    "country_code": "JPN",
+    "lat": 35.4437,
+    "lon": 139.638,
+    "region": "East Asia",
+    "annual_teu_millions": 18.3,
+    "port_type": "major_hub",
+    "commodities": [
+      "automobiles",
+      "electronics",
+      "machinery",
+      "chemicals"
+    ],
+    "strategic_importance": "high",
+    "alternate_ports": [
+      "P008",
+      "P006",
+      "P002"
+    ]
+  },
+  {
+    "port_id": "P008",
+    "name": "Port of Osaka-Kobe",
+    "country": "Japan",
+    "country_code": "JPN",
+    "lat": 34.6937,
+    "lon": 135.5023,
+    "region": "East Asia",
+    "annual_teu_millions": 14.2,
+    "port_type": "major_hub",
+    "commodities": [
+      "automobiles",
+      "machinery",
+      "electronics",
+      "steel"
+    ],
+    "strategic_importance": "high",
+    "alternate_ports": [
+      "P007",
+      "P006",
+      "P002"
+    ]
+  },
+  {
+    "port_id": "P009",
+    "name": "Port of Tanjung Pelepas",
+    "country": "Malaysia",
+    "country_code": "MYS",
+    "lat": 1.3667,
+    "lon": 103.55,
+    "region": "Southeast Asia",
+    "annual_teu_millions": 11.0,
+    "port_type": "major_hub",
+    "commodities": [
+      "palm_oil",
+      "electronics",
+      "rubber",
+      "timber",
+      "consumer_goods"
+    ],
+    "strategic_importance": "high",
+    "alternate_ports": [
+      "P002",
+      "P010",
+      "P013"
+    ]
+  },
+  {
+    "port_id": "P010",
+    "name": "Port Klang",
+    "country": "Malaysia",
+    "country_code": "MYS",
+    "lat": 3.0,
+    "lon": 101.4,
+    "region": "Southeast Asia",
+    "annual_teu_millions": 13.7,
+    "port_type": "major_hub",
+    "commodities": [
+      "palm_oil",
+      "electronics",
+      "rubber",
+      "consumer_goods"
+    ],
+    "strategic_importance": "high",
+    "alternate_ports": [
+      "P002",
+      "P009",
+      "P013"
+    ]
+  },
+  {
+    "port_id": "P011",
+    "name": "Port of Ho Chi Minh",
+    "country": "Vietnam",
+    "country_code": "VNM",
+    "lat": 10.7769,
+    "lon": 106.7009,
+    "region": "Southeast Asia",
+    "annual_teu_millions": 8.1,
+    "port_type": "regional_hub",
+    "commodities": [
+      "textiles",
+      "electronics",
+      "footwear",
+      "furniture",
+      "agricultural"
+    ],
+    "strategic_importance": "medium",
+    "alternate_ports": [
+      "P002",
+      "P012",
+      "P010"
+    ]
+  },
+  {
+    "port_id": "P012",
+    "name": "Port of Laem Chabang",
+    "country": "Thailand",
+    "country_code": "THA",
+    "lat": 13.0783,
+    "lon": 100.88,
+    "region": "Southeast Asia",
+    "annual_teu_millions": 8.8,
+    "port_type": "regional_hub",
+    "commodities": [
+      "automobiles",
+      "electronics",
+      "agricultural",
+      "chemicals",
+      "textiles"
+    ],
+    "strategic_importance": "medium",
+    "alternate_ports": [
+      "P002",
+      "P010",
+      "P011"
+    ]
+  },
+  {
+    "port_id": "P013",
+    "name": "Port of Jakarta (Tanjung Priok)",
+    "country": "Indonesia",
+    "country_code": "IDN",
+    "lat": -6.1,
+    "lon": 106.88,
+    "region": "Southeast Asia",
+    "annual_teu_millions": 7.6,
+    "port_type": "regional_hub",
+    "commodities": [
+      "palm_oil",
+      "coal",
+      "agricultural",
+      "consumer_goods",
+      "textiles"
+    ],
+    "strategic_importance": "medium",
+    "alternate_ports": [
+      "P002",
+      "P010",
+      "P009"
+    ]
+  },
+  {
+    "port_id": "P014",
+    "name": "Port of Mumbai (JNPT)",
+    "country": "India",
+    "country_code": "IND",
+    "lat": 18.9322,
+    "lon": 72.9781,
+    "region": "South Asia",
+    "annual_teu_millions": 6.1,
+    "port_type": "major_hub",
+    "commodities": [
+      "textiles",
+      "pharmaceuticals",
+      "machinery",
+      "chemicals",
+      "agricultural"
+    ],
+    "strategic_importance": "high",
+    "alternate_ports": [
+      "P015",
+      "P016",
+      "P002"
+    ]
+  },
+  {
+    "port_id": "P015",
+    "name": "Port of Mundra",
+    "country": "India",
+    "country_code": "IND",
+    "lat": 22.8397,
+    "lon": 69.7103,
+    "region": "South Asia",
+    "annual_teu_millions": 6.8,
+    "port_type": "major_hub",
+    "commodities": [
+      "coal",
+      "fertilizers",
+      "agricultural",
+      "chemicals",
+      "consumer_goods"
+    ],
+    "strategic_importance": "high",
+    "alternate_ports": [
+      "P014",
+      "P016",
+      "P017"
+    ]
+  },
+  {
+    "port_id": "P016",
+    "name": "Port of Colombo",
+    "country": "Sri Lanka",
+    "country_code": "LKA",
+    "lat": 6.9271,
+    "lon": 79.8612,
+    "region": "South Asia",
+    "annual_teu_millions": 7.2,
+    "port_type": "major_hub",
+    "commodities": [
+      "textiles",
+      "tea",
+      "agricultural",
+      "consumer_goods",
+      "transshipment"
+    ],
+    "strategic_importance": "high",
+    "alternate_ports": [
+      "P014",
+      "P017",
+      "P002"
+    ]
+  },
+  {
+    "port_id": "P017",
+    "name": "Port of Jebel Ali (Dubai)",
+    "country": "UAE",
+    "country_code": "ARE",
+    "lat": 25.0118,
+    "lon": 55.0694,
+    "region": "Middle East",
+    "annual_teu_millions": 14.5,
+    "port_type": "mega_hub",
+    "commodities": [
+      "oil",
+      "consumer_goods",
+      "electronics",
+      "machinery",
+      "food"
+    ],
+    "strategic_importance": "critical",
+    "alternate_ports": [
+      "P018",
+      "P019",
+      "P016"
+    ]
+  },
+  {
+    "port_id": "P018",
+    "name": "Port of Salalah",
+    "country": "Oman",
+    "country_code": "OMN",
+    "lat": 16.97,
+    "lon": 54.0,
+    "region": "Middle East",
+    "annual_teu_millions": 4.4,
+    "port_type": "regional_hub",
+    "commodities": [
+      "oil",
+      "transshipment",
+      "consumer_goods",
+      "food"
+    ],
+    "strategic_importance": "medium",
+    "alternate_ports": [
+      "P017",
+      "P019",
+      "P016"
+    ]
+  },
+  {
+    "port_id": "P019",
+    "name": "Port of Jeddah",
+    "country": "Saudi Arabia",
+    "country_code": "SAU",
+    "lat": 21.5433,
+    "lon": 39.1728,
+    "region": "Middle East",
+    "annual_teu_millions": 5.7,
+    "port_type": "major_hub",
+    "commodities": [
+      "oil",
+      "petrochemicals",
+      "food",
+      "machinery",
+      "consumer_goods"
+    ],
+    "strategic_importance": "high",
+    "alternate_ports": [
+      "P017",
+      "P020",
+      "P018"
+    ]
+  },
+  {
+    "port_id": "P020",
+    "name": "Port Said",
+    "country": "Egypt",
+    "country_code": "EGY",
+    "lat": 31.2565,
+    "lon": 32.2841,
+    "region": "Middle East",
+    "annual_teu_millions": 4.6,
+    "port_type": "major_hub",
+    "commodities": [
+      "transshipment",
+      "consumer_goods",
+      "food",
+      "chemicals"
+    ],
+    "strategic_importance": "critical",
+    "alternate_ports": [
+      "P021",
+      "P019",
+      "P033"
+    ]
+  },
+  {
+    "port_id": "P021",
+    "name": "Port of Rotterdam",
+    "country": "Netherlands",
+    "country_code": "NLD",
+    "lat": 51.9244,
+    "lon": 4.4777,
+    "region": "Northern Europe",
+    "annual_teu_millions": 15.3,
+    "port_type": "mega_hub",
+    "commodities": [
+      "oil",
+      "chemicals",
+      "machinery",
+      "consumer_goods",
+      "agricultural",
+      "electronics"
+    ],
+    "strategic_importance": "critical",
+    "alternate_ports": [
+      "P022",
+      "P023",
+      "P024"
+    ]
+  },
+  {
+    "port_id": "P022",
+    "name": "Port of Antwerp-Bruges",
+    "country": "Belgium",
+    "country_code": "BEL",
+    "lat": 51.2993,
+    "lon": 4.3615,
+    "region": "Northern Europe",
+    "annual_teu_millions": 12.0,
+    "port_type": "mega_hub",
+    "commodities": [
+      "chemicals",
+      "consumer_goods",
+      "machinery",
+      "agricultural",
+      "electronics"
+    ],
+    "strategic_importance": "critical",
+    "alternate_ports": [
+      "P021",
+      "P023",
+      "P024"
+    ]
+  },
+  {
+    "port_id": "P023",
+    "name": "Port of Hamburg",
+    "country": "Germany",
+    "country_code": "DEU",
+    "lat": 53.5753,
+    "lon": 9.9835,
+    "region": "Northern Europe",
+    "annual_teu_millions": 8.7,
+    "port_type": "major_hub",
+    "commodities": [
+      "machinery",
+      "automobiles",
+      "chemicals",
+      "consumer_goods",
+      "electronics"
+    ],
+    "strategic_importance": "high",
+    "alternate_ports": [
+      "P021",
+      "P022",
+      "P024"
+    ]
+  },
+  {
+    "port_id": "P024",
+    "name": "Port of Felixstowe",
+    "country": "UK",
+    "country_code": "GBR",
+    "lat": 51.96,
+    "lon": 1.35,
+    "region": "Northern Europe",
+    "annual_teu_millions": 4.1,
+    "port_type": "major_hub",
+    "commodities": [
+      "consumer_goods",
+      "electronics",
+      "machinery",
+      "agricultural",
+      "chemicals"
+    ],
+    "strategic_importance": "high",
+    "alternate_ports": [
+      "P025",
+      "P021",
+      "P022"
+    ]
+  },
+  {
+    "port_id": "P025",
+    "name": "Port of Southampton",
+    "country": "UK",
+    "country_code": "GBR",
+    "lat": 50.9097,
+    "lon": -1.4044,
+    "region": "Northern Europe",
+    "annual_teu_millions": 2.1,
+    "port_type": "regional_hub",
+    "commodities": [
+      "consumer_goods",
+      "automobiles",
+      "machinery"
+    ],
+    "strategic_importance": "medium",
+    "alternate_ports": [
+      "P024",
+      "P021",
+      "P022"
+    ]
+  },
+  {
+    "port_id": "P026",
+    "name": "Port of Barcelona",
+    "country": "Spain",
+    "country_code": "ESP",
+    "lat": 41.3809,
+    "lon": 2.1228,
+    "region": "Southern Europe",
+    "annual_teu_millions": 3.6,
+    "port_type": "major_hub",
+    "commodities": [
+      "automobiles",
+      "consumer_goods",
+      "chemicals",
+      "agricultural",
+      "textiles"
+    ],
+    "strategic_importance": "high",
+    "alternate_ports": [
+      "P027",
+      "P028",
+      "P021"
+    ]
+  },
+  {
+    "port_id": "P027",
+    "name": "Port of Valencia",
+    "country": "Spain",
+    "country_code": "ESP",
+    "lat": 39.4561,
+    "lon": -0.3188,
+    "region": "Southern Europe",
+    "annual_teu_millions": 5.7,
+    "port_type": "major_hub",
+    "commodities": [
+      "agricultural",
+      "automobiles",
+      "consumer_goods",
+      "chemicals"
+    ],
+    "strategic_importance": "high",
+    "alternate_ports": [
+      "P026",
+      "P028",
+      "P021"
+    ]
+  },
+  {
+    "port_id": "P028",
+    "name": "Port of Genoa",
+    "country": "Italy",
+    "country_code": "ITA",
+    "lat": 44.4056,
+    "lon": 8.9463,
+    "region": "Southern Europe",
+    "annual_teu_millions": 2.6,
+    "port_type": "regional_hub",
+    "commodities": [
+      "consumer_goods",
+      "machinery",
+      "chemicals",
+      "agricultural"
+    ],
+    "strategic_importance": "medium",
+    "alternate_ports": [
+      "P026",
+      "P027",
+      "P021"
+    ]
+  },
+  {
+    "port_id": "P029",
+    "name": "Port of Los Angeles",
+    "country": "USA",
+    "country_code": "USA",
+    "lat": 33.7295,
+    "lon": -118.262,
+    "region": "North America West",
+    "annual_teu_millions": 10.7,
+    "port_type": "mega_hub",
+    "commodities": [
+      "consumer_goods",
+      "electronics",
+      "machinery",
+      "agricultural",
+      "automobiles"
+    ],
+    "strategic_importance": "critical",
+    "alternate_ports": [
+      "P030",
+      "P031",
+      "P032"
+    ]
+  },
+  {
+    "port_id": "P030",
+    "name": "Port of Long Beach",
+    "country": "USA",
+    "country_code": "USA",
+    "lat": 33.7543,
+    "lon": -118.2139,
+    "region": "North America West",
+    "annual_teu_millions": 9.1,
+    "port_type": "mega_hub",
+    "commodities": [
+      "consumer_goods",
+      "electronics",
+      "machinery",
+      "agricultural"
+    ],
+    "strategic_importance": "critical",
+    "alternate_ports": [
+      "P029",
+      "P031",
+      "P032"
+    ]
+  },
+  {
+    "port_id": "P031",
+    "name": "Port of Seattle-Tacoma",
+    "country": "USA",
+    "country_code": "USA",
+    "lat": 47.548,
+    "lon": -122.4302,
+    "region": "North America West",
+    "annual_teu_millions": 3.9,
+    "port_type": "major_hub",
+    "commodities": [
+      "agricultural",
+      "consumer_goods",
+      "machinery",
+      "electronics"
+    ],
+    "strategic_importance": "high",
+    "alternate_ports": [
+      "P029",
+      "P030",
+      "P032"
+    ]
+  },
+  {
+    "port_id": "P032",
+    "name": "Port of New York-New Jersey",
+    "country": "USA",
+    "country_code": "USA",
+    "lat": 40.684,
+    "lon": -74.044,
+    "region": "North America East",
+    "annual_teu_millions": 9.5,
+    "port_type": "mega_hub",
+    "commodities": [
+      "consumer_goods",
+      "chemicals",
+      "machinery",
+      "agricultural",
+      "pharmaceuticals"
+    ],
+    "strategic_importance": "critical",
+    "alternate_ports": [
+      "P033",
+      "P034",
+      "P029"
+    ]
+  },
+  {
+    "port_id": "P033",
+    "name": "Port of Savannah",
+    "country": "USA",
+    "country_code": "USA",
+    "lat": 32.0835,
+    "lon": -81.0998,
+    "region": "North America East",
+    "annual_teu_millions": 5.7,
+    "port_type": "major_hub",
+    "commodities": [
+      "consumer_goods",
+      "agricultural",
+      "machinery",
+      "chemicals"
+    ],
+    "strategic_importance": "high",
+    "alternate_ports": [
+      "P032",
+      "P034",
+      "P035"
+    ]
+  },
+  {
+    "port_id": "P034",
+    "name": "Port of Houston",
+    "country": "USA",
+    "country_code": "USA",
+    "lat": 29.7604,
+    "lon": -95.3698,
+    "region": "North America Gulf",
+    "annual_teu_millions": 3.8,
+    "port_type": "major_hub",
+    "commodities": [
+      "oil",
+      "petrochemicals",
+      "agricultural",
+      "machinery",
+      "consumer_goods"
+    ],
+    "strategic_importance": "high",
+    "alternate_ports": [
+      "P033",
+      "P035",
+      "P032"
+    ]
+  },
+  {
+    "port_id": "P035",
+    "name": "Port of Vancouver",
+    "country": "Canada",
+    "country_code": "CAN",
+    "lat": 49.2827,
+    "lon": -123.1207,
+    "region": "North America West",
+    "annual_teu_millions": 3.6,
+    "port_type": "major_hub",
+    "commodities": [
+      "agricultural",
+      "coal",
+      "consumer_goods",
+      "machinery",
+      "lumber"
+    ],
+    "strategic_importance": "high",
+    "alternate_ports": [
+      "P031",
+      "P029",
+      "P030"
+    ]
+  },
+  {
+    "port_id": "P036",
+    "name": "Port of Santos",
+    "country": "Brazil",
+    "country_code": "BRA",
+    "lat": -23.9618,
+    "lon": -46.3322,
+    "region": "South America",
+    "annual_teu_millions": 4.7,
+    "port_type": "major_hub",
+    "commodities": [
+      "agricultural",
+      "iron_ore",
+      "consumer_goods",
+      "chemicals",
+      "automobiles"
+    ],
+    "strategic_importance": "high",
+    "alternate_ports": [
+      "P037",
+      "P038"
+    ]
+  },
+  {
+    "port_id": "P037",
+    "name": "Port of Callao",
+    "country": "Peru",
+    "country_code": "PER",
+    "lat": -12.0464,
+    "lon": -77.1428,
+    "region": "South America",
+    "annual_teu_millions": 2.6,
+    "port_type": "regional_hub",
+    "commodities": [
+      "minerals",
+      "agricultural",
+      "consumer_goods",
+      "chemicals"
+    ],
+    "strategic_importance": "medium",
+    "alternate_ports": [
+      "P036",
+      "P038"
+    ]
+  },
+  {
+    "port_id": "P038",
+    "name": "Port of Colon",
+    "country": "Panama",
+    "country_code": "PAN",
+    "lat": 9.3647,
+    "lon": -79.901,
+    "region": "Central America",
+    "annual_teu_millions": 4.8,
+    "port_type": "major_hub",
+    "commodities": [
+      "transshipment",
+      "consumer_goods",
+      "agricultural",
+      "chemicals"
+    ],
+    "strategic_importance": "critical",
+    "alternate_ports": [
+      "P034",
+      "P036",
+      "P029"
+    ]
+  },
+  {
+    "port_id": "P039",
+    "name": "Port of Durban",
+    "country": "South Africa",
+    "country_code": "ZAF",
+    "lat": -29.8587,
+    "lon": 31.0218,
+    "region": "Southern Africa",
+    "annual_teu_millions": 2.9,
+    "port_type": "major_hub",
+    "commodities": [
+      "minerals",
+      "agricultural",
+      "consumer_goods",
+      "chemicals",
+      "automobiles"
+    ],
+    "strategic_importance": "high",
+    "alternate_ports": [
+      "P040",
+      "P041"
+    ]
+  },
+  {
+    "port_id": "P040",
+    "name": "Port of Cape Town",
+    "country": "South Africa",
+    "country_code": "ZAF",
+    "lat": -33.9249,
+    "lon": 18.4241,
+    "region": "Southern Africa",
+    "annual_teu_millions": 1.1,
+    "port_type": "regional_hub",
+    "commodities": [
+      "agricultural",
+      "minerals",
+      "consumer_goods"
+    ],
+    "strategic_importance": "high",
+    "alternate_ports": [
+      "P039",
+      "P041"
+    ]
+  },
+  {
+    "port_id": "P041",
+    "name": "Port of Lagos (Apapa)",
+    "country": "Nigeria",
+    "country_code": "NGA",
+    "lat": 6.453,
+    "lon": 3.3958,
+    "region": "West Africa",
+    "annual_teu_millions": 1.5,
+    "port_type": "regional_hub",
+    "commodities": [
+      "oil",
+      "consumer_goods",
+      "agricultural",
+      "chemicals"
+    ],
+    "strategic_importance": "medium",
+    "alternate_ports": [
+      "P039",
+      "P040"
+    ]
+  },
+  {
+    "port_id": "P042",
+    "name": "Port of Melbourne",
+    "country": "Australia",
+    "country_code": "AUS",
+    "lat": -37.8136,
+    "lon": 144.9631,
+    "region": "Oceania",
+    "annual_teu_millions": 3.0,
+    "port_type": "major_hub",
+    "commodities": [
+      "agricultural",
+      "minerals",
+      "consumer_goods",
+      "chemicals",
+      "machinery"
+    ],
+    "strategic_importance": "high",
+    "alternate_ports": [
+      "P043",
+      "P044"
+    ]
+  },
+  {
+    "port_id": "P043",
+    "name": "Port of Sydney (Botany)",
+    "country": "Australia",
+    "country_code": "AUS",
+    "lat": -33.95,
+    "lon": 151.19,
+    "region": "Oceania",
+    "annual_teu_millions": 2.7,
+    "port_type": "major_hub",
+    "commodities": [
+      "consumer_goods",
+      "agricultural",
+      "machinery",
+      "chemicals"
+    ],
+    "strategic_importance": "high",
+    "alternate_ports": [
+      "P042",
+      "P044"
+    ]
+  },
+  {
+    "port_id": "P044",
+    "name": "Port of Brisbane",
+    "country": "Australia",
+    "country_code": "AUS",
+    "lat": -27.3818,
+    "lon": 153.1175,
+    "region": "Oceania",
+    "annual_teu_millions": 1.4,
+    "port_type": "regional_hub",
+    "commodities": [
+      "agricultural",
+      "minerals",
+      "consumer_goods"
+    ],
+    "strategic_importance": "medium",
+    "alternate_ports": [
+      "P042",
+      "P043"
+    ]
+  },
+  {
+    "port_id": "P045",
+    "name": "Suez Canal (Northern Entry)",
+    "country": "Egypt",
+    "country_code": "EGY",
+    "lat": 31.2565,
+    "lon": 32.3211,
+    "region": "Middle East",
+    "annual_teu_millions": 0,
+    "port_type": "chokepoint",
+    "commodities": [
+      "all \u2014 Asia-Europe corridor"
+    ],
+    "strategic_importance": "critical",
+    "alternate_ports": [
+      "P046",
+      "P039",
+      "P040"
+    ]
+  },
+  {
+    "port_id": "P046",
+    "name": "Cape of Good Hope Route",
+    "country": "South Africa",
+    "country_code": "ZAF",
+    "lat": -34.3568,
+    "lon": 18.4741,
+    "region": "Southern Africa",
+    "annual_teu_millions": 0,
+    "port_type": "alternate_route",
+    "commodities": [
+      "all \u2014 Suez bypass"
+    ],
+    "strategic_importance": "critical",
+    "alternate_ports": [
+      "P039",
+      "P040"
+    ]
+  },
+  {
+    "port_id": "P047",
+    "name": "Strait of Malacca",
+    "country": "International",
+    "country_code": "INT",
+    "lat": 2.5,
+    "lon": 101.5,
+    "region": "Southeast Asia",
+    "annual_teu_millions": 0,
+    "port_type": "chokepoint",
+    "commodities": [
+      "all \u2014 Asia traffic"
+    ],
+    "strategic_importance": "critical",
+    "alternate_ports": [
+      "P048"
+    ]
+  },
+  {
+    "port_id": "P048",
+    "name": "Lombok Strait (Malacca bypass)",
+    "country": "Indonesia",
+    "country_code": "IDN",
+    "lat": -8.75,
+    "lon": 115.87,
+    "region": "Southeast Asia",
+    "annual_teu_millions": 0,
+    "port_type": "alternate_route",
+    "commodities": [
+      "all \u2014 Malacca bypass"
+    ],
+    "strategic_importance": "high",
+    "alternate_ports": [
+      "P002",
+      "P013"
+    ]
+  },
+  {
+    "port_id": "P049",
+    "name": "Panama Canal",
+    "country": "Panama",
+    "country_code": "PAN",
+    "lat": 9.08,
+    "lon": -79.68,
+    "region": "Central America",
+    "annual_teu_millions": 0,
+    "port_type": "chokepoint",
+    "commodities": [
+      "all \u2014 Americas traffic"
+    ],
+    "strategic_importance": "critical",
+    "alternate_ports": [
+      "P050"
+    ]
+  },
+  {
+    "port_id": "P050",
+    "name": "Cape Horn Route",
+    "country": "International",
+    "country_code": "INT",
+    "lat": -55.9833,
+    "lon": -67.2667,
+    "region": "South America",
+    "annual_teu_millions": 0,
+    "port_type": "alternate_route",
+    "commodities": [
+      "all \u2014 Panama bypass"
+    ],
+    "strategic_importance": "high",
+    "alternate_ports": [
+      "P036",
+      "P039"
+    ]
+  }
+]
