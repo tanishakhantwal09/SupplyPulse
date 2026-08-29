@@ -12,7 +12,8 @@ const REFERENCE_TRACE = [
 ];
 
 export default function Telemetry() {
-  const { pipelineResult } = useSupplyPulse();
+  const { pipelineResult, serverStatus } = useSupplyPulse();
+  const isOnline = serverStatus === 'online';
 
   const metrics = [
     { title: 'Last Run Latency', value: `${pipelineResult?.total_response_time_seconds ?? '3.42'}s`, note: 'Latest execution cycle', accent: 'text-rose-400', badge: 'Runtime' },
@@ -28,9 +29,23 @@ export default function Telemetry() {
       title="Runtime Observability &"
       accent="Vitals."
       sub="Health, response latency, token consumption, and agent node execution telemetry for the multi-agent decision pipeline."
+      right={
+        <div className="flex items-center gap-2.5">
+          <span className="mono text-[11px] font-semibold text-neutral-400 uppercase tracking-wider">
+            API Backend
+          </span>
+          <span className={`mono text-[10px] font-bold px-2 py-0.5 tracking-wider uppercase border ${
+            isOnline
+              ? 'border-emerald-500/40 bg-emerald-500/10 text-emerald-400'
+              : 'border-neutral-700 bg-neutral-900 text-neutral-400'
+          }`}>
+            {isOnline ? 'ONLINE' : 'OFFLINE'}
+          </span>
+        </div>
+      }
     >
       {/* ── 1. Vitals Metric Open Strip (No Redundant Boxed Cards) ─────── */}
-      <section className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-8 mb-16 border-b border-white/[0.06] pb-12">
+      <section className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-8 mb-16 border-b border-[rgba(225,29,72,0.25)] pb-12">
         {metrics.map((m) => (
           <div key={m.title} className="flex flex-col justify-between">
             <div className="flex items-center justify-between gap-2">
@@ -59,11 +74,11 @@ export default function Telemetry() {
         </div>
 
         <CredCard hover={false} className="p-8 sm:p-10">
-          <div className="divide-y divide-white/[0.05]">
+          <div className="divide-y divide-[rgba(225,29,72,0.22)]">
             {REFERENCE_TRACE.map((row, idx) => (
               <div
                 key={idx}
-                className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-6 items-center gap-4 py-4 text-xs transition-colors hover:bg-white/[0.02] px-3 rounded-lg"
+                className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-6 items-center gap-4 py-4 text-xs transition-colors hover:bg-white/[0.02] px-3"
               >
                 <span className="text-sm font-bold text-white md:col-span-2">{row.name}</span>
                 <span className="text-xs text-rose-400 font-semibold">{row.role}</span>

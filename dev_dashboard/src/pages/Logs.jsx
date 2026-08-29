@@ -16,7 +16,8 @@ const LOG_COLOR = (log) => {
 };
 
 export default function Logs() {
-  const { terminalLogs } = useSupplyPulse();
+  const { terminalLogs, serverStatus } = useSupplyPulse();
+  const isOnline = serverStatus === 'online';
   const [copied, setCopied] = useState(false);
   const endRef = useRef(null);
 
@@ -58,21 +59,30 @@ export default function Logs() {
       <section className="mb-16">
         <CredCard elevated hover={false} className="p-0 overflow-hidden">
           {/* Terminal Window Header */}
-          <div className="flex items-center justify-between border-b border-white/[0.08] bg-[#0A0A0E] px-6 py-4">
-            <span className="mono text-xs font-semibold text-neutral-400">
-              supplypulse@langgraph — session_stream.log
-            </span>
+          <div className="flex items-center justify-between border-b border-[rgba(225,29,72,0.3)] bg-[#0A0A0E] px-6 py-4">
+            <div className="flex items-center gap-3">
+              <span className="mono text-xs font-semibold text-neutral-300">
+                supplypulse@langgraph — session_stream.log
+              </span>
+              <span className={`mono text-[10px] font-bold px-2 py-0.5 tracking-wider uppercase border ${
+                isOnline
+                  ? 'border-emerald-500/40 bg-emerald-500/10 text-emerald-400'
+                  : 'border-neutral-700 bg-neutral-900 text-neutral-400'
+              }`}>
+                {isOnline ? 'ONLINE' : 'OFFLINE'}
+              </span>
+            </div>
             <span className="mono text-xs text-neutral-500 font-medium">
               {terminalLogs.length} events logged
             </span>
           </div>
 
           {/* Terminal Content */}
-          <div className="mono h-[58vh] overflow-y-auto bg-[#07070A] p-6 text-xs leading-relaxed">
+          <div data-lenis-prevent className="mono h-[58vh] overflow-y-auto bg-[#07070A] p-6 text-xs leading-relaxed">
             {terminalLogs.map((log, idx) => (
               <div
                 key={idx}
-                className={`flex gap-4 rounded-lg px-3 py-1 hover:bg-white/[0.03] transition-colors ${LOG_COLOR(log)}`}
+                className={`flex gap-4 px-3 py-1 hover:bg-white/[0.03] transition-colors ${LOG_COLOR(log)}`}
               >
                 <span className="w-8 shrink-0 select-none text-right text-neutral-600 font-normal">
                   {idx + 1}
