@@ -1,0 +1,328 @@
+{
+  "paper": "Brintrup 2026 \u2014 arXiv:2601.09680",
+  "methodology": "GDELT detection + supplier mapping + exposure assessment + mitigation",
+  "metrics": {
+    "f1_score": 0.8571428571428571,
+    "precision": 1.0,
+    "recall": 0.75,
+    "accuracy": 0.8333333333333334,
+    "avg_response_time_seconds": 0.0,
+    "cost_per_analysis_usd": 0.0009
+  },
+  "published_metrics": {
+    "f1_range": "0.962-0.991",
+    "response_time_seconds": 229.8,
+    "cost_per_analysis_usd": 0.0836,
+    "scenarios": "30 synthetic"
+  },
+  "gaps_vs_supplypulse": [
+    "No geographic routing with distance calculations",
+    "No alternate port recommendation",
+    "No financial cost breakdown",
+    "No inventory reallocation plan",
+    "No real-time response under 30 seconds",
+    "Validated on synthetic data only"
+  ],
+  "individual_results": [
+    {
+      "detected": true,
+      "severity": "critical",
+      "affected_node": "Port of Mundra",
+      "exposure_level": "HIGH",
+      "action": "ACTIVATE",
+      "recommendation": "Supply chain disruption detected at Port of Mundra",
+      "alternative_sourcing": "Identify alternative suppliers for: coal, fertilizers, agricultural",
+      "financial_impact": "Not calculated",
+      "routing_recommendation": "Not provided \u2014 outside Brintrup scope",
+      "inventory_plan": "Not provided \u2014 outside Brintrup scope",
+      "response_time_seconds": 0.0,
+      "system": "Brintrup 2026 Baseline"
+    },
+    {
+      "detected": true,
+      "severity": "critical",
+      "affected_node": "Port of Savannah",
+      "exposure_level": "HIGH",
+      "action": "ACTIVATE",
+      "recommendation": "Supply chain disruption detected at Port of Savannah",
+      "alternative_sourcing": "Identify alternative suppliers for: consumer_goods, agricultural, machinery",
+      "financial_impact": "Not calculated",
+      "routing_recommendation": "Not provided \u2014 outside Brintrup scope",
+      "inventory_plan": "Not provided \u2014 outside Brintrup scope",
+      "response_time_seconds": 0.0,
+      "system": "Brintrup 2026 Baseline"
+    },
+    {
+      "detected": true,
+      "severity": "critical",
+      "affected_node": "Port of Houston",
+      "exposure_level": "HIGH",
+      "action": "ACTIVATE",
+      "recommendation": "Supply chain disruption detected at Port of Houston",
+      "alternative_sourcing": "Identify alternative suppliers for: oil, petrochemicals, agricultural",
+      "financial_impact": "Not calculated",
+      "routing_recommendation": "Not provided \u2014 outside Brintrup scope",
+      "inventory_plan": "Not provided \u2014 outside Brintrup scope",
+      "response_time_seconds": 0.0,
+      "system": "Brintrup 2026 Baseline"
+    },
+    {
+      "detected": true,
+      "severity": "critical",
+      "affected_node": "Port of Savannah",
+      "exposure_level": "HIGH",
+      "action": "ACTIVATE",
+      "recommendation": "Supply chain disruption detected at Port of Savannah",
+      "alternative_sourcing": "Identify alternative suppliers for: consumer_goods, agricultural, machinery",
+      "financial_impact": "Not calculated",
+      "routing_recommendation": "Not provided \u2014 outside Brintrup scope",
+      "inventory_plan": "Not provided \u2014 outside Brintrup scope",
+      "response_time_seconds": 0.0,
+      "system": "Brintrup 2026 Baseline"
+    },
+    {
+      "detected": true,
+      "severity": "critical",
+      "affected_node": "Port of Genoa",
+      "exposure_level": "MEDIUM",
+      "action": "ACTIVATE",
+      "recommendation": "Supply chain disruption detected at Port of Genoa",
+      "alternative_sourcing": "Identify alternative suppliers for: consumer_goods, machinery, chemicals",
+      "financial_impact": "Not calculated",
+      "routing_recommendation": "Not provided \u2014 outside Brintrup scope",
+      "inventory_plan": "Not provided \u2014 outside Brintrup scope",
+      "response_time_seconds": 0.0,
+      "system": "Brintrup 2026 Baseline"
+    },
+    {
+      "detected": true,
+      "severity": "critical",
+      "affected_node": "Port of New York-New Jersey",
+      "exposure_level": "HIGH",
+      "action": "ACTIVATE",
+      "recommendation": "Supply chain disruption detected at Port of New York-New Jersey",
+      "alternative_sourcing": "Identify alternative suppliers for: consumer_goods, chemicals, machinery",
+      "financial_impact": "Not calculated",
+      "routing_recommendation": "Not provided \u2014 outside Brintrup scope",
+      "inventory_plan": "Not provided \u2014 outside Brintrup scope",
+      "response_time_seconds": 0.0,
+      "system": "Brintrup 2026 Baseline"
+    },
+    {
+      "detected": true,
+      "severity": "critical",
+      "affected_node": "Port of New York-New Jersey",
+      "exposure_level": "HIGH",
+      "action": "ACTIVATE",
+      "recommendation": "Supply chain disruption detected at Port of New York-New Jersey",
+      "alternative_sourcing": "Identify alternative suppliers for: consumer_goods, chemicals, machinery",
+      "financial_impact": "Not calculated",
+      "routing_recommendation": "Not provided \u2014 outside Brintrup scope",
+      "inventory_plan": "Not provided \u2014 outside Brintrup scope",
+      "response_time_seconds": 0.0,
+      "system": "Brintrup 2026 Baseline"
+    },
+    {
+      "detected": true,
+      "severity": "critical",
+      "affected_node": "Port of New York-New Jersey",
+      "exposure_level": "HIGH",
+      "action": "ACTIVATE",
+      "recommendation": "Supply chain disruption detected at Port of New York-New Jersey",
+      "alternative_sourcing": "Identify alternative suppliers for: consumer_goods, chemicals, machinery",
+      "financial_impact": "Not calculated",
+      "routing_recommendation": "Not provided \u2014 outside Brintrup scope",
+      "inventory_plan": "Not provided \u2014 outside Brintrup scope",
+      "response_time_seconds": 0.0,
+      "system": "Brintrup 2026 Baseline"
+    },
+    {
+      "detected": true,
+      "severity": "critical",
+      "affected_node": "Port Said",
+      "exposure_level": "HIGH",
+      "action": "ACTIVATE",
+      "recommendation": "Supply chain disruption detected at Port Said",
+      "alternative_sourcing": "Identify alternative suppliers for: transshipment, consumer_goods, food",
+      "financial_impact": "Not calculated",
+      "routing_recommendation": "Not provided \u2014 outside Brintrup scope",
+      "inventory_plan": "Not provided \u2014 outside Brintrup scope",
+      "response_time_seconds": 0.0,
+      "system": "Brintrup 2026 Baseline"
+    },
+    {
+      "detected": true,
+      "severity": "critical",
+      "affected_node": "Suez Canal (Northern Entry)",
+      "exposure_level": "HIGH",
+      "action": "ACTIVATE",
+      "recommendation": "Supply chain disruption detected at Suez Canal (Northern Entry)",
+      "alternative_sourcing": "Identify alternative suppliers for: all \u2014 Asia-Europe corridor",
+      "financial_impact": "Not calculated",
+      "routing_recommendation": "Not provided \u2014 outside Brintrup scope",
+      "inventory_plan": "Not provided \u2014 outside Brintrup scope",
+      "response_time_seconds": 0.0,
+      "system": "Brintrup 2026 Baseline"
+    },
+    {
+      "detected": false,
+      "action": "NO_ACTION",
+      "response_time_seconds": 0.0,
+      "system": "Brintrup 2026"
+    },
+    {
+      "detected": true,
+      "severity": "high",
+      "affected_node": "Port of New York-New Jersey",
+      "exposure_level": "HIGH",
+      "action": "ACTIVATE",
+      "recommendation": "Supply chain disruption detected at Port of New York-New Jersey",
+      "alternative_sourcing": "Identify alternative suppliers for: consumer_goods, chemicals, machinery",
+      "financial_impact": "Not calculated",
+      "routing_recommendation": "Not provided \u2014 outside Brintrup scope",
+      "inventory_plan": "Not provided \u2014 outside Brintrup scope",
+      "response_time_seconds": 0.0,
+      "system": "Brintrup 2026 Baseline"
+    },
+    {
+      "detected": true,
+      "severity": "high",
+      "affected_node": "Port of Colombo",
+      "exposure_level": "MEDIUM",
+      "action": "ACTIVATE",
+      "recommendation": "Supply chain disruption detected at Port of Colombo",
+      "alternative_sourcing": "Identify alternative suppliers for: textiles, tea, agricultural",
+      "financial_impact": "Not calculated",
+      "routing_recommendation": "Not provided \u2014 outside Brintrup scope",
+      "inventory_plan": "Not provided \u2014 outside Brintrup scope",
+      "response_time_seconds": 0.0,
+      "system": "Brintrup 2026 Baseline"
+    },
+    {
+      "detected": true,
+      "severity": "high",
+      "affected_node": "Port of New York-New Jersey",
+      "exposure_level": "HIGH",
+      "action": "ACTIVATE",
+      "recommendation": "Supply chain disruption detected at Port of New York-New Jersey",
+      "alternative_sourcing": "Identify alternative suppliers for: consumer_goods, chemicals, machinery",
+      "financial_impact": "Not calculated",
+      "routing_recommendation": "Not provided \u2014 outside Brintrup scope",
+      "inventory_plan": "Not provided \u2014 outside Brintrup scope",
+      "response_time_seconds": 0.0,
+      "system": "Brintrup 2026 Baseline"
+    },
+    {
+      "detected": false,
+      "action": "NO_ACTION",
+      "response_time_seconds": 0.0,
+      "system": "Brintrup 2026"
+    },
+    {
+      "detected": false,
+      "action": "NO_ACTION",
+      "response_time_seconds": 0.0,
+      "system": "Brintrup 2026"
+    },
+    {
+      "detected": true,
+      "severity": "high",
+      "affected_node": "Port of Jebel Ali (Dubai)",
+      "exposure_level": "HIGH",
+      "action": "ACTIVATE",
+      "recommendation": "Supply chain disruption detected at Port of Jebel Ali (Dubai)",
+      "alternative_sourcing": "Identify alternative suppliers for: oil, consumer_goods, electronics",
+      "financial_impact": "Not calculated",
+      "routing_recommendation": "Not provided \u2014 outside Brintrup scope",
+      "inventory_plan": "Not provided \u2014 outside Brintrup scope",
+      "response_time_seconds": 0.0,
+      "system": "Brintrup 2026 Baseline"
+    },
+    {
+      "detected": true,
+      "severity": "high",
+      "affected_node": "Port of Melbourne",
+      "exposure_level": "MEDIUM",
+      "action": "ACTIVATE",
+      "recommendation": "Supply chain disruption detected at Port of Melbourne",
+      "alternative_sourcing": "Identify alternative suppliers for: agricultural, minerals, consumer_goods",
+      "financial_impact": "Not calculated",
+      "routing_recommendation": "Not provided \u2014 outside Brintrup scope",
+      "inventory_plan": "Not provided \u2014 outside Brintrup scope",
+      "response_time_seconds": 0.0,
+      "system": "Brintrup 2026 Baseline"
+    },
+    {
+      "detected": false,
+      "action": "NO_ACTION",
+      "response_time_seconds": 0.0,
+      "system": "Brintrup 2026"
+    },
+    {
+      "detected": false,
+      "action": "NO_ACTION",
+      "response_time_seconds": 0.0,
+      "system": "Brintrup 2026"
+    },
+    {
+      "detected": false,
+      "action": "NO_ACTION",
+      "response_time_seconds": 0.0,
+      "system": "Brintrup 2026"
+    },
+    {
+      "detected": false,
+      "action": "NO_ACTION",
+      "response_time_seconds": 0.0,
+      "system": "Brintrup 2026"
+    },
+    {
+      "detected": false,
+      "action": "NO_ACTION",
+      "response_time_seconds": 0.0,
+      "system": "Brintrup 2026"
+    },
+    {
+      "detected": false,
+      "action": "NO_ACTION",
+      "response_time_seconds": 0.0,
+      "system": "Brintrup 2026"
+    },
+    {
+      "detected": false,
+      "action": "NO_ACTION",
+      "response_time_seconds": 0.0,
+      "system": "Brintrup 2026"
+    },
+    {
+      "detected": false,
+      "action": "NO_ACTION",
+      "response_time_seconds": 0.0,
+      "system": "Brintrup 2026"
+    },
+    {
+      "detected": false,
+      "action": "NO_ACTION",
+      "response_time_seconds": 0.0,
+      "system": "Brintrup 2026"
+    },
+    {
+      "detected": false,
+      "action": "NO_ACTION",
+      "response_time_seconds": 0.0,
+      "system": "Brintrup 2026"
+    },
+    {
+      "detected": false,
+      "action": "NO_ACTION",
+      "response_time_seconds": 0.0,
+      "system": "Brintrup 2026"
+    },
+    {
+      "detected": false,
+      "action": "NO_ACTION",
+      "response_time_seconds": 0.0,
+      "system": "Brintrup 2026"
+    }
+  ]
+}

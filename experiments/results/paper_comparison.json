@@ -1,0 +1,110 @@
+[
+  {
+    "paper_reference": "IEEE CASE 2022 \u2014 Port disruption scenario",
+    "paper_claimed": "Rule-based rerouting, no financial assessment, no LLM",
+    "supplypulse_result": {
+      "disrupted_port": "Suez Canal (Northern Entry)",
+      "severity": "CRITICAL",
+      "decision": "REROUTE",
+      "recommended_alternate_port": "Cape of Good Hope Route",
+      "alternate_port_country": "South Africa",
+      "distance_nm": 4016.5,
+      "additional_transit_days": 10.0,
+      "rerouting_cost_usd": 325336,
+      "total_financial_impact_usd": 20264935265.440002,
+      "financial_alert": true,
+      "top_priority_commodity": "Electronics and Semiconductors",
+      "inventory_exposure_usd": 76776400000,
+      "agents_activated": [
+        "supervisor",
+        "route_optimization",
+        "inventory",
+        "financial_auditor",
+        "supervisor_final"
+      ],
+      "total_response_time_seconds": 5.17,
+      "confidence": "91%"
+    }
+  },
+  {
+    "paper_reference": "Brintrup et al. 2026 \u2014 GDELT monitoring scenario",
+    "paper_claimed": "Disruption detection only, no rerouting or financial assessment",
+    "supplypulse_result": {
+      "disrupted_port": "Port of Jeddah",
+      "severity": "CRITICAL",
+      "decision": "REROUTE",
+      "recommended_alternate_port": "Port Said",
+      "alternate_port_country": "Egypt",
+      "distance_nm": 690.5,
+      "additional_transit_days": 1.7,
+      "rerouting_cost_usd": 55930,
+      "total_financial_impact_usd": 7878473620.0,
+      "financial_alert": true,
+      "top_priority_commodity": "Electronics and Semiconductors",
+      "inventory_exposure_usd": 41328000000,
+      "agents_activated": [
+        "supervisor",
+        "route_optimization",
+        "inventory",
+        "financial_auditor",
+        "supervisor_final"
+      ],
+      "total_response_time_seconds": 12.13,
+      "confidence": "91%"
+    }
+  },
+  {
+    "paper_reference": "IJPR 2025 \u2014 Supply chain consensus scenario",
+    "paper_claimed": "Consensus seeking between agents, no geographic routing",
+    "supplypulse_result": {
+      "disrupted_port": "Port of Rotterdam",
+      "severity": "HIGH",
+      "decision": "REROUTE",
+      "recommended_alternate_port": "Port of Antwerp-Bruges",
+      "alternate_port_country": "Belgium",
+      "distance_nm": 37.8,
+      "additional_transit_days": 0.1,
+      "rerouting_cost_usd": 2381,
+      "total_financial_impact_usd": 3054551440.4,
+      "financial_alert": true,
+      "top_priority_commodity": "Oil and Petrochemicals",
+      "inventory_exposure_usd": 19526400000,
+      "agents_activated": [
+        "supervisor",
+        "route_optimization",
+        "inventory",
+        "financial_auditor",
+        "supervisor_final"
+      ],
+      "total_response_time_seconds": 36.12,
+      "confidence": "82%"
+    }
+  },
+  {
+    "paper_reference": "Project Synapse 2026 \u2014 Last mile disruption",
+    "paper_claimed": "Last-mile only, no global shipping route optimization",
+    "supplypulse_result": {
+      "disrupted_port": "Port of Los Angeles",
+      "severity": "CRITICAL",
+      "decision": "REROUTE",
+      "recommended_alternate_port": "Port of Long Beach",
+      "alternate_port_country": "USA",
+      "distance_nm": 2.8,
+      "additional_transit_days": 0.0,
+      "rerouting_cost_usd": 227,
+      "total_financial_impact_usd": 3990505328.0,
+      "financial_alert": true,
+      "top_priority_commodity": "Electronics and Semiconductors",
+      "inventory_exposure_usd": 25856000000,
+      "agents_activated": [
+        "supervisor",
+        "route_optimization",
+        "inventory",
+        "financial_auditor",
+        "supervisor_final"
+      ],
+      "total_response_time_seconds": 26.03,
+      "confidence": "91%"
+    }
+  }
+]

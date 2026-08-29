@@ -1,0 +1,163 @@
+{
+  "metrics": {
+    "f1_rerouting": 0.9629629629629629,
+    "precision": 0.9285714285714286,
+    "recall": 1.0,
+    "accuracy": 0.9285714285714286,
+    "f1_financial_alert": 0.6666666666666666,
+    "plan_correctness": 0.6428571428571429,
+    "avg_response_time_seconds": 30.155,
+    "min_response_time_seconds": 5.54,
+    "max_response_time_seconds": 45.25,
+    "cost_per_analysis_usd": 0.0009
+  },
+  "comparison": {
+    "brintrup_2026_f1": "0.962-0.991",
+    "brintrup_2026_response_time_seconds": 229.8,
+    "brintrup_2026_cost_per_analysis": 0.0836,
+    "synapse_2026_plan_correctness": 0.71,
+    "synapse_2026_reasoning_quality": 0.77
+  },
+  "scenarios": [
+    {
+      "port": "Port of Mundra",
+      "severity": "critical",
+      "gt_reroute": true,
+      "pred_reroute": true,
+      "gt_alert": true,
+      "pred_alert": true,
+      "response_time": 5.54,
+      "confidence": "91%"
+    },
+    {
+      "port": "Port of Savannah",
+      "severity": "critical",
+      "gt_reroute": true,
+      "pred_reroute": true,
+      "gt_alert": true,
+      "pred_alert": true,
+      "response_time": 15.3,
+      "confidence": "91%"
+    },
+    {
+      "port": "Port of Houston",
+      "severity": "critical",
+      "gt_reroute": true,
+      "pred_reroute": true,
+      "gt_alert": true,
+      "pred_alert": true,
+      "response_time": 36.0,
+      "confidence": "91%"
+    },
+    {
+      "port": "Port of Savannah",
+      "severity": "critical",
+      "gt_reroute": true,
+      "pred_reroute": true,
+      "gt_alert": true,
+      "pred_alert": true,
+      "response_time": 28.74,
+      "confidence": "91%"
+    },
+    {
+      "port": "Port of Genoa",
+      "severity": "critical",
+      "gt_reroute": false,
+      "pred_reroute": true,
+      "gt_alert": true,
+      "pred_alert": true,
+      "response_time": 37.76,
+      "confidence": "91%"
+    },
+    {
+      "port": "Port of New York-New Jersey",
+      "severity": "critical",
+      "gt_reroute": true,
+      "pred_reroute": true,
+      "gt_alert": false,
+      "pred_alert": true,
+      "response_time": 35.06,
+      "confidence": "91%"
+    },
+    {
+      "port": "Port of New York-New Jersey",
+      "severity": "critical",
+      "gt_reroute": true,
+      "pred_reroute": true,
+      "gt_alert": true,
+      "pred_alert": true,
+      "response_time": 35.78,
+      "confidence": "91%"
+    },
+    {
+      "port": "Port Said",
+      "severity": "critical",
+      "gt_reroute": true,
+      "pred_reroute": true,
+      "gt_alert": true,
+      "pred_alert": true,
+      "response_time": 28.96,
+      "confidence": "91%"
+    },
+    {
+      "port": "Suez Canal (Northern Entry)",
+      "severity": "critical",
+      "gt_reroute": true,
+      "pred_reroute": true,
+      "gt_alert": false,
+      "pred_alert": true,
+      "response_time": 34.4,
+      "confidence": "91%"
+    },
+    {
+      "port": "Port of Long Beach",
+      "severity": "high",
+      "gt_reroute": true,
+      "pred_reroute": true,
+      "gt_alert": false,
+      "pred_alert": true,
+      "response_time": 45.25,
+      "confidence": "82%"
+    },
+    {
+      "port": "Port of New York-New Jersey",
+      "severity": "high",
+      "gt_reroute": true,
+      "pred_reroute": true,
+      "gt_alert": false,
+      "pred_alert": true,
+      "response_time": 33.92,
+      "confidence": "82%"
+    },
+    {
+      "port": "Port of Houston",
+      "severity": "high",
+      "gt_reroute": true,
+      "pred_reroute": true,
+      "gt_alert": false,
+      "pred_alert": true,
+      "response_time": 25.79,
+      "confidence": "82%"
+    },
+    {
+      "port": "Port of Jebel Ali (Dubai)",
+      "severity": "high",
+      "gt_reroute": true,
+      "pred_reroute": true,
+      "gt_alert": false,
+      "pred_alert": true,
+      "response_time": 39.08,
+      "confidence": "82%"
+    },
+    {
+      "port": "Port of Melbourne",
+      "severity": "high",
+      "gt_reroute": true,
+      "pred_reroute": true,
+      "gt_alert": false,
+      "pred_alert": true,
+      "response_time": 20.59,
+      "confidence": "82%"
+    }
+  ]
+}
