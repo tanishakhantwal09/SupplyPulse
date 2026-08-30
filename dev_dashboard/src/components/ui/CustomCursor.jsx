@@ -43,7 +43,8 @@ export default function CustomCursor() {
   const [enabled] = useState(
     () =>
       typeof window !== 'undefined' &&
-      window.matchMedia('(hover: hover) and (pointer: fine)').matches
+      window.matchMedia('(hover: hover) and (pointer: fine)').matches &&
+      !window.matchMedia('(any-hover: none)').matches
   );
   const [visible, setVisible] = useState(false);
   const [label, setLabel] = useState(null);
