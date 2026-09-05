@@ -1,3 +1,7 @@
+import sys
+import os
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+os.chdir(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import os
 import json
 import pandas as pd
@@ -13,7 +17,8 @@ console = Console()
 llm = ChatGroq(
     api_key=os.getenv("GROQ_API_KEY"),
     model_name="openai/gpt-oss-20b",
-    temperature=0.1
+    temperature=0.1,
+    max_tokens=600
 )
 
 with open("dataset/reference/ports.json") as f:
@@ -118,8 +123,8 @@ As Supervisor Agent, provide:
 
 def run_test():
     console.print("Loading validation dataset...")
-    df = pd.read_csv(
-        r'C:\Users\tanis\Desktop\Minor project\dataset\final\validation_set_REAL_ONLY.csv',
+    df = pd.read_parquet(
+        r'C:\Users\tanis\Desktop\Minor project\dataset\final\validation_set_REAL_ONLY.parquet',
         low_memory=False
     )
 

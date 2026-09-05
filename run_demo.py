@@ -6,9 +6,8 @@ from rich.rule import Rule
 console = Console()
 
 print("Loading validation dataset...")
-df = pd.read_csv(
-    r'dataset/final/validation_set_REAL_ONLY.csv',
-    low_memory=False
+df = pd.read_parquet(
+    r'dataset/final/validation_set_REAL_ONLY.parquet'
 )
 
 print(f"Total real validation events available: {len(df):,}\n")

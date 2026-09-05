@@ -1,16 +1,19 @@
 {
-  "disrupted_port": "Port of Melbourne",
-  "severity": "HIGH",
-  "decision": "REROUTE",
-  "recommended_alternate_port": "Port of Sydney (Botany)",
-  "alternate_port_country": "Australia",
-  "distance_nm": 381.4,
-  "additional_transit_days": 1.0,
-  "rerouting_cost_usd": 24028,
-  "total_financial_impact_usd": 1003432810.848,
+  "disrupted_port": "Port of Savannah",
+  "event_date": "2022-06-30",
+  "analysis_date": "2026-09-06 03:08 UTC",
+  "severity": "MEDIUM",
+  "decision": "MONITOR",
+  "recommended_alternate_port": "Port of New York-New Jersey",
+  "alternate_port_display": "Port of New York-New Jersey (preferred if escalation occurs)",
+  "alternate_port_country": "USA",
+  "distance_nm": 618.3,
+  "additional_transit_days": 1.5,
+  "rerouting_cost_usd": 33388,
+  "total_financial_impact_usd": 261275156.4672,
   "financial_alert": true,
   "top_priority_commodity": "Oil and Petrochemicals",
-  "inventory_exposure_usd": 4339200000,
+  "inventory_exposure_usd": 538080000,
   "agents_activated": [
     "supervisor",
     "route_optimization",
@@ -18,6 +21,6 @@
     "financial_auditor",
     "supervisor_final"
   ],
-  "total_response_time_seconds": 34.15,
+  "total_response_time_seconds": 26.09,
   "confidence": "71%"
 }

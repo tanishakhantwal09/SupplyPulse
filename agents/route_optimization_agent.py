@@ -1,3 +1,7 @@
+import sys
+import os
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+os.chdir(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import os
 import json
 import math
@@ -15,7 +19,8 @@ console = Console()
 llm = ChatGroq(
     api_key=os.getenv("GROQ_API_KEY"),
     model_name="openai/gpt-oss-20b",
-    temperature=0.1
+    temperature=0.1,
+    max_tokens=600
 )
 
 with open("dataset/reference/ports.json") as f:
