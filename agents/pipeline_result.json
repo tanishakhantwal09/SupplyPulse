@@ -1,7 +1,7 @@
 {
   "disrupted_port": "Port of Savannah",
   "event_date": "2022-06-30",
-  "analysis_date": "2026-09-06 03:08 UTC",
+  "analysis_date": "2026-09-06 03:23 UTC",
   "severity": "MEDIUM",
   "decision": "MONITOR",
   "recommended_alternate_port": "Port of New York-New Jersey",
@@ -10,7 +10,7 @@
   "distance_nm": 618.3,
   "additional_transit_days": 1.5,
   "rerouting_cost_usd": 33388,
-  "total_financial_impact_usd": 261275156.4672,
+  "total_financial_impact_usd": 261306135.6272,
   "financial_alert": true,
   "top_priority_commodity": "Oil and Petrochemicals",
   "inventory_exposure_usd": 538080000,
@@ -21,6 +21,6 @@
     "financial_auditor",
     "supervisor_final"
   ],
-  "total_response_time_seconds": 26.09,
+  "total_response_time_seconds": 22.39,
   "confidence": "71%"
 }

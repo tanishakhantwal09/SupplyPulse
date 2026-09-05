@@ -1,6 +1,6 @@
 {
   "metadata": {
-    "generated_at": "2026-09-06 03:08 UTC",
+    "generated_at": "2026-09-06 03:23 UTC",
     "event_id": "1051989942",
     "event_date": "2022-06-30",
     "disrupted_port": "Port of Savannah",
@@ -54,7 +54,7 @@
       "inventory_exposure_risk_usd": 80712000.0,
       "operational_costs_usd": 150000.0
     },
-    "total_usd": 261275156.4672,
+    "total_usd": 261306135.6272,
     "alert_triggered": true,
     "alert_threshold_usd": 10000000,
     "vessels_affected": 12,
@@ -101,7 +101,7 @@
   "decision_summary": {
     "final_decision": "MONITOR",
     "decision_basis": "Severity-based rule: REROUTE if severity is critical or high, MONITOR if medium or low",
-    "response_time_seconds": 26.09,
+    "response_time_seconds": 22.39,
     "target_met": true,
     "llm_confidence_label": "71%",
     "llm_confidence_note": "Model-generated estimate. Not statistically validated."
