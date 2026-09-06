@@ -1,14 +1,14 @@
 {
   "metrics": {
-    "f1_rerouting": 0.9333333333333333,
-    "precision": 0.875,
+    "f1_rerouting": 0.9743589743589743,
+    "precision": 0.95,
     "recall": 1.0,
-    "accuracy": 0.875,
-    "f1_financial_alert": 0.9333333333333333,
-    "plan_correctness": 0.625,
-    "avg_response_time_seconds": 26.37625,
-    "min_response_time_seconds": 5.66,
-    "max_response_time_seconds": 36.82,
+    "accuracy": 0.9666666666666667,
+    "f1_financial_alert": 0.3783783783783784,
+    "plan_correctness": 0.6333333333333333,
+    "avg_response_time_seconds": 21.155666666666665,
+    "min_response_time_seconds": 3.36,
+    "max_response_time_seconds": 24.19,
     "cost_per_analysis_usd": 0.0009
   },
   "comparison": {
@@ -26,7 +26,7 @@
       "pred_reroute": true,
       "gt_alert": true,
       "pred_alert": true,
-      "response_time": 5.66,
+      "response_time": 3.5,
       "confidence": "91%"
     },
     {
@@ -36,7 +36,7 @@
       "pred_reroute": true,
       "gt_alert": true,
       "pred_alert": true,
-      "response_time": 17.32,
+      "response_time": 3.52,
       "confidence": "91%"
     },
     {
@@ -46,7 +46,7 @@
       "pred_reroute": true,
       "gt_alert": true,
       "pred_alert": true,
-      "response_time": 26.5,
+      "response_time": 3.36,
       "confidence": "91%"
     },
     {
@@ -56,7 +56,7 @@
       "pred_reroute": true,
       "gt_alert": true,
       "pred_alert": true,
-      "response_time": 33.47,
+      "response_time": 23.34,
       "confidence": "91%"
     },
     {
@@ -66,17 +66,7 @@
       "pred_reroute": true,
       "gt_alert": true,
       "pred_alert": true,
-      "response_time": 34.01,
-      "confidence": "91%"
-    },
-    {
-      "port": "Port of New York-New Jersey",
-      "severity": "critical",
-      "gt_reroute": true,
-      "pred_reroute": true,
-      "gt_alert": true,
-      "pred_alert": true,
-      "response_time": 24.96,
+      "response_time": 22.79,
       "confidence": "91%"
     },
     {
@@ -86,7 +76,27 @@
       "pred_reroute": true,
       "gt_alert": false,
       "pred_alert": true,
-      "response_time": 36.82,
+      "response_time": 24.19,
+      "confidence": "91%"
+    },
+    {
+      "port": "Port of New York-New Jersey",
+      "severity": "critical",
+      "gt_reroute": true,
+      "pred_reroute": true,
+      "gt_alert": true,
+      "pred_alert": true,
+      "response_time": 23.0,
+      "confidence": "91%"
+    },
+    {
+      "port": "Port of New York-New Jersey",
+      "severity": "critical",
+      "gt_reroute": true,
+      "pred_reroute": true,
+      "gt_alert": false,
+      "pred_alert": true,
+      "response_time": 23.77,
       "confidence": "91%"
     },
     {
@@ -96,8 +106,218 @@
       "pred_reroute": true,
       "gt_alert": true,
       "pred_alert": true,
-      "response_time": 32.27,
+      "response_time": 24.17,
       "confidence": "91%"
+    },
+    {
+      "port": "Suez Canal (Northern Entry)",
+      "severity": "critical",
+      "gt_reroute": true,
+      "pred_reroute": true,
+      "gt_alert": false,
+      "pred_alert": true,
+      "response_time": 23.07,
+      "confidence": "91%"
+    },
+    {
+      "port": "Port of Long Beach",
+      "severity": "high",
+      "gt_reroute": true,
+      "pred_reroute": true,
+      "gt_alert": false,
+      "pred_alert": true,
+      "response_time": 23.09,
+      "confidence": "82%"
+    },
+    {
+      "port": "Port of New York-New Jersey",
+      "severity": "high",
+      "gt_reroute": true,
+      "pred_reroute": true,
+      "gt_alert": false,
+      "pred_alert": true,
+      "response_time": 23.16,
+      "confidence": "82%"
+    },
+    {
+      "port": "Port of Colombo",
+      "severity": "high",
+      "gt_reroute": true,
+      "pred_reroute": true,
+      "gt_alert": false,
+      "pred_alert": true,
+      "response_time": 23.12,
+      "confidence": "82%"
+    },
+    {
+      "port": "Port of New York-New Jersey",
+      "severity": "high",
+      "gt_reroute": true,
+      "pred_reroute": true,
+      "gt_alert": false,
+      "pred_alert": true,
+      "response_time": 23.86,
+      "confidence": "82%"
+    },
+    {
+      "port": "Port of Houston",
+      "severity": "high",
+      "gt_reroute": true,
+      "pred_reroute": true,
+      "gt_alert": false,
+      "pred_alert": true,
+      "response_time": 22.02,
+      "confidence": "82%"
+    },
+    {
+      "port": "Port of Jebel Ali (Dubai)",
+      "severity": "high",
+      "gt_reroute": true,
+      "pred_reroute": true,
+      "gt_alert": false,
+      "pred_alert": true,
+      "response_time": 23.97,
+      "confidence": "82%"
+    },
+    {
+      "port": "Port of Jebel Ali (Dubai)",
+      "severity": "high",
+      "gt_reroute": true,
+      "pred_reroute": true,
+      "gt_alert": false,
+      "pred_alert": true,
+      "response_time": 22.78,
+      "confidence": "82%"
+    },
+    {
+      "port": "Port of Melbourne",
+      "severity": "high",
+      "gt_reroute": true,
+      "pred_reroute": true,
+      "gt_alert": false,
+      "pred_alert": true,
+      "response_time": 21.59,
+      "confidence": "82%"
+    },
+    {
+      "port": "Port of Busan",
+      "severity": "high",
+      "gt_reroute": true,
+      "pred_reroute": true,
+      "gt_alert": false,
+      "pred_alert": true,
+      "response_time": 23.31,
+      "confidence": "82%"
+    },
+    {
+      "port": "Port of Mundra",
+      "severity": "high",
+      "gt_reroute": true,
+      "pred_reroute": true,
+      "gt_alert": false,
+      "pred_alert": true,
+      "response_time": 23.08,
+      "confidence": "82%"
+    },
+    {
+      "port": "Port of Jakarta (Tanjung Priok)",
+      "severity": "medium",
+      "gt_reroute": false,
+      "pred_reroute": false,
+      "gt_alert": false,
+      "pred_alert": true,
+      "response_time": 23.18,
+      "confidence": "71%"
+    },
+    {
+      "port": "Port of Savannah",
+      "severity": "medium",
+      "gt_reroute": false,
+      "pred_reroute": false,
+      "gt_alert": false,
+      "pred_alert": true,
+      "response_time": 22.53,
+      "confidence": "71%"
+    },
+    {
+      "port": "Port of Savannah",
+      "severity": "medium",
+      "gt_reroute": false,
+      "pred_reroute": false,
+      "gt_alert": false,
+      "pred_alert": true,
+      "response_time": 23.21,
+      "confidence": "71%"
+    },
+    {
+      "port": "Port of New York-New Jersey",
+      "severity": "medium",
+      "gt_reroute": false,
+      "pred_reroute": false,
+      "gt_alert": false,
+      "pred_alert": true,
+      "response_time": 22.42,
+      "confidence": "71%"
+    },
+    {
+      "port": "Port of Savannah",
+      "severity": "medium",
+      "gt_reroute": false,
+      "pred_reroute": false,
+      "gt_alert": false,
+      "pred_alert": true,
+      "response_time": 22.92,
+      "confidence": "71%"
+    },
+    {
+      "port": "Port of Lagos (Apapa)",
+      "severity": "medium",
+      "gt_reroute": false,
+      "pred_reroute": false,
+      "gt_alert": false,
+      "pred_alert": true,
+      "response_time": 23.15,
+      "confidence": "71%"
+    },
+    {
+      "port": "Port of New York-New Jersey",
+      "severity": "medium",
+      "gt_reroute": false,
+      "pred_reroute": false,
+      "gt_alert": false,
+      "pred_alert": true,
+      "response_time": 22.77,
+      "confidence": "71%"
+    },
+    {
+      "port": "Port of New York-New Jersey",
+      "severity": "medium",
+      "gt_reroute": false,
+      "pred_reroute": false,
+      "gt_alert": false,
+      "pred_alert": true,
+      "response_time": 23.02,
+      "confidence": "71%"
+    },
+    {
+      "port": "Port of Shanghai",
+      "severity": "medium",
+      "gt_reroute": false,
+      "pred_reroute": false,
+      "gt_alert": false,
+      "pred_alert": true,
+      "response_time": 23.23,
+      "confidence": "71%"
+    },
+    {
+      "port": "Port Klang",
+      "severity": "medium",
+      "gt_reroute": false,
+      "pred_reroute": false,
+      "gt_alert": false,
+      "pred_alert": true,
+      "response_time": 23.55,
+      "confidence": "71%"
     }
   ]
 }

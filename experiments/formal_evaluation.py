@@ -13,8 +13,7 @@ os.makedirs("experiments/results", exist_ok=True)
 
 # Load validation data
 df = pd.read_parquet(
-    r'C:\Users\tanis\Desktop\Minor project\dataset\final\validation_set_REAL_ONLY.parquet',
-    low_memory=False
+    r'dataset/final/validation_set_REAL_ONLY.parquet'
 )
 
 # Sample 30 events matching Brintrup's 30 scenario evaluation
