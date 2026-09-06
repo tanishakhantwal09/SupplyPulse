@@ -1,6 +1,6 @@
 {
   "metadata": {
-    "generated_at": "2026-09-06 03:23 UTC",
+    "generated_at": "2026-09-06 18:26 UTC",
     "event_id": "1051989942",
     "event_date": "2022-06-30",
     "disrupted_port": "Port of Savannah",
@@ -69,28 +69,28 @@
         "sensitivity": "critical",
         "priority_tier": "P1",
         "containers": 0,
-        "exposure_usd": 0
+        "exposure_usd": 259200000
       },
       {
         "commodity": "Agricultural Products and Food",
         "sensitivity": "critical",
         "priority_tier": "P1",
         "containers": 0,
-        "exposure_usd": 0
+        "exposure_usd": 60480000
       },
       {
         "commodity": "Automobiles and Auto Parts",
         "sensitivity": "high",
         "priority_tier": "P2",
         "containers": 0,
-        "exposure_usd": 0
+        "exposure_usd": 92400000
       },
       {
         "commodity": "Machinery and Industrial Equipment",
         "sensitivity": "high",
         "priority_tier": "P2",
         "containers": 0,
-        "exposure_usd": 0
+        "exposure_usd": 126000000
       }
     ],
     "total_exposure_usd": 538080000,
@@ -101,7 +101,7 @@
   "decision_summary": {
     "final_decision": "MONITOR",
     "decision_basis": "Severity-based rule: REROUTE if severity is critical or high, MONITOR if medium or low",
-    "response_time_seconds": 22.39,
+    "response_time_seconds": 3.54,
     "target_met": true,
     "llm_confidence_label": "71%",
     "llm_confidence_note": "Model-generated estimate. Not statistically validated."

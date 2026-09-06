@@ -2,8 +2,9 @@ import sys
 import os
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 os.chdir(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-import os
+
 import json
+import time
 import pandas as pd
 from dotenv import load_dotenv
 from langchain_groq import ChatGroq
@@ -18,7 +19,7 @@ llm = ChatGroq(
     api_key=os.getenv("GROQ_API_KEY"),
     model_name="openai/gpt-oss-20b",
     temperature=0.1,
-    max_tokens=600
+    max_tokens=400
 )
 
 with open("dataset/reference/ports.json") as f:
@@ -41,6 +42,19 @@ def get_route_info(route_ids):
             affected.append(route)
     return affected
 
+# ── Gap 3: Retry with backoff ─────────────────────────────────────────────────
+def invoke_with_retry(llm, messages, max_retries=3):
+    for attempt in range(max_retries):
+        try:
+            return llm.invoke(messages)
+        except Exception as e:
+            if '429' in str(e) and attempt < max_retries - 1:
+                wait = 60 * (attempt + 1)
+                console.print(f"  [yellow]Rate limit hit — waiting {wait}s before retry {attempt+2}/{max_retries}...[/yellow]")
+                time.sleep(wait)
+            else:
+                raise e
+
 def supervisor_agent(disruption_event):
     port_info = get_port_info(disruption_event['nearest_port_name'])
     route_ids = json.loads(disruption_event['affected_routes']) if isinstance(disruption_event['affected_routes'], str) else disruption_event['affected_routes']
@@ -48,25 +62,18 @@ def supervisor_agent(disruption_event):
     affected_commodities = json.loads(disruption_event['affected_commodities']) if isinstance(disruption_event['affected_commodities'], str) else disruption_event['affected_commodities']
 
     system_prompt = """You are the Supervisor Agent of SupplyPulse.
-
-You coordinate EXACTLY these 4 agents — no others:
-1. Route Optimization Agent
-2. Inventory Agent
-3. Financial Auditor Agent
-4. Supervisor Agent (yourself)
-
-CRITICAL: NEVER mention any other agents. No Security Agent, Fleet Agent, Customs Agent, Legal Agent, Insurance Agent, Risk Agent, Communications Agent, or any others. Only the 4 listed above.
-
-Provide:
-1. SITUATION ASSESSMENT — what is happening and why it matters
-2. IMMEDIATE ACTIONS — operational steps in next 24 hours
-3. AGENT DELEGATION — list ONLY the 4 real agents above and their specific task
-4. REROUTING RECOMMENDATION — preliminary alternate port suggestion
-5. RISK LEVEL — overall risk rating"""
+Coordinate EXACTLY these 4 agents only: Route Optimization Agent, Inventory Agent, Financial Auditor Agent, Supervisor Agent.
+NEVER mention any other agents. Never invent agents.
+Provide exactly these 5 sections:
+1. SITUATION ASSESSMENT — what happened and why it matters
+2. IMMEDIATE ACTIONS — top 5 operational steps
+3. AGENT DELEGATION — only the 4 real agents with their specific task
+4. REROUTING RECOMMENDATION — preliminary alternate port
+5. RISK LEVEL — overall rating
+Be concise. Maximum 3 sentences per section. Use actual figures provided."""
 
     user_prompt = f"""
 DISRUPTION EVENT DETECTED:
-
 Event Date: {disruption_event['event_date']}
 Location: {disruption_event.get('event_location', 'N/A')}
 Nearest Port: {disruption_event['nearest_port_name']}
@@ -89,12 +96,7 @@ NEWS SIGNAL:
 - Number of News Mentions: {disruption_event['num_mentions']}
 - Source: {disruption_event['source_url']}
 
-As Supervisor Agent, provide:
-1. SITUATION ASSESSMENT - What is happening and why it matters
-2. IMMEDIATE ACTIONS - What must be done in the next 24 hours
-3. AGENT DELEGATION - Which specialized agents to activate and why
-4. REROUTING RECOMMENDATION - Preliminary alternative route suggestion
-5. RISK LEVEL - Overall risk to global supply chain
+Provide the 5 required sections. Be concise — max 3 sentences each.
 """
 
     messages = [
@@ -111,7 +113,7 @@ As Supervisor Agent, provide:
     console.print(f"  [yellow]→[/yellow] Location: {disruption_event.get('event_location', 'N/A')}")
     console.print(f"  [yellow]→[/yellow] Querying Groq LLM for situation assessment...")
 
-    response = llm.invoke(messages)
+    response = invoke_with_retry(llm, messages)
 
     console.print(Panel(
         f"[bold green]SITUATION ASSESSMENT:[/bold green]\n{response.content}",
@@ -121,36 +123,34 @@ As Supervisor Agent, provide:
 
     return response.content
 
+
 def run_test():
     console.print("Loading validation dataset...")
     df = pd.read_parquet(
-        r'C:\Users\tanis\Desktop\Minor project\dataset\final\validation_set_REAL_ONLY.parquet',
-        low_memory=False
+        r'dataset/final/validation_set_REAL_ONLY.parquet'
     )
-
     console.print(f"Total real validation events: {len(df):,}")
     console.print("\nSelecting test cases from real data...\n")
 
     critical = df[df['severity'] == 'critical'].iloc[0]
-    high = df[df['severity'] == 'high'].iloc[0]
-    medium = df[df['severity'] == 'medium'].iloc[0]
+    high     = df[df['severity'] == 'high'].iloc[0]
+    medium   = df[df['severity'] == 'medium'].iloc[0]
 
     test_cases = [
         ("CRITICAL SEVERITY EVENT", critical),
-        ("HIGH SEVERITY EVENT", high),
-        ("MEDIUM SEVERITY EVENT", medium)
+        ("HIGH SEVERITY EVENT",     high),
+        ("MEDIUM SEVERITY EVENT",   medium)
     ]
 
     results = []
-
     for label, event in test_cases:
         console.print(f"\n[bold]TEST CASE: {label}[/bold]")
         response = supervisor_agent(event.to_dict())
         results.append({
             "test_case": label,
-            "port": event['nearest_port_name'],
-            "severity": event['severity'],
-            "response": response
+            "port":      event['nearest_port_name'],
+            "severity":  event['severity'],
+            "response":  response
         })
 
     with open("agents/supervisor_test_results.json", "w") as f:
@@ -158,6 +158,7 @@ def run_test():
 
     console.print(f"\n[bold green]ALL TEST CASES COMPLETE[/bold green]")
     console.print(f"Results saved to: agents/supervisor_test_results.json")
+
 
 if __name__ == "__main__":
     run_test()

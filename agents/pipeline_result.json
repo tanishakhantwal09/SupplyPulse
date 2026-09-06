@@ -1,7 +1,7 @@
 {
   "disrupted_port": "Port of Savannah",
   "event_date": "2022-06-30",
-  "analysis_date": "2026-09-06 03:23 UTC",
+  "analysis_date": "2026-09-06 18:26 UTC",
   "severity": "MEDIUM",
   "decision": "MONITOR",
   "recommended_alternate_port": "Port of New York-New Jersey",
@@ -21,6 +21,6 @@
     "financial_auditor",
     "supervisor_final"
   ],
-  "total_response_time_seconds": 22.39,
+  "total_response_time_seconds": 3.54,
   "confidence": "71%"
 }
