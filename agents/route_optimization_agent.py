@@ -50,7 +50,32 @@ def haversine_nm(lat1, lon1, lat2, lon2):
     a = math.sin(dphi/2)**2 + math.cos(phi1)*math.cos(phi2)*math.sin(dlambda/2)**2
     return round(2 * R * math.asin(math.sqrt(a)), 1)
 
-def get_alternate_ports(disrupted_port_id, severity):
+def bpr_congestion_penalty(
+    base_delay: float,
+    vessels_diverted: int,
+    port_capacity: int,
+    current_utilization: float,
+    alpha: float = 1.5,
+    beta: float = 4.0
+):
+    """
+    Gap 1: Bureau of Public Roads Congestion Formula
+    Adapted for maritime berth and anchorage saturation.
+    Prevents the Herd Effect in unconstrained multi-agent routing.
+    alpha=1.5 calibrated for maritime (road BPR uses 0.15 — maritime is 10x more severe)
+    beta=4.0 standard non-linear exponent
+    Reference: Wardrop J.G. (1952) — Some Theoretical Aspects of Road Traffic Research
+    """
+    if port_capacity <= 0:
+        return base_delay, 0, 1.0, 1.0
+    current_load = round(port_capacity * current_utilization)
+    total_volume = current_load + vessels_diverted
+    volume_ratio = total_volume / port_capacity
+    congestion_mult = 1.0 + alpha * (volume_ratio ** beta)
+    adjusted_delay = round(base_delay * congestion_mult, 2)
+    return adjusted_delay, current_load, round(volume_ratio, 3), round(congestion_mult, 2)
+
+def get_alternate_ports(disrupted_port_id, severity, vessels_affected=0):
     disrupted = next((p for p in ports if p['port_id'] == disrupted_port_id), None)
     if not disrupted:
         return []
@@ -78,6 +103,11 @@ def get_alternate_ports(disrupted_port_id, severity):
                 'High'
             )
 
+            port_capacity    = alt_port.get('vessel_capacity', 0)
+            port_utilization = alt_port.get('current_utilization', 0)
+            current_load     = round(port_capacity * port_utilization)
+            available_slots  = max(port_capacity - current_load, 0)
+
             alternates.append({
                 'port_id':              alt_port['port_id'],
                 'name':                 alt_port['name'],
@@ -87,21 +117,46 @@ def get_alternate_ports(disrupted_port_id, severity):
                 'estimated_cost_usd':   estimated_cost,
                 'risk_level':           risk,
                 'strategic_importance': alt_port['strategic_importance'],
-                'commodities':          alt_port.get('commodities', [])
+                'commodities':          alt_port.get('commodities', []),
+                'port_capacity':        port_capacity,
+                'port_utilization':     port_utilization,
+                'available_slots':      available_slots,
             })
 
     if not alternates:
         return []
 
+    # ── Gap 1: Proportional vessel distribution — NOT all vessels to every port ──
+    # Each alternate absorbs rerouted volume proportional to its available slack
+    # (capacity - current load), not the full disrupted fleet broadcast to all.
+    total_available_capacity = sum(a['available_slots'] for a in alternates) or 1
+    for alt in alternates:
+        proportion         = alt['available_slots'] / total_available_capacity
+        vessels_this_port  = round(vessels_affected * proportion)
+
+        bpr_adjusted_delay, current_load, volume_ratio, congestion_mult = bpr_congestion_penalty(
+            alt['estimated_delay_days'],
+            vessels_this_port,
+            alt['port_capacity'],
+            alt['port_utilization']
+        )
+
+        alt['bpr_adjusted_delay']    = bpr_adjusted_delay
+        alt['vessels_diverted_here'] = vessels_this_port
+        alt['current_load']          = current_load
+        alt['volume_ratio']          = volume_ratio
+        alt['congestion_multiplier'] = congestion_mult
+        alt['congestion_warning']    = volume_ratio > 0.90
+
     # ── Weighted scoring — OUTSIDE the for loop ───────────────────────────────
-    # Risk 40% + Delay 35% + Cost 25% — lowest score wins
-    max_delay = max(a['estimated_delay_days'] for a in alternates) or 1
-    max_cost  = max(a['estimated_cost_usd']   for a in alternates) or 1
+    # Risk 40% + BPR-adjusted Delay 35% + Cost 25% — lowest score wins
+    max_delay = max(a['bpr_adjusted_delay'] for a in alternates) or 1
+    max_cost  = max(a['estimated_cost_usd']  for a in alternates) or 1
 
     alternates.sort(key=lambda alt: (
         0.40 * {'Low': 0, 'Medium': 1, 'High': 2}[alt['risk_level']] +
-        0.35 * (alt['estimated_delay_days'] / max_delay) +
-        0.25 * (alt['estimated_cost_usd']   / max_cost)
+        0.35 * (alt['bpr_adjusted_delay'] / max_delay) +
+        0.25 * (alt['estimated_cost_usd']  / max_cost)
     ))
 
     return alternates[:3]
@@ -122,12 +177,15 @@ def route_optimization_agent(state):
         else state['affected_routes']
     )
 
+    vessels_affected = int(state.get('vessels_affected', 0))
+
     console.print(f"  [yellow]→[/yellow] Disrupted port: [bold]{disrupted_port_name}[/bold]")
     console.print(f"  [yellow]→[/yellow] Severity: [bold red]{severity.upper()}[/bold red]")
     console.print(f"  [yellow]→[/yellow] Affected routes: {', '.join(affected_routes)}")
+    console.print(f"  [yellow]→[/yellow] Vessels affected: [bold]{vessels_affected}[/bold]")
     console.print(f"  [yellow]→[/yellow] Querying alternate ports from reference database...")
 
-    alternates = get_alternate_ports(disrupted_port_id, severity)
+    alternates = get_alternate_ports(disrupted_port_id, severity, vessels_affected)
 
     if alternates:
         table = Table(
@@ -141,23 +199,30 @@ def route_optimization_agent(state):
         table.add_column("Country",        min_width=12)
         table.add_column("Distance (nm)",  justify="right", min_width=14)
         table.add_column("Est. Delay",     justify="right", min_width=10)
+        table.add_column("BPR Delay",      justify="right", min_width=12)
+        table.add_column("Congestion",     justify="right", min_width=12)
         table.add_column("Est. Cost (USD)", justify="right", min_width=15)
         table.add_column("Risk",           justify="center", min_width=8)
 
         for i, alt in enumerate(alternates):
             risk_color = {'Low': 'green', 'Medium': 'yellow', 'High': 'red'}.get(alt['risk_level'], 'white')
             marker = "★ " if i == 0 else "  "
+            bpr_marker = "⚠" if alt['congestion_warning'] else "✓"
+            congestion_color = "red" if alt['congestion_warning'] else "green"
             table.add_row(
                 f"{marker}{alt['name']}",
                 alt['country'],
                 f"{alt['distance_nm']:,}",
                 f"{alt['estimated_delay_days']} days",
+                f"{bpr_marker} {alt['bpr_adjusted_delay']} days",
+                f"[{congestion_color}]{alt['volume_ratio'] * 100:.0f}% full[/{congestion_color}]",
                 f"${alt['estimated_cost_usd']:,}",
                 f"[{risk_color}]{alt['risk_level']}[/{risk_color}]"
             )
 
         console.print(table)
-        console.print(f"  [dim]Port scoring: Risk 40% + Delay 35% + Cost 25% — lowest score wins[/dim]")
+        console.print(f"  [dim]Port scoring: Risk 40% + BPR Delay 35% + Cost 25% — lowest score wins[/dim]")
+        console.print(f"  [dim]Gap 1 BPR: Congestion-adjusted delays prevent herd effect — Wardrop 1952[/dim]")
 
     system_prompt = """You are the Route Optimization Agent in SupplyPulse.
 Analyze port disruptions and recommend optimal rerouting.
@@ -194,10 +259,12 @@ Provide:
     recommended = alternates[0] if alternates else None
 
     result = {
-        'alternate_ports_analyzed': alternates,
-        'recommended_port':         recommended,
-        'llm_reasoning':            response.content,
-        'agent':                    'route_optimization'
+        'alternate_ports_analyzed':  alternates,
+        'recommended_port':          recommended,
+        'llm_reasoning':             response.content,
+        'agent':                     'route_optimization',
+        'bpr_congestion_applied':    True,
+        'vessels_affected':          vessels_affected,
     }
 
     console.print(Panel(

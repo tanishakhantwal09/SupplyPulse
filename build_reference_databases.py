@@ -370,6 +370,35 @@ ports = [
      "alternate_ports": ["P036", "P039"]},
 ]
 
+# ── Gap 1: BPR congestion inputs ──────────────────────────────────────────────
+# vessel_capacity: daily vessel-throughput proxy the port/chokepoint can absorb.
+# current_utilization: baseline V/C ratio (0-1) before any rerouted volume lands.
+# Chokepoints/alternate routes have annual_teu_millions=0 (they're transit
+# corridors, not cargo-handling ports) so they're calibrated by hand against
+# real transit rates; regular ports scale off annual_teu_millions instead.
+CHOKEPOINT_CAPACITY = {
+    "P045": 55,   # Suez Canal — ~50-80 vessel transits/day
+    "P046": 300,  # Cape of Good Hope — open ocean bypass, effectively uncongested
+    "P047": 220,  # Strait of Malacca — highest-traffic strait globally
+    "P048": 150,  # Lombok Strait — Malacca bypass, ample spare capacity
+    "P049": 38,   # Panama Canal — lock-limited throughput
+    "P050": 250,  # Cape Horn Route — open ocean bypass, effectively uncongested
+}
+CHOKEPOINT_UTILIZATION = {
+    "P045": 0.88, "P046": 0.15, "P047": 0.85,
+    "P048": 0.20, "P049": 0.90, "P050": 0.10,
+}
+_max_teu = max(p["annual_teu_millions"] for p in ports)
+for p in ports:
+    if p["port_type"] in ("chokepoint", "alternate_route"):
+        p["vessel_capacity"] = CHOKEPOINT_CAPACITY[p["port_id"]]
+        p["current_utilization"] = CHOKEPOINT_UTILIZATION[p["port_id"]]
+    else:
+        p["vessel_capacity"] = max(20, round(p["annual_teu_millions"] * 2.5))
+        p["current_utilization"] = round(
+            min(0.50 + 0.35 * (p["annual_teu_millions"] / _max_teu), 0.92), 2
+        )
+
 # ── DATABASE 2: MAJOR SHIPPING ROUTES ────────────────────────────────────────
 routes = [
     {

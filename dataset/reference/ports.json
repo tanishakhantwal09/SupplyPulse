@@ -21,7 +21,9 @@
       "P002",
       "P004",
       "P006"
-    ]
+    ],
+    "vessel_capacity": 118,
+    "current_utilization": 0.85
   },
   {
     "port_id": "P002",
@@ -45,7 +47,9 @@
       "P011",
       "P012",
       "P013"
-    ]
+    ],
+    "vessel_capacity": 94,
+    "current_utilization": 0.78
   },
   {
     "port_id": "P003",
@@ -69,7 +73,9 @@
       "P001",
       "P004",
       "P006"
-    ]
+    ],
+    "vessel_capacity": 84,
+    "current_utilization": 0.75
   },
   {
     "port_id": "P004",
@@ -92,7 +98,9 @@
       "P005",
       "P001",
       "P002"
-    ]
+    ],
+    "vessel_capacity": 72,
+    "current_utilization": 0.71
   },
   {
     "port_id": "P005",
@@ -115,7 +123,9 @@
       "P004",
       "P001",
       "P002"
-    ]
+    ],
+    "vessel_capacity": 62,
+    "current_utilization": 0.68
   },
   {
     "port_id": "P006",
@@ -139,7 +149,9 @@
       "P007",
       "P001",
       "P002"
-    ]
+    ],
+    "vessel_capacity": 57,
+    "current_utilization": 0.67
   },
   {
     "port_id": "P007",
@@ -162,7 +174,9 @@
       "P008",
       "P006",
       "P002"
-    ]
+    ],
+    "vessel_capacity": 46,
+    "current_utilization": 0.64
   },
   {
     "port_id": "P008",
@@ -185,7 +199,9 @@
       "P007",
       "P006",
       "P002"
-    ]
+    ],
+    "vessel_capacity": 36,
+    "current_utilization": 0.61
   },
   {
     "port_id": "P009",
@@ -209,7 +225,9 @@
       "P002",
       "P010",
       "P013"
-    ]
+    ],
+    "vessel_capacity": 28,
+    "current_utilization": 0.58
   },
   {
     "port_id": "P010",
@@ -232,7 +250,9 @@
       "P002",
       "P009",
       "P013"
-    ]
+    ],
+    "vessel_capacity": 34,
+    "current_utilization": 0.6
   },
   {
     "port_id": "P011",
@@ -256,7 +276,9 @@
       "P002",
       "P012",
       "P010"
-    ]
+    ],
+    "vessel_capacity": 20,
+    "current_utilization": 0.56
   },
   {
     "port_id": "P012",
@@ -280,7 +302,9 @@
       "P002",
       "P010",
       "P011"
-    ]
+    ],
+    "vessel_capacity": 22,
+    "current_utilization": 0.57
   },
   {
     "port_id": "P013",
@@ -304,7 +328,9 @@
       "P002",
       "P010",
       "P009"
-    ]
+    ],
+    "vessel_capacity": 20,
+    "current_utilization": 0.56
   },
   {
     "port_id": "P014",
@@ -328,7 +354,9 @@
       "P015",
       "P016",
       "P002"
-    ]
+    ],
+    "vessel_capacity": 20,
+    "current_utilization": 0.55
   },
   {
     "port_id": "P015",
@@ -352,7 +380,9 @@
       "P014",
       "P016",
       "P017"
-    ]
+    ],
+    "vessel_capacity": 20,
+    "current_utilization": 0.55
   },
   {
     "port_id": "P016",
@@ -376,7 +406,9 @@
       "P014",
       "P017",
       "P002"
-    ]
+    ],
+    "vessel_capacity": 20,
+    "current_utilization": 0.55
   },
   {
     "port_id": "P017",
@@ -400,7 +432,9 @@
       "P018",
       "P019",
       "P016"
-    ]
+    ],
+    "vessel_capacity": 36,
+    "current_utilization": 0.61
   },
   {
     "port_id": "P018",
@@ -423,7 +457,9 @@
       "P017",
       "P019",
       "P016"
-    ]
+    ],
+    "vessel_capacity": 20,
+    "current_utilization": 0.53
   },
   {
     "port_id": "P019",
@@ -447,7 +483,9 @@
       "P017",
       "P020",
       "P018"
-    ]
+    ],
+    "vessel_capacity": 20,
+    "current_utilization": 0.54
   },
   {
     "port_id": "P020",
@@ -470,7 +508,9 @@
       "P021",
       "P019",
       "P033"
-    ]
+    ],
+    "vessel_capacity": 20,
+    "current_utilization": 0.53
   },
   {
     "port_id": "P021",
@@ -495,7 +535,9 @@
       "P022",
       "P023",
       "P024"
-    ]
+    ],
+    "vessel_capacity": 38,
+    "current_utilization": 0.61
   },
   {
     "port_id": "P022",
@@ -519,7 +561,9 @@
       "P021",
       "P023",
       "P024"
-    ]
+    ],
+    "vessel_capacity": 30,
+    "current_utilization": 0.59
   },
   {
     "port_id": "P023",
@@ -543,7 +587,9 @@
       "P021",
       "P022",
       "P024"
-    ]
+    ],
+    "vessel_capacity": 22,
+    "current_utilization": 0.56
   },
   {
     "port_id": "P024",
@@ -567,7 +613,9 @@
       "P025",
       "P021",
       "P022"
-    ]
+    ],
+    "vessel_capacity": 20,
+    "current_utilization": 0.53
   },
   {
     "port_id": "P025",
@@ -589,7 +637,9 @@
       "P024",
       "P021",
       "P022"
-    ]
+    ],
+    "vessel_capacity": 20,
+    "current_utilization": 0.52
   },
   {
     "port_id": "P026",
@@ -613,7 +663,9 @@
       "P027",
       "P028",
       "P021"
-    ]
+    ],
+    "vessel_capacity": 20,
+    "current_utilization": 0.53
   },
   {
     "port_id": "P027",
@@ -636,7 +688,9 @@
       "P026",
       "P028",
       "P021"
-    ]
+    ],
+    "vessel_capacity": 20,
+    "current_utilization": 0.54
   },
   {
     "port_id": "P028",
@@ -659,7 +713,9 @@
       "P026",
       "P027",
       "P021"
-    ]
+    ],
+    "vessel_capacity": 20,
+    "current_utilization": 0.52
   },
   {
     "port_id": "P029",
@@ -683,7 +739,9 @@
       "P030",
       "P031",
       "P032"
-    ]
+    ],
+    "vessel_capacity": 27,
+    "current_utilization": 0.58
   },
   {
     "port_id": "P030",
@@ -706,7 +764,9 @@
       "P029",
       "P031",
       "P032"
-    ]
+    ],
+    "vessel_capacity": 23,
+    "current_utilization": 0.57
   },
   {
     "port_id": "P031",
@@ -729,7 +789,9 @@
       "P029",
       "P030",
       "P032"
-    ]
+    ],
+    "vessel_capacity": 20,
+    "current_utilization": 0.53
   },
   {
     "port_id": "P032",
@@ -753,7 +815,9 @@
       "P033",
       "P034",
       "P029"
-    ]
+    ],
+    "vessel_capacity": 24,
+    "current_utilization": 0.57
   },
   {
     "port_id": "P033",
@@ -776,7 +840,9 @@
       "P032",
       "P034",
       "P035"
-    ]
+    ],
+    "vessel_capacity": 20,
+    "current_utilization": 0.54
   },
   {
     "port_id": "P034",
@@ -800,7 +866,9 @@
       "P033",
       "P035",
       "P032"
-    ]
+    ],
+    "vessel_capacity": 20,
+    "current_utilization": 0.53
   },
   {
     "port_id": "P035",
@@ -824,7 +892,9 @@
       "P031",
       "P029",
       "P030"
-    ]
+    ],
+    "vessel_capacity": 20,
+    "current_utilization": 0.53
   },
   {
     "port_id": "P036",
@@ -847,7 +917,9 @@
     "alternate_ports": [
       "P037",
       "P038"
-    ]
+    ],
+    "vessel_capacity": 20,
+    "current_utilization": 0.53
   },
   {
     "port_id": "P037",
@@ -869,7 +941,9 @@
     "alternate_ports": [
       "P036",
       "P038"
-    ]
+    ],
+    "vessel_capacity": 20,
+    "current_utilization": 0.52
   },
   {
     "port_id": "P038",
@@ -892,7 +966,9 @@
       "P034",
       "P036",
       "P029"
-    ]
+    ],
+    "vessel_capacity": 20,
+    "current_utilization": 0.54
   },
   {
     "port_id": "P039",
@@ -915,7 +991,9 @@
     "alternate_ports": [
       "P040",
       "P041"
-    ]
+    ],
+    "vessel_capacity": 20,
+    "current_utilization": 0.52
   },
   {
     "port_id": "P040",
@@ -936,7 +1014,9 @@
     "alternate_ports": [
       "P039",
       "P041"
-    ]
+    ],
+    "vessel_capacity": 20,
+    "current_utilization": 0.51
   },
   {
     "port_id": "P041",
@@ -958,7 +1038,9 @@
     "alternate_ports": [
       "P039",
       "P040"
-    ]
+    ],
+    "vessel_capacity": 20,
+    "current_utilization": 0.51
   },
   {
     "port_id": "P042",
@@ -981,7 +1063,9 @@
     "alternate_ports": [
       "P043",
       "P044"
-    ]
+    ],
+    "vessel_capacity": 20,
+    "current_utilization": 0.52
   },
   {
     "port_id": "P043",
@@ -1003,7 +1087,9 @@
     "alternate_ports": [
       "P042",
       "P044"
-    ]
+    ],
+    "vessel_capacity": 20,
+    "current_utilization": 0.52
   },
   {
     "port_id": "P044",
@@ -1024,7 +1110,9 @@
     "alternate_ports": [
       "P042",
       "P043"
-    ]
+    ],
+    "vessel_capacity": 20,
+    "current_utilization": 0.51
   },
   {
     "port_id": "P045",
@@ -1044,7 +1132,9 @@
       "P046",
       "P039",
       "P040"
-    ]
+    ],
+    "vessel_capacity": 55,
+    "current_utilization": 0.88
   },
   {
     "port_id": "P046",
@@ -1063,7 +1153,9 @@
     "alternate_ports": [
       "P039",
       "P040"
-    ]
+    ],
+    "vessel_capacity": 300,
+    "current_utilization": 0.15
   },
   {
     "port_id": "P047",
@@ -1081,7 +1173,9 @@
     "strategic_importance": "critical",
     "alternate_ports": [
       "P048"
-    ]
+    ],
+    "vessel_capacity": 220,
+    "current_utilization": 0.85
   },
   {
     "port_id": "P048",
@@ -1100,7 +1194,9 @@
     "alternate_ports": [
       "P002",
       "P013"
-    ]
+    ],
+    "vessel_capacity": 150,
+    "current_utilization": 0.2
   },
   {
     "port_id": "P049",
@@ -1118,7 +1214,9 @@
     "strategic_importance": "critical",
     "alternate_ports": [
       "P050"
-    ]
+    ],
+    "vessel_capacity": 38,
+    "current_utilization": 0.9
   },
   {
     "port_id": "P050",
@@ -1137,6 +1235,8 @@
     "alternate_ports": [
       "P036",
       "P039"
-    ]
+    ],
+    "vessel_capacity": 250,
+    "current_utilization": 0.1
   }
 ]

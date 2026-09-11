@@ -1,9 +1,9 @@
 {
   "metadata": {
-    "generated_at": "2026-09-06 18:42 UTC",
-    "event_id": "1110704938",
-    "event_date": "2023-06-23",
-    "disrupted_port": "Port Klang",
+    "generated_at": "2026-09-12 01:23 UTC",
+    "event_id": "1051989942",
+    "event_date": "2022-06-30",
+    "disrupted_port": "Port of Savannah",
     "severity": "MEDIUM",
     "note": "All numerical inputs below are deterministic and mathematically reproducible. LLM narrative output is supplementary explanation only. Reference: Turpin et al. (NeurIPS 2023) \u2014 Language Models Don't Always Say What They Think."
   },
@@ -11,90 +11,97 @@
     "scoring_formula": "Risk(40%) + NormDelay(35%) + NormCost(25%) \u2014 lowest score wins",
     "ports_evaluated": [
       {
-        "port": "Port of Singapore",
-        "country": "Singapore",
-        "distance_nm": 179.3,
-        "delay_days": 0.4,
-        "cost_usd": 9682,
+        "port": "Port of New York-New Jersey",
+        "country": "USA",
+        "distance_nm": 618.3,
+        "delay_days": 1.5,
+        "cost_usd": 33388,
         "risk_level": "Low",
         "selected": true
       },
       {
-        "port": "Port of Tanjung Pelepas",
-        "country": "Malaysia",
-        "distance_nm": 162.0,
-        "delay_days": 0.4,
-        "cost_usd": 8748,
+        "port": "Port of Houston",
+        "country": "USA",
+        "distance_nm": 747.5,
+        "delay_days": 1.9,
+        "cost_usd": 40365,
         "risk_level": "Medium",
         "selected": false
       },
       {
-        "port": "Port of Jakarta (Tanjung Priok)",
-        "country": "Indonesia",
-        "distance_nm": 637.5,
-        "delay_days": 1.6,
-        "cost_usd": 34425,
-        "risk_level": "High",
+        "port": "Port of Vancouver",
+        "country": "Canada",
+        "distance_nm": 2137.0,
+        "delay_days": 5.3,
+        "cost_usd": 115398,
+        "risk_level": "Medium",
         "selected": false
       }
     ],
-    "winning_port": "Port of Singapore",
-    "winning_country": "Singapore",
-    "winning_distance_nm": 179.3,
-    "winning_delay_days": 0.4,
-    "winning_cost_usd": 9682,
+    "winning_port": "Port of New York-New Jersey",
+    "winning_country": "USA",
+    "winning_distance_nm": 618.3,
+    "winning_delay_days": 1.5,
+    "winning_cost_usd": 33388,
     "winning_risk_level": "Low"
   },
   "financial_decision": {
     "formula": "C_transit + C_delay + C_surcharge + C_inventory + C_operational",
     "components": {
-      "rerouting_transportation_cost_usd": 387280,
-      "trade_delay_cost_usd": 48000000.0,
-      "freight_rate_increase_usd": 36249.407999999996,
-      "inventory_exposure_risk_usd": 324000000.0,
-      "operational_costs_usd": 1500000.0
+      "rerouting_transportation_cost_usd": 400656,
+      "trade_delay_cost_usd": 180000000.0,
+      "freight_rate_increase_usd": 12500.467200000001,
+      "inventory_exposure_risk_usd": 80712000.0,
+      "operational_costs_usd": 150000.0
     },
-    "total_usd": 373953474.758,
+    "total_usd": 261306135.6272,
     "alert_triggered": true,
     "alert_threshold_usd": 10000000,
-    "vessels_affected": 40,
-    "duration_hours": 36,
-    "freight_impact_pct": 9.36,
+    "vessels_affected": 12,
+    "duration_hours": 12,
+    "freight_impact_pct": 3.12,
     "note": "All figures are derived estimates based on structured formulas. Not actual market data."
   },
   "inventory_decision": {
     "commodities_assessed": [
       {
-        "commodity": "Electronics and Semiconductors",
-        "sensitivity": "critical",
-        "priority_tier": "P1",
-        "containers": 0,
-        "exposure_usd": 612000000
-      },
-      {
         "commodity": "Oil and Petrochemicals",
         "sensitivity": "critical",
         "priority_tier": "P1",
         "containers": 0,
-        "exposure_usd": 864000000
+        "exposure_usd": 259200000
       },
       {
-        "commodity": "Chemicals and Pharmaceuticals",
+        "commodity": "Agricultural Products and Food",
         "sensitivity": "critical",
         "priority_tier": "P1",
         "containers": 0,
-        "exposure_usd": 684000000
+        "exposure_usd": 60480000
+      },
+      {
+        "commodity": "Automobiles and Auto Parts",
+        "sensitivity": "high",
+        "priority_tier": "P2",
+        "containers": 0,
+        "exposure_usd": 92400000
+      },
+      {
+        "commodity": "Machinery and Industrial Equipment",
+        "sensitivity": "high",
+        "priority_tier": "P2",
+        "containers": 0,
+        "exposure_usd": 126000000
       }
     ],
-    "total_exposure_usd": 2160000000,
-    "top_priority_commodity": "Electronics and Semiconductors",
+    "total_exposure_usd": 538080000,
+    "top_priority_commodity": "Oil and Petrochemicals",
     "top_priority_tier": "P1",
     "reallocation_triggered": false
   },
   "decision_summary": {
     "final_decision": "MONITOR",
     "decision_basis": "Severity-based rule: REROUTE if severity is critical or high, MONITOR if medium or low",
-    "response_time_seconds": 23.55,
+    "response_time_seconds": 3.53,
     "target_met": true,
     "llm_confidence_label": "71%",
     "llm_confidence_note": "Model-generated estimate. Not statistically validated."
