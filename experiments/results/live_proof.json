@@ -1,28 +1,40 @@
 {
-  "system_clock_utc": "2026-09-05 13:47:04 UTC",
+  "system_clock_utc": "2026-09-17 17:21:47 UTC",
   "gdelt_endpoint": "http://data.gdeltproject.org/gdeltv2/lastupdate.txt",
-  "gdelt_file_timestamp": "20260905121500",
-  "event_id": "1321615117",
-  "source_url": "https://timesofindia.indiatimes.com/world/uk/stop-the-boats-masked-men-block-roads-to-dover-port-in-anti-immigration-protest/articleshow/133798997.cms",
-  "event_location": "Dover, Kent, United Kingdom",
+  "gdelt_file_timestamp": "20260917160000",
+  "event_id": "1323546378",
+  "source_url": "https://www.moneycontrol.com/world/saudi-arabia-reports-first-death-in-houthi-escalation-after-drone-interception-article-14032395.html",
+  "event_location": "Red Sea, Djibouti (general), Djibouti",
   "severity": "critical",
-  "nearest_port": "Port of Felixstowe",
+  "nearest_port": "Port of Jeddah",
+  "epistemic_confidence": {
+    "score": 0.642,
+    "action": "PROCEED",
+    "factors": {
+      "source_credibility_weight": 0.4,
+      "signal_strength_weight": 0.35,
+      "tone_consistency_weight": 0.25,
+      "proceed_threshold": 0.6,
+      "reject_threshold": 0.35
+    },
+    "reference": "Angelopoulos & Bates (2023) \u2014 Conformal Prediction"
+  },
   "agent_decision": {
-    "disrupted_port": "Port of Felixstowe",
-    "event_date": "20260905",
-    "analysis_date": "2026-09-05 19:17 UTC",
+    "disrupted_port": "Port of Jeddah",
+    "event_date": "20260917",
+    "analysis_date": "2026-09-17 22:51 UTC",
     "severity": "CRITICAL",
     "decision": "REROUTE",
-    "recommended_alternate_port": "Port of Rotterdam",
-    "alternate_port_display": "Port of Rotterdam",
-    "alternate_port_country": "Netherlands",
-    "distance_nm": 115.8,
-    "additional_transit_days": 0.3,
-    "rerouting_cost_usd": 9380,
-    "total_financial_impact_usd": 5730358840.0,
+    "recommended_alternate_port": "Port Said",
+    "alternate_port_display": "Port Said",
+    "alternate_port_country": "Egypt",
+    "distance_nm": 690.5,
+    "additional_transit_days": 1.7,
+    "rerouting_cost_usd": 55930,
+    "total_financial_impact_usd": 7121880808.89,
     "financial_alert": true,
-    "top_priority_commodity": "Electronics and Semiconductors",
-    "inventory_exposure_usd": 36120000000,
+    "top_priority_commodity": "Oil and Petrochemicals",
+    "inventory_exposure_usd": 37296000000,
     "agents_activated": [
       "supervisor",
       "route_optimization",
@@ -30,8 +42,8 @@
       "financial_auditor",
       "supervisor_final"
     ],
-    "total_response_time_seconds": 4.32,
+    "total_response_time_seconds": 6.02,
     "confidence": "91%"
   },
-  "total_latency_seconds": 4.36
+  "total_latency_seconds": 6.14
 }

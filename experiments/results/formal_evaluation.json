@@ -5,10 +5,10 @@
     "recall": 1.0,
     "accuracy": 0.9666666666666667,
     "f1_financial_alert": 0.3783783783783784,
-    "plan_correctness": 0.6333333333333333,
-    "avg_response_time_seconds": 21.155666666666665,
-    "min_response_time_seconds": 3.36,
-    "max_response_time_seconds": 24.19,
+    "plan_correctness": 0.4666666666666667,
+    "avg_response_time_seconds": 21.923333333333336,
+    "min_response_time_seconds": 3.51,
+    "max_response_time_seconds": 80.51,
     "cost_per_analysis_usd": 0.0009
   },
   "comparison": {
@@ -26,7 +26,7 @@
       "pred_reroute": true,
       "gt_alert": true,
       "pred_alert": true,
-      "response_time": 3.5,
+      "response_time": 3.69,
       "confidence": "91%"
     },
     {
@@ -36,7 +36,7 @@
       "pred_reroute": true,
       "gt_alert": true,
       "pred_alert": true,
-      "response_time": 3.52,
+      "response_time": 3.57,
       "confidence": "91%"
     },
     {
@@ -46,7 +46,7 @@
       "pred_reroute": true,
       "gt_alert": true,
       "pred_alert": true,
-      "response_time": 3.36,
+      "response_time": 3.51,
       "confidence": "91%"
     },
     {
@@ -56,7 +56,7 @@
       "pred_reroute": true,
       "gt_alert": true,
       "pred_alert": true,
-      "response_time": 23.34,
+      "response_time": 21.7,
       "confidence": "91%"
     },
     {
@@ -66,7 +66,7 @@
       "pred_reroute": true,
       "gt_alert": true,
       "pred_alert": true,
-      "response_time": 22.79,
+      "response_time": 80.51,
       "confidence": "91%"
     },
     {
@@ -76,7 +76,7 @@
       "pred_reroute": true,
       "gt_alert": false,
       "pred_alert": true,
-      "response_time": 24.19,
+      "response_time": 4.18,
       "confidence": "91%"
     },
     {
@@ -86,7 +86,7 @@
       "pred_reroute": true,
       "gt_alert": true,
       "pred_alert": true,
-      "response_time": 23.0,
+      "response_time": 9.56,
       "confidence": "91%"
     },
     {
@@ -96,7 +96,7 @@
       "pred_reroute": true,
       "gt_alert": false,
       "pred_alert": true,
-      "response_time": 23.77,
+      "response_time": 23.63,
       "confidence": "91%"
     },
     {
@@ -106,7 +106,7 @@
       "pred_reroute": true,
       "gt_alert": true,
       "pred_alert": true,
-      "response_time": 24.17,
+      "response_time": 22.32,
       "confidence": "91%"
     },
     {
@@ -116,7 +116,7 @@
       "pred_reroute": true,
       "gt_alert": false,
       "pred_alert": true,
-      "response_time": 23.07,
+      "response_time": 23.39,
       "confidence": "91%"
     },
     {
@@ -126,7 +126,7 @@
       "pred_reroute": true,
       "gt_alert": false,
       "pred_alert": true,
-      "response_time": 23.09,
+      "response_time": 23.02,
       "confidence": "82%"
     },
     {
@@ -136,7 +136,7 @@
       "pred_reroute": true,
       "gt_alert": false,
       "pred_alert": true,
-      "response_time": 23.16,
+      "response_time": 22.97,
       "confidence": "82%"
     },
     {
@@ -146,7 +146,7 @@
       "pred_reroute": true,
       "gt_alert": false,
       "pred_alert": true,
-      "response_time": 23.12,
+      "response_time": 23.99,
       "confidence": "82%"
     },
     {
@@ -156,7 +156,7 @@
       "pred_reroute": true,
       "gt_alert": false,
       "pred_alert": true,
-      "response_time": 23.86,
+      "response_time": 22.66,
       "confidence": "82%"
     },
     {
@@ -166,7 +166,7 @@
       "pred_reroute": true,
       "gt_alert": false,
       "pred_alert": true,
-      "response_time": 22.02,
+      "response_time": 22.52,
       "confidence": "82%"
     },
     {
@@ -176,7 +176,7 @@
       "pred_reroute": true,
       "gt_alert": false,
       "pred_alert": true,
-      "response_time": 23.97,
+      "response_time": 23.9,
       "confidence": "82%"
     },
     {
@@ -186,7 +186,7 @@
       "pred_reroute": true,
       "gt_alert": false,
       "pred_alert": true,
-      "response_time": 22.78,
+      "response_time": 22.74,
       "confidence": "82%"
     },
     {
@@ -196,7 +196,7 @@
       "pred_reroute": true,
       "gt_alert": false,
       "pred_alert": true,
-      "response_time": 21.59,
+      "response_time": 22.26,
       "confidence": "82%"
     },
     {
@@ -206,7 +206,7 @@
       "pred_reroute": true,
       "gt_alert": false,
       "pred_alert": true,
-      "response_time": 23.31,
+      "response_time": 23.33,
       "confidence": "82%"
     },
     {
@@ -216,7 +216,7 @@
       "pred_reroute": true,
       "gt_alert": false,
       "pred_alert": true,
-      "response_time": 23.08,
+      "response_time": 23.21,
       "confidence": "82%"
     },
     {
@@ -226,7 +226,7 @@
       "pred_reroute": false,
       "gt_alert": false,
       "pred_alert": true,
-      "response_time": 23.18,
+      "response_time": 23.46,
       "confidence": "71%"
     },
     {
@@ -236,7 +236,7 @@
       "pred_reroute": false,
       "gt_alert": false,
       "pred_alert": true,
-      "response_time": 22.53,
+      "response_time": 22.79,
       "confidence": "71%"
     },
     {
@@ -246,7 +246,7 @@
       "pred_reroute": false,
       "gt_alert": false,
       "pred_alert": true,
-      "response_time": 23.21,
+      "response_time": 23.69,
       "confidence": "71%"
     },
     {
@@ -256,7 +256,7 @@
       "pred_reroute": false,
       "gt_alert": false,
       "pred_alert": true,
-      "response_time": 22.42,
+      "response_time": 23.93,
       "confidence": "71%"
     },
     {
@@ -266,7 +266,7 @@
       "pred_reroute": false,
       "gt_alert": false,
       "pred_alert": true,
-      "response_time": 22.92,
+      "response_time": 21.95,
       "confidence": "71%"
     },
     {
@@ -276,7 +276,7 @@
       "pred_reroute": false,
       "gt_alert": false,
       "pred_alert": true,
-      "response_time": 23.15,
+      "response_time": 23.07,
       "confidence": "71%"
     },
     {
@@ -286,7 +286,7 @@
       "pred_reroute": false,
       "gt_alert": false,
       "pred_alert": true,
-      "response_time": 22.77,
+      "response_time": 23.95,
       "confidence": "71%"
     },
     {
@@ -296,7 +296,7 @@
       "pred_reroute": false,
       "gt_alert": false,
       "pred_alert": true,
-      "response_time": 23.02,
+      "response_time": 21.87,
       "confidence": "71%"
     },
     {
@@ -306,7 +306,7 @@
       "pred_reroute": false,
       "gt_alert": false,
       "pred_alert": true,
-      "response_time": 23.23,
+      "response_time": 23.74,
       "confidence": "71%"
     },
     {
@@ -316,7 +316,7 @@
       "pred_reroute": false,
       "gt_alert": false,
       "pred_alert": true,
-      "response_time": 23.55,
+      "response_time": 22.59,
       "confidence": "71%"
     }
   ]

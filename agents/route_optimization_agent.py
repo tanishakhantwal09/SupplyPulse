@@ -14,6 +14,8 @@ from rich.table import Table
 from rich.panel import Panel
 from rich import box
 
+from agents.portwatch_client import get_port_utilization
+
 load_dotenv()
 console = Console()
 
@@ -104,7 +106,10 @@ def get_alternate_ports(disrupted_port_id, severity, vessels_affected=0):
             )
 
             port_capacity    = alt_port.get('vessel_capacity', 0)
-            port_utilization = alt_port.get('current_utilization', 0)
+            port_utilization, utilization_source = get_port_utilization(
+                alt_port['name'],
+                alt_port.get('current_utilization', 0.70)
+            )
             current_load     = round(port_capacity * port_utilization)
             available_slots  = max(port_capacity - current_load, 0)
 
@@ -120,6 +125,7 @@ def get_alternate_ports(disrupted_port_id, severity, vessels_affected=0):
                 'commodities':          alt_port.get('commodities', []),
                 'port_capacity':        port_capacity,
                 'port_utilization':     port_utilization,
+                'utilization_source':   utilization_source,
                 'available_slots':      available_slots,
             })
 
@@ -209,13 +215,14 @@ def route_optimization_agent(state):
             marker = "★ " if i == 0 else "  "
             bpr_marker = "⚠" if alt['congestion_warning'] else "✓"
             congestion_color = "red" if alt['congestion_warning'] else "green"
+            source_label = "(live)" if alt['utilization_source'] == 'portwatch_live' else "(static)"
             table.add_row(
                 f"{marker}{alt['name']}",
                 alt['country'],
                 f"{alt['distance_nm']:,}",
                 f"{alt['estimated_delay_days']} days",
                 f"{bpr_marker} {alt['bpr_adjusted_delay']} days",
-                f"[{congestion_color}]{alt['volume_ratio'] * 100:.0f}% full[/{congestion_color}]",
+                f"[{congestion_color}]{alt['volume_ratio'] * 100:.0f}% full {source_label}[/{congestion_color}]",
                 f"${alt['estimated_cost_usd']:,}",
                 f"[{risk_color}]{alt['risk_level']}[/{risk_color}]"
             )

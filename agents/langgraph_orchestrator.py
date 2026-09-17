@@ -144,16 +144,24 @@ def final_decision_node(state: SupplyPulseState) -> SupplyPulseState:
             )
         },
         'route_decision': {
-            'scoring_formula': 'Risk(40%) + NormDelay(35%) + NormCost(25%) — lowest score wins',
+            'scoring_formula': 'Risk(40%) + BPR-Adjusted Delay(35%) + NormCost(25%) — lowest score wins',
+            'bpr_formula': '1 + alpha * (volume_ratio ** beta) — alpha=1.5, beta=4.0 (Wardrop 1952, maritime-calibrated)',
             'ports_evaluated': [
                 {
-                    'port':             p.get('name', 'N/A'),
-                    'country':          p.get('country', 'N/A'),
-                    'distance_nm':      p.get('distance_nm', 0),
-                    'delay_days':       p.get('estimated_delay_days', 0),
-                    'cost_usd':         p.get('estimated_cost_usd', 0),
-                    'risk_level':       p.get('risk_level', 'N/A'),
-                    'selected':         p.get('name') == alt_port_name,
+                    'port':                   p.get('name', 'N/A'),
+                    'country':                p.get('country', 'N/A'),
+                    'distance_nm':            p.get('distance_nm', 0),
+                    'delay_days':             p.get('estimated_delay_days', 0),
+                    'bpr_adjusted_delay_days': p.get('bpr_adjusted_delay', 0),
+                    'vessels_diverted_here':  p.get('vessels_diverted_here', 0),
+                    'current_load':           p.get('current_load', 0),
+                    'volume_ratio':           p.get('volume_ratio', 0),
+                    'congestion_multiplier':  p.get('congestion_multiplier', 1.0),
+                    'congestion_warning':     p.get('congestion_warning', False),
+                    'utilization_source':     p.get('utilization_source', 'N/A'),
+                    'cost_usd':               p.get('estimated_cost_usd', 0),
+                    'risk_level':             p.get('risk_level', 'N/A'),
+                    'selected':               p.get('name') == alt_port_name,
                 }
                 for p in all_ports
             ],
@@ -161,8 +169,13 @@ def final_decision_node(state: SupplyPulseState) -> SupplyPulseState:
             'winning_country': recommended_port.get('country', 'N/A'),
             'winning_distance_nm':   recommended_port.get('distance_nm', 0),
             'winning_delay_days':    recommended_port.get('estimated_delay_days', 0),
+            'winning_bpr_adjusted_delay_days': recommended_port.get('bpr_adjusted_delay', 0),
+            'winning_volume_ratio':  recommended_port.get('volume_ratio', 0),
+            'winning_congestion_warning': recommended_port.get('congestion_warning', False),
             'winning_cost_usd':      recommended_port.get('estimated_cost_usd', 0),
             'winning_risk_level':    recommended_port.get('risk_level', 'N/A'),
+            'bpr_congestion_applied': route_output.get('bpr_congestion_applied', False),
+            'vessels_affected':      route_output.get('vessels_affected', 0),
         },
         'financial_decision': {
             'formula': 'C_transit + C_delay + C_surcharge + C_inventory + C_operational',

@@ -70,3 +70,6 @@ dataset/master/
 dataset/clean/
 dataset/synthetic/
 Research papers/
+
+# Live API caches
+dataset/reference/portwatch_cache.json
