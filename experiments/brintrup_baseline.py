@@ -46,7 +46,7 @@ def detect_disruption(event):
     # Brintrup et al. Agent 1 used GPT-4o chain-of-thought prompting
     # on raw article text to classify disruption type and extract entities.
     # Since their evaluation data (private synthetic scenarios) is unavailable,
-    # we replace their NLP-based parser with calibrated GDELT numerical signals
+    # we replace their NLP-based parser with domain-adapted GDELT numerical signals
     # (Goldstein instability scale, average tone, mention frequency) as
     # structured proxies for the same disruption severity information.
     # This adaptation enables downstream evaluation of their exact risk
