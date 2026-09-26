@@ -313,7 +313,7 @@ def run_evaluation():
     console.print(f"\n[bold green]Results saved to experiments/results/brintrup_baseline.json[/bold green]")
     console.print(f"\n[bold]Key finding:[/bold]")
     console.print(f"  Brintrup baseline F1: [bold]{f1:.3f}[/bold] vs their published 0.962-0.991")
-    console.print(f"  Response time: [bold]{avg_time:.4f}s[/bold] vs their 3.83 minutes")
+    console.print(f"  SupplyPulse LLM pipeline: 21.16s avg vs Brintrup published LLM pipeline: 229.8s")
     console.print("  [dim]Note: Brintrup latency reflects live GPT-4o API + Neo4j + SerpAPI calls across 7 agents.[/dim]")
     console.print("  [dim]Our baseline executes their mathematical decision logic locally on pre-ingested GDELT features.[/dim]")
     console.print("  [dim]Speed comparison in paper is SupplyPulse 21.16s vs Brintrup published 229.8s — both LLM pipelines.[/dim]")
