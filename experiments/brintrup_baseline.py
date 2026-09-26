@@ -42,6 +42,15 @@ def detect_disruption(event):
     goldstein = float(event.get('goldstein_scale', 0) or 0)
     tone = float(event.get('avg_tone', 0) or 0)
     mentions = int(event.get('num_mentions', 0) or 0)
+    # DOMAIN ADAPTATION NOTE (Academic transparency for peer review):
+    # Brintrup et al. Agent 1 used GPT-4o chain-of-thought prompting
+    # on raw article text to classify disruption type and extract entities.
+    # Since their evaluation data (private synthetic scenarios) is unavailable,
+    # we replace their NLP-based parser with calibrated GDELT numerical signals
+    # (Goldstein instability scale, average tone, mention frequency) as
+    # structured proxies for the same disruption severity information.
+    # This adaptation enables downstream evaluation of their exact risk
+    # formula and action thresholds on real maritime disruption events.
     return goldstein < -2 and tone < -2 and mentions >= 3
 
 def classify_severity(event):
@@ -258,7 +267,7 @@ def run_evaluation():
     results_table.add_row("Precision", "Not reported", f"{precision:.3f}")
     results_table.add_row("Recall", "Not reported", f"{recall:.3f}")
     results_table.add_row("Accuracy", "Not reported", f"{accuracy:.3f}")
-    results_table.add_row("Avg Response Time", "3.83 minutes (229.8s)", "~0.001s (rule-based, no LLM)")
+    results_table.add_row("Computational Core Execution", "3.83 min (229.8s — 7 LLM agents + Neo4j + web search)", f"{avg_time:.4f}s (rule-based formula — no LLM calls)")
     results_table.add_row("SupplyPulse Response Time", "N/A", "21.16s (full 4-agent LLM)")
     results_table.add_row("Cost per Analysis", "$0.0836", f"${our_cost:.4f} (rule-based — no LLM)")
     results_table.add_row("Scenarios Tested", "30 synthetic", "30 real held-out")
@@ -305,6 +314,9 @@ def run_evaluation():
     console.print(f"\n[bold]Key finding:[/bold]")
     console.print(f"  Brintrup baseline F1: [bold]{f1:.3f}[/bold] vs their published 0.962-0.991")
     console.print(f"  Response time: [bold]{avg_time:.4f}s[/bold] vs their 3.83 minutes")
+    console.print("  [dim]Note: Brintrup latency reflects live GPT-4o API + Neo4j + SerpAPI calls across 7 agents.[/dim]")
+    console.print("  [dim]Our baseline executes their mathematical decision logic locally on pre-ingested GDELT features.[/dim]")
+    console.print("  [dim]Speed comparison in paper is SupplyPulse 21.16s vs Brintrup published 229.8s — both LLM pipelines.[/dim]")
     console.print(f"  Our baseline produces SAME outputs as Brintrup — detection + sourcing only")
     console.print(f"  SupplyPulse ADDS: routing, financial, inventory — none of which Brintrup provides")
 
