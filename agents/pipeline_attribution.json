@@ -1,6 +1,6 @@
 {
   "metadata": {
-    "generated_at": "2026-09-26 14:11 UTC",
+    "generated_at": "2026-09-27 02:42 UTC",
     "event_id": "1051989942",
     "event_date": "2022-06-30",
     "disrupted_port": "Port of Savannah",
@@ -73,13 +73,14 @@
     "vessels_affected": 12
   },
   "financial_decision": {
-    "formula": "C_transit + C_delay + C_surcharge + C_inventory + C_operational",
+    "formula": "C_transit + C_delay + C_surcharge + C_inventory + C_operational + C_carbon (EU ETS)",
     "components": {
       "rerouting_transportation_cost_usd": 400656,
       "trade_delay_cost_usd": 180000000.0,
       "freight_rate_increase_usd": 12500.467200000001,
       "inventory_exposure_risk_usd": 80712000.0,
-      "operational_costs_usd": 150000.0
+      "operational_costs_usd": 150000.0,
+      "eu_ets_carbon_penalty_usd": 30979.16
     },
     "total_usd": 261306135.6272,
     "alert_triggered": true,
@@ -125,10 +126,116 @@
     "top_priority_tier": "P1",
     "reallocation_triggered": false
   },
+  "supervisor_assessment": "**SITUATION ASSESSMENT**  \nA disruption occurred on 2022\u201106\u201130 in Daytona Beach, Florida, affecting the major hub Port of Savannah (172.5\u202fnm away). Routes R004 and R007 are impacted, with 12 vessels and at\u2011risk commodities including agricultural, chemicals, consumer goods, automobiles, and machinery. Freight rates are projected to rise by 3.12\u202f% for 12\u202fhours, and the Goldstein Instability Score is 2.8 with a negative news tone of \u20136.17.\n\n**IMMEDIATE ACTIONS**  \n1. Notify all 12 affected vessels and update their itineraries.  \n2. Reallocate inventory to secure high\u2011",
+  "bpr_congestion_data": {
+    "applied": true,
+    "formula": "BPR delay = base_delay * (1 + alpha * (volume_ratio ** beta))",
+    "alpha": 1.5,
+    "beta": 4.0,
+    "per_port": [
+      {
+        "port": "Port of New York-New Jersey",
+        "raw_delay_days": 1.5,
+        "bpr_delay_days": 1.76,
+        "congestion_percentage": 58.3,
+        "congestion_multiplier": 1.17,
+        "congestion_warning": false
+      },
+      {
+        "port": "Port of Houston",
+        "raw_delay_days": 1.9,
+        "bpr_delay_days": 5.36,
+        "congestion_percentage": 105.0,
+        "congestion_multiplier": 2.82,
+        "congestion_warning": true
+      },
+      {
+        "port": "Port of Vancouver",
+        "raw_delay_days": 5.3,
+        "bpr_delay_days": 6.33,
+        "congestion_percentage": 60.0,
+        "congestion_multiplier": 1.19,
+        "congestion_warning": false
+      }
+    ]
+  },
+  "portwatch_data": {
+    "source": "IMF PortWatch (satellite AIS) with static ports.json fallback",
+    "per_port": [
+      {
+        "port": "Port of New York-New Jersey",
+        "portwatch_source": "portwatch_live",
+        "utilization": 0.351,
+        "current_load": 8
+      },
+      {
+        "port": "Port of Houston",
+        "portwatch_source": "portwatch_live",
+        "utilization": 1.05,
+        "current_load": 21
+      },
+      {
+        "port": "Port of Vancouver",
+        "portwatch_source": "portwatch_live",
+        "utilization": 0.279,
+        "current_load": 6
+      }
+    ]
+  },
+  "eu_ets_carbon_data": {
+    "carbon_details": {
+      "distance_nm": 618.3,
+      "co2_per_vessel_tonnes": 36.77,
+      "total_co2_tonnes": 441.3,
+      "eua_price_usd_per_tonne": 70.2,
+      "carbon_penalty_usd": 30979.16,
+      "cii_rating_impact": "B \u2192 C (minor impact)",
+      "regulation": "EU ETS (100% coverage from Jan 2026) + IMO CII"
+    },
+    "pareto_options": [
+      {
+        "port": "Port of New York-New Jersey",
+        "country": "USA",
+        "cost_usd": 400656,
+        "delay_days": 1.5,
+        "carbon_usd": 30979.16,
+        "co2_tonnes": 441.3,
+        "risk": "Low",
+        "total_cost_usd": 431635.16,
+        "option": "Min Cost",
+        "best_for": "Cost-priority operators"
+      },
+      {
+        "port": "Port of New York-New Jersey",
+        "country": "USA",
+        "cost_usd": 400656,
+        "delay_days": 1.5,
+        "carbon_usd": 30979.16,
+        "co2_tonnes": 441.3,
+        "risk": "Low",
+        "total_cost_usd": 431635.16,
+        "option": "Min Carbon",
+        "best_for": "ESG / EU ETS compliance priority"
+      },
+      {
+        "port": "Port of New York-New Jersey",
+        "country": "USA",
+        "cost_usd": 400656,
+        "delay_days": 1.5,
+        "carbon_usd": 30979.16,
+        "co2_tonnes": 441.3,
+        "risk": "Low",
+        "total_cost_usd": 431635.16,
+        "option": "Min Time",
+        "best_for": "Time-priority / perishable cargo operators"
+      }
+    ],
+    "formula": "distance_nm * SFC(0.0191) * CF(3.114) * EUA_price_usd * vessels"
+  },
   "decision_summary": {
     "final_decision": "MONITOR",
     "decision_basis": "Severity-based rule: REROUTE if severity is critical or high, MONITOR if medium or low",
-    "response_time_seconds": 5.01,
+    "response_time_seconds": 3.67,
     "target_met": true,
     "llm_confidence_label": "71%",
     "llm_confidence_note": "Model-generated estimate. Not statistically validated."

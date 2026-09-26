@@ -178,13 +178,14 @@ def final_decision_node(state: SupplyPulseState) -> SupplyPulseState:
             'vessels_affected':      route_output.get('vessels_affected', 0),
         },
         'financial_decision': {
-            'formula': 'C_transit + C_delay + C_surcharge + C_inventory + C_operational',
+            'formula': 'C_transit + C_delay + C_surcharge + C_inventory + C_operational + C_carbon (EU ETS)',
             'components': {
                 'rerouting_transportation_cost_usd': financial_breakdown.get('rerouting_cost', 0),
                 'trade_delay_cost_usd':              financial_breakdown.get('delay_cost', 0),
                 'freight_rate_increase_usd':         financial_breakdown.get('freight_rate_increase', 0),
                 'inventory_exposure_risk_usd':       financial_breakdown.get('inventory_at_risk', 0),
                 'operational_costs_usd':             financial_breakdown.get('operational_cost', 0),
+                'eu_ets_carbon_penalty_usd':         financial_breakdown.get('carbon_penalty', 0),
             },
             'total_usd':           financial_breakdown.get('total_impact', 0),
             'alert_triggered':     financial_alert,
@@ -209,6 +210,41 @@ def final_decision_node(state: SupplyPulseState) -> SupplyPulseState:
             'top_priority_commodity': top_commodity.get('commodity', 'N/A'),
             'top_priority_tier':    top_commodity.get('priority', 'N/A'),
             'reallocation_triggered': decision == 'REROUTE',
+        },
+        'supervisor_assessment': state.get('supervisor_assessment'),
+        'bpr_congestion_data': {
+            'applied':       route_output.get('bpr_congestion_applied', False),
+            'formula':       'BPR delay = base_delay * (1 + alpha * (volume_ratio ** beta))',
+            'alpha':         1.5,
+            'beta':          4.0,
+            'per_port': [
+                {
+                    'port':                   p.get('name', 'N/A'),
+                    'raw_delay_days':         p.get('estimated_delay_days', 0),
+                    'bpr_delay_days':         p.get('bpr_adjusted_delay', 0),
+                    'congestion_percentage':  round(p.get('volume_ratio', 0) * 100, 1),
+                    'congestion_multiplier':  p.get('congestion_multiplier', 1.0),
+                    'congestion_warning':     p.get('congestion_warning', False),
+                }
+                for p in all_ports
+            ],
+        },
+        'portwatch_data': {
+            'source': 'IMF PortWatch (satellite AIS) with static ports.json fallback',
+            'per_port': [
+                {
+                    'port':              p.get('name', 'N/A'),
+                    'portwatch_source':  p.get('utilization_source', 'N/A'),
+                    'utilization':       p.get('port_utilization'),
+                    'current_load':      p.get('current_load', 0),
+                }
+                for p in all_ports
+            ],
+        },
+        'eu_ets_carbon_data': {
+            'carbon_details':  financial_output.get('carbon_details', {}),
+            'pareto_options':  financial_output.get('pareto_options', []),
+            'formula':         'distance_nm * SFC(0.0191) * CF(3.114) * EUA_price_usd * vessels',
         },
         'decision_summary': {
             'final_decision':        decision,
