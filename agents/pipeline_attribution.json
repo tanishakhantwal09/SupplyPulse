@@ -1,6 +1,6 @@
 {
   "metadata": {
-    "generated_at": "2026-09-27 02:42 UTC",
+    "generated_at": "2026-09-27 02:45 UTC",
     "event_id": "1051989942",
     "event_date": "2022-06-30",
     "disrupted_port": "Port of Savannah",
@@ -126,7 +126,7 @@
     "top_priority_tier": "P1",
     "reallocation_triggered": false
   },
-  "supervisor_assessment": "**SITUATION ASSESSMENT**  \nA disruption occurred on 2022\u201106\u201130 in Daytona Beach, Florida, affecting the major hub Port of Savannah (172.5\u202fnm away). Routes R004 and R007 are impacted, with 12 vessels and at\u2011risk commodities including agricultural, chemicals, consumer goods, automobiles, and machinery. Freight rates are projected to rise by 3.12\u202f% for 12\u202fhours, and the Goldstein Instability Score is 2.8 with a negative news tone of \u20136.17.\n\n**IMMEDIATE ACTIONS**  \n1. Notify all 12 affected vessels and update their itineraries.  \n2. Reallocate inventory to secure high\u2011",
+  "supervisor_assessment": "**SITUATION ASSESSMENT**  \nA disruption occurred on 2022\u201106\u201130 in Daytona Beach, Florida, affecting the major hub Port of Savannah (172.5\u202fnm away). Routes R004 and R007 are impacted, with 12 vessels and at\u2011risk commodities including agricultural, chemicals, consumer goods, automobiles, and machinery. Freight rates are projected to rise by ",
   "bpr_congestion_data": {
     "applied": true,
     "formula": "BPR delay = base_delay * (1 + alpha * (volume_ratio ** beta))",
@@ -197,7 +197,9 @@
         "port": "Port of New York-New Jersey",
         "country": "USA",
         "cost_usd": 400656,
-        "delay_days": 1.5,
+        "delay_days": 1.76,
+        "raw_delay_days": 1.5,
+        "distance_nm": 618.3,
         "carbon_usd": 30979.16,
         "co2_tonnes": 441.3,
         "risk": "Low",
@@ -209,7 +211,9 @@
         "port": "Port of New York-New Jersey",
         "country": "USA",
         "cost_usd": 400656,
-        "delay_days": 1.5,
+        "delay_days": 1.76,
+        "raw_delay_days": 1.5,
+        "distance_nm": 618.3,
         "carbon_usd": 30979.16,
         "co2_tonnes": 441.3,
         "risk": "Low",
@@ -221,13 +225,15 @@
         "port": "Port of New York-New Jersey",
         "country": "USA",
         "cost_usd": 400656,
-        "delay_days": 1.5,
+        "delay_days": 1.76,
+        "raw_delay_days": 1.5,
+        "distance_nm": 618.3,
         "carbon_usd": 30979.16,
         "co2_tonnes": 441.3,
         "risk": "Low",
         "total_cost_usd": 431635.16,
         "option": "Min Time",
-        "best_for": "Time-priority / perishable cargo operators"
+        "best_for": "Time-priority (BPR congestion-adjusted delay)"
       }
     ],
     "formula": "distance_nm * SFC(0.0191) * CF(3.114) * EUA_price_usd * vessels"
@@ -235,7 +241,7 @@
   "decision_summary": {
     "final_decision": "MONITOR",
     "decision_basis": "Severity-based rule: REROUTE if severity is critical or high, MONITOR if medium or low",
-    "response_time_seconds": 3.67,
+    "response_time_seconds": 3.92,
     "target_met": true,
     "llm_confidence_label": "71%",
     "llm_confidence_note": "Model-generated estimate. Not statistically validated."

@@ -85,20 +85,25 @@ def calculate_pareto_options(alternates, vessels_affected, severity):
             'port':           port.get('name', 'N/A'),
             'country':        port.get('country', 'N/A'),
             'cost_usd':       port.get('estimated_cost_usd', 0) * vessels_affected,
-            'delay_days':     port.get('estimated_delay_days', 0),
+            'delay_days':     port.get('bpr_adjusted_delay', port.get('estimated_delay_days', 0)),
+            'raw_delay_days': port.get('estimated_delay_days', 0),
+            'distance_nm':    port.get('distance_nm', 0),
             'carbon_usd':     carbon['carbon_penalty_usd'],
             'co2_tonnes':     carbon['total_co2_tonnes'],
             'risk':           port.get('risk_level', 'N/A'),
             'total_cost_usd': (port.get('estimated_cost_usd', 0) * vessels_affected) + carbon['carbon_penalty_usd'],
         })
 
+    # Each objective independently picks its own best port (ties broken by the
+    # other objectives so the result is deterministic). Ports coincide only when
+    # they are genuinely optimal for more than one objective.
     pareto = [
-        {**min(options, key=lambda x: x['total_cost_usd']),
+        {**min(options, key=lambda x: (x['cost_usd'], x['co2_tonnes'], x['delay_days'])),
          'option': 'Min Cost',   'best_for': 'Cost-priority operators'},
-        {**min(options, key=lambda x: x['carbon_usd']),
+        {**min(options, key=lambda x: (x['co2_tonnes'], x['cost_usd'], x['delay_days'])),
          'option': 'Min Carbon', 'best_for': 'ESG / EU ETS compliance priority'},
-        {**min(options, key=lambda x: x['delay_days']),
-         'option': 'Min Time',   'best_for': 'Time-priority / perishable cargo operators'},
+        {**min(options, key=lambda x: (x['delay_days'], x['cost_usd'], x['co2_tonnes'])),
+         'option': 'Min Time',   'best_for': 'Time-priority (BPR congestion-adjusted delay)'},
     ]
     return pareto
 
