@@ -6,6 +6,11 @@ Gap 1: BPR congestion plus a capacity split across receiving ports.
   BPR link-performance function: t = t0 * (1 + alpha * (V/C)^beta),
   U.S. Bureau of Public Roads (1964), Traffic Assignment Manual,
   U.S. Department of Commerce, Washington DC. Standard alpha = 0.15, beta = 4.
+  Capacity split: motivated by Wardrop (1952), "Some theoretical aspects of road
+  traffic research", Proc. Inst. Civil Engineers 1(3): user equilibrium, where no
+  ship could lower its own delay by switching port. NOTE: the current split
+  (in proportion to free capacity) is a simple heuristic and does NOT compute that
+  equilibrium; it ignores distance (see docs/EXPERIMENTS.md, gap ablation).
 """
 import json
 import math
@@ -94,6 +99,8 @@ def bpr_congestion_penalty(base_delay, arrivals_per_day, capacity_per_day, utili
 
 def split_vessels(total_vessels, free_slots):
     """Share total_vessels across ports in proportion to free daily slots.
+
+    Heuristic motivated by Wardrop (1952) user equilibrium; it is not the equilibrium itself.
 
     Uses largest-remainder rounding so the integers add up exactly to total_vessels.
     Ports with no free slots get 0. If no port has free slots, the ships are

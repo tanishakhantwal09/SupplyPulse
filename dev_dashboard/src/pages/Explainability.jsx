@@ -26,7 +26,7 @@ export default function Explainability() {
         { label: 'BPR-adjusted Sailing Time', value: v(`${r?.additional_transit_days} days`) }
       ],
       formula: 'd = 2R·arcsin(√(sin²(Δφ/2) + cos φ1·cos φ2·sin²(Δλ/2))), R = 3440.065 nm;  t = t0·(1 + 0.15·(V/C)^4)',
-      note: 'BPR function: U.S. Bureau of Public Roads (1964). V/C = (current daily load + diverted ships per day) / daily capacity. Score = 0.40 risk + 0.35 delay + 0.25 cost (weights are assumptions).'
+      note: 'BPR function: U.S. Bureau of Public Roads (1964). Capacity split motivated by Wardrop (1952) user equilibrium (a heuristic, not the equilibrium itself). V/C = (current daily load + diverted ships per day) / daily capacity. Score = 0.40 risk + 0.35 delay + 0.25 cost (weights are assumptions).'
     },
     {
       icon: Package,
