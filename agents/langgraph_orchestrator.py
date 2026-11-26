@@ -303,8 +303,8 @@ def final_decision_node(state: SupplyPulseState) -> SupplyPulseState:
         f"[/bold {'green' if target_met else 'yellow'}]"
     )
     decision_table.add_row(
-        "LLM-Reported Confidence",
-        f"[bold green]{final_decision['confidence']}[/bold green] (model-generated, not statistically validated)"
+        "Placeholder Confidence",
+        f"[bold green]{final_decision['confidence']}[/bold green] (fixed by severity rule; calibration planned)"
     )
     decision_table.add_row(
         "XAI Attribution",

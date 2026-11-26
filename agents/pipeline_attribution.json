@@ -1,10 +1,10 @@
 {
   "metadata": {
-    "generated_at": "2026-09-27 02:45 UTC",
-    "event_id": "1051989942",
-    "event_date": "2022-06-30",
-    "disrupted_port": "Port of Savannah",
-    "severity": "MEDIUM",
+    "generated_at": "2026-11-03 10:05 UTC",
+    "event_id": "1289813590",
+    "event_date": "2026-02-18",
+    "disrupted_port": "Port of Mundra",
+    "severity": "CRITICAL",
     "note": "All numerical inputs below are deterministic and mathematically reproducible. LLM narrative output is supplementary explanation only. Reference: Turpin et al. (NeurIPS 2023) \u2014 Language Models Don't Always Say What They Think."
   },
   "route_decision": {
@@ -12,82 +12,82 @@
     "bpr_formula": "1 + alpha * (volume_ratio ** beta) \u2014 alpha=1.5, beta=4.0 (Wardrop 1952, maritime-calibrated)",
     "ports_evaluated": [
       {
-        "port": "Port of New York-New Jersey",
-        "country": "USA",
-        "distance_nm": 618.3,
-        "delay_days": 1.5,
-        "bpr_adjusted_delay_days": 1.76,
-        "vessels_diverted_here": 6,
-        "current_load": 8,
-        "volume_ratio": 0.583,
-        "congestion_multiplier": 1.17,
-        "congestion_warning": false,
-        "utilization_source": "portwatch_live",
-        "cost_usd": 33388,
-        "risk_level": "Low",
+        "port": "Port of Mumbai (JNPT)",
+        "country": "India",
+        "distance_nm": 297.7,
+        "delay_days": 0.7,
+        "bpr_adjusted_delay_days": 4.73,
+        "vessels_diverted_here": 17,
+        "current_load": 11,
+        "volume_ratio": 1.4,
+        "congestion_multiplier": 6.76,
+        "congestion_warning": true,
+        "utilization_source": "static",
+        "cost_usd": 24114,
+        "risk_level": "Medium",
         "selected": true
       },
       {
-        "port": "Port of Houston",
-        "country": "USA",
-        "distance_nm": 747.5,
-        "delay_days": 1.9,
-        "bpr_adjusted_delay_days": 5.36,
-        "vessels_diverted_here": 0,
-        "current_load": 21,
-        "volume_ratio": 1.05,
-        "congestion_multiplier": 2.82,
+        "port": "Port of Jebel Ali (Dubai)",
+        "country": "UAE",
+        "distance_nm": 813.6,
+        "delay_days": 2.0,
+        "bpr_adjusted_delay_days": 28.39,
+        "vessels_diverted_here": 57,
+        "current_load": 5,
+        "volume_ratio": 1.722,
+        "congestion_multiplier": 14.2,
         "congestion_warning": true,
         "utilization_source": "portwatch_live",
-        "cost_usd": 40365,
-        "risk_level": "Medium",
+        "cost_usd": 65902,
+        "risk_level": "Low",
         "selected": false
       },
       {
-        "port": "Port of Vancouver",
-        "country": "Canada",
-        "distance_nm": 2137.0,
-        "delay_days": 5.3,
-        "bpr_adjusted_delay_days": 6.33,
-        "vessels_diverted_here": 6,
-        "current_load": 6,
-        "volume_ratio": 0.6,
-        "congestion_multiplier": 1.19,
-        "congestion_warning": false,
+        "port": "Port of Colombo",
+        "country": "Sri Lanka",
+        "distance_nm": 1121.1,
+        "delay_days": 2.8,
+        "bpr_adjusted_delay_days": 18.93,
+        "vessels_diverted_here": 17,
+        "current_load": 11,
+        "volume_ratio": 1.4,
+        "congestion_multiplier": 6.76,
+        "congestion_warning": true,
         "utilization_source": "portwatch_live",
-        "cost_usd": 115398,
+        "cost_usd": 90809,
         "risk_level": "Medium",
         "selected": false
       }
     ],
-    "winning_port": "Port of New York-New Jersey",
-    "winning_country": "USA",
-    "winning_distance_nm": 618.3,
-    "winning_delay_days": 1.5,
-    "winning_bpr_adjusted_delay_days": 1.76,
-    "winning_volume_ratio": 0.583,
-    "winning_congestion_warning": false,
-    "winning_cost_usd": 33388,
-    "winning_risk_level": "Low",
+    "winning_port": "Port of Mumbai (JNPT)",
+    "winning_country": "India",
+    "winning_distance_nm": 297.7,
+    "winning_delay_days": 0.7,
+    "winning_bpr_adjusted_delay_days": 4.73,
+    "winning_volume_ratio": 1.4,
+    "winning_congestion_warning": true,
+    "winning_cost_usd": 24114,
+    "winning_risk_level": "Medium",
     "bpr_congestion_applied": true,
-    "vessels_affected": 12
+    "vessels_affected": 90
   },
   "financial_decision": {
     "formula": "C_transit + C_delay + C_surcharge + C_inventory + C_operational + C_carbon (EU ETS)",
     "components": {
-      "rerouting_transportation_cost_usd": 400656,
-      "trade_delay_cost_usd": 180000000.0,
-      "freight_rate_increase_usd": 12500.467200000001,
-      "inventory_exposure_risk_usd": 80712000.0,
-      "operational_costs_usd": 150000.0,
-      "eu_ets_carbon_penalty_usd": 30979.16
+      "rerouting_transportation_cost_usd": 2170260,
+      "trade_delay_cost_usd": 595000000.0,
+      "freight_rate_increase_usd": 562531.3920000001,
+      "inventory_exposure_risk_usd": 2928960000.0,
+      "operational_costs_usd": 6750000.0,
+      "eu_ets_carbon_penalty_usd": 111869.17
     },
-    "total_usd": 261306135.6272,
+    "total_usd": 3533554660.5620003,
     "alert_triggered": true,
-    "alert_threshold_usd": 10000000,
-    "vessels_affected": 12,
-    "duration_hours": 12,
-    "freight_impact_pct": 3.12,
+    "alert_threshold_usd": 100000000,
+    "vessels_affected": 90,
+    "duration_hours": 72,
+    "freight_impact_pct": 25.92,
     "note": "All figures are derived estimates based on structured formulas. Not actual market data."
   },
   "inventory_decision": {
@@ -97,36 +97,36 @@
         "sensitivity": "critical",
         "priority_tier": "P1",
         "containers": 0,
-        "exposure_usd": 259200000
+        "exposure_usd": 7776000000
       },
       {
         "commodity": "Agricultural Products and Food",
         "sensitivity": "critical",
         "priority_tier": "P1",
         "containers": 0,
-        "exposure_usd": 60480000
-      },
-      {
-        "commodity": "Automobiles and Auto Parts",
-        "sensitivity": "high",
-        "priority_tier": "P2",
-        "containers": 0,
-        "exposure_usd": 92400000
+        "exposure_usd": 1814400000
       },
       {
         "commodity": "Machinery and Industrial Equipment",
         "sensitivity": "high",
         "priority_tier": "P2",
         "containers": 0,
-        "exposure_usd": 126000000
+        "exposure_usd": 3780000000
+      },
+      {
+        "commodity": "Chemicals and Pharmaceuticals",
+        "sensitivity": "critical",
+        "priority_tier": "P1",
+        "containers": 0,
+        "exposure_usd": 6156000000
       }
     ],
-    "total_exposure_usd": 538080000,
+    "total_exposure_usd": 19526400000,
     "top_priority_commodity": "Oil and Petrochemicals",
     "top_priority_tier": "P1",
-    "reallocation_triggered": false
+    "reallocation_triggered": true
   },
-  "supervisor_assessment": "**SITUATION ASSESSMENT**  \nA disruption occurred on 2022\u201106\u201130 in Daytona Beach, Florida, affecting the major hub Port of Savannah (172.5\u202fnm away). Routes R004 and R007 are impacted, with 12 vessels and at\u2011risk commodities including agricultural, chemicals, consumer goods, automobiles, and machinery. Freight rates are projected to rise by ",
+  "supervisor_assessment": "**SITUATION ASSESSMENT**  \nOn 2026\u201102\u201118 a critical disruption occurred in Tarn\u202fTaran, Punjab, India, affecting the major hub Port of Mundra. The incident is 587\u202fnm from the nearest port, threatens 90 vessels, and could raise freight rates by 25.92\u202f% for at\u2011risk commodities (fertilizers, agricultural, coal, chemicals, consumer goods). The disruption is projected to last 72\u202fhours, with a Goldstein Instability Score of \u201310.0 and an average negative news tone of \u20137.76.\n\n**IMMEDIATE ACTIONS**  \n1. Notify all affected shipping lines and cargo owners of the 72\u2011hour outage and potential rate increase.  \n2. Re\u2011allocate 90 vessels to alternative routes and ports to maintain service continuity.  \n3. Initiate inventory checks for the five at\u2011risk commodity categories to prevent stockouts.  \n4. Activate insurance and risk\u2011management protocols to cover freight rate hikes.  \n5. Monitor real\u2011time news feeds for any escalation or resolution updates.\n\n**AGENT DELEGATION**  \n- **Route Optimization Agent**: calculate optimal detours and identify alternate ports for the 90 vessels.  \n- **Inventory Agent**: assess current stock levels of fertilizers, agricultural, coal, chemicals, and consumer goods, and recommend buffer stock adjustments.  \n- **Financial Auditor Agent**: quantify the financial impact of the 25.92\u202f% freight rate increase and verify insurance coverage.  \n- **Supervisor Agent**: coordinate all agent outputs, ensure timely communication with stakeholders, and maintain overall incident status.\n\n**REROUTING RECOMMENDATION**  \nPreliminary alternate port: Port of Kandla, a major Indian hub, located approximately 1,200\u202fnm from Tarn\u202fTaran and capable of handling the affected commodity mix.\n\n**",
   "bpr_congestion_data": {
     "applied": true,
     "formula": "BPR delay = base_delay * (1 + alpha * (volume_ratio ** beta))",
@@ -134,28 +134,28 @@
     "beta": 4.0,
     "per_port": [
       {
-        "port": "Port of New York-New Jersey",
-        "raw_delay_days": 1.5,
-        "bpr_delay_days": 1.76,
-        "congestion_percentage": 58.3,
-        "congestion_multiplier": 1.17,
-        "congestion_warning": false
-      },
-      {
-        "port": "Port of Houston",
-        "raw_delay_days": 1.9,
-        "bpr_delay_days": 5.36,
-        "congestion_percentage": 105.0,
-        "congestion_multiplier": 2.82,
+        "port": "Port of Mumbai (JNPT)",
+        "raw_delay_days": 0.7,
+        "bpr_delay_days": 4.73,
+        "congestion_percentage": 140.0,
+        "congestion_multiplier": 6.76,
         "congestion_warning": true
       },
       {
-        "port": "Port of Vancouver",
-        "raw_delay_days": 5.3,
-        "bpr_delay_days": 6.33,
-        "congestion_percentage": 60.0,
-        "congestion_multiplier": 1.19,
-        "congestion_warning": false
+        "port": "Port of Jebel Ali (Dubai)",
+        "raw_delay_days": 2.0,
+        "bpr_delay_days": 28.39,
+        "congestion_percentage": 172.2,
+        "congestion_multiplier": 14.2,
+        "congestion_warning": true
+      },
+      {
+        "port": "Port of Colombo",
+        "raw_delay_days": 2.8,
+        "bpr_delay_days": 18.93,
+        "congestion_percentage": 140.0,
+        "congestion_multiplier": 6.76,
+        "congestion_warning": true
       }
     ]
   },
@@ -163,75 +163,75 @@
     "source": "IMF PortWatch (satellite AIS) with static ports.json fallback",
     "per_port": [
       {
-        "port": "Port of New York-New Jersey",
-        "portwatch_source": "portwatch_live",
-        "utilization": 0.351,
-        "current_load": 8
+        "port": "Port of Mumbai (JNPT)",
+        "portwatch_source": "static",
+        "utilization": 0.55,
+        "current_load": 11
       },
       {
-        "port": "Port of Houston",
+        "port": "Port of Jebel Ali (Dubai)",
         "portwatch_source": "portwatch_live",
-        "utilization": 1.05,
-        "current_load": 21
+        "utilization": 0.143,
+        "current_load": 5
       },
       {
-        "port": "Port of Vancouver",
+        "port": "Port of Colombo",
         "portwatch_source": "portwatch_live",
-        "utilization": 0.279,
-        "current_load": 6
+        "utilization": 0.557,
+        "current_load": 11
       }
     ]
   },
   "eu_ets_carbon_data": {
     "carbon_details": {
-      "distance_nm": 618.3,
-      "co2_per_vessel_tonnes": 36.77,
-      "total_co2_tonnes": 441.3,
+      "distance_nm": 297.7,
+      "co2_per_vessel_tonnes": 17.71,
+      "total_co2_tonnes": 1593.58,
       "eua_price_usd_per_tonne": 70.2,
-      "carbon_penalty_usd": 30979.16,
-      "cii_rating_impact": "B \u2192 C (minor impact)",
+      "carbon_penalty_usd": 111869.17,
+      "cii_rating_impact": "D \u2192 E (operational ban risk)",
       "regulation": "EU ETS (100% coverage from Jan 2026) + IMO CII"
     },
     "pareto_options": [
       {
-        "port": "Port of New York-New Jersey",
-        "country": "USA",
-        "cost_usd": 400656,
-        "delay_days": 1.76,
-        "raw_delay_days": 1.5,
-        "distance_nm": 618.3,
-        "carbon_usd": 30979.16,
-        "co2_tonnes": 441.3,
-        "risk": "Low",
-        "total_cost_usd": 431635.16,
+        "port": "Port of Mumbai (JNPT)",
+        "country": "India",
+        "cost_usd": 2170260,
+        "delay_days": 4.73,
+        "raw_delay_days": 0.7,
+        "distance_nm": 297.7,
+        "carbon_usd": 111869.17,
+        "co2_tonnes": 1593.58,
+        "risk": "Medium",
+        "total_cost_usd": 2282129.17,
         "option": "Min Cost",
         "best_for": "Cost-priority operators"
       },
       {
-        "port": "Port of New York-New Jersey",
-        "country": "USA",
-        "cost_usd": 400656,
-        "delay_days": 1.76,
-        "raw_delay_days": 1.5,
-        "distance_nm": 618.3,
-        "carbon_usd": 30979.16,
-        "co2_tonnes": 441.3,
-        "risk": "Low",
-        "total_cost_usd": 431635.16,
+        "port": "Port of Mumbai (JNPT)",
+        "country": "India",
+        "cost_usd": 2170260,
+        "delay_days": 4.73,
+        "raw_delay_days": 0.7,
+        "distance_nm": 297.7,
+        "carbon_usd": 111869.17,
+        "co2_tonnes": 1593.58,
+        "risk": "Medium",
+        "total_cost_usd": 2282129.17,
         "option": "Min Carbon",
         "best_for": "ESG / EU ETS compliance priority"
       },
       {
-        "port": "Port of New York-New Jersey",
-        "country": "USA",
-        "cost_usd": 400656,
-        "delay_days": 1.76,
-        "raw_delay_days": 1.5,
-        "distance_nm": 618.3,
-        "carbon_usd": 30979.16,
-        "co2_tonnes": 441.3,
-        "risk": "Low",
-        "total_cost_usd": 431635.16,
+        "port": "Port of Mumbai (JNPT)",
+        "country": "India",
+        "cost_usd": 2170260,
+        "delay_days": 4.73,
+        "raw_delay_days": 0.7,
+        "distance_nm": 297.7,
+        "carbon_usd": 111869.17,
+        "co2_tonnes": 1593.58,
+        "risk": "Medium",
+        "total_cost_usd": 2282129.17,
         "option": "Min Time",
         "best_for": "Time-priority (BPR congestion-adjusted delay)"
       }
@@ -239,11 +239,11 @@
     "formula": "distance_nm * SFC(0.0191) * CF(3.114) * EUA_price_usd * vessels"
   },
   "decision_summary": {
-    "final_decision": "MONITOR",
+    "final_decision": "REROUTE",
     "decision_basis": "Severity-based rule: REROUTE if severity is critical or high, MONITOR if medium or low",
-    "response_time_seconds": 3.92,
+    "response_time_seconds": 26.87,
     "target_met": true,
-    "llm_confidence_label": "71%",
+    "llm_confidence_label": "91%",
     "llm_confidence_note": "Model-generated estimate. Not statistically validated."
   }
 }

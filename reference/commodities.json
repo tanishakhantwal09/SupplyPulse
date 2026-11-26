@@ -1,0 +1,328 @@
+[
+  {
+    "commodity_id": "C001",
+    "name": "Electronics and Semiconductors",
+    "subcategories": [
+      "smartphones",
+      "laptops",
+      "chips",
+      "displays",
+      "components"
+    ],
+    "primary_export_ports": [
+      "P001",
+      "P004",
+      "P006",
+      "P007",
+      "P002"
+    ],
+    "primary_import_ports": [
+      "P029",
+      "P030",
+      "P032",
+      "P021",
+      "P022"
+    ],
+    "primary_routes": [
+      "R003",
+      "R001",
+      "R005"
+    ],
+    "supply_chain_sensitivity": "critical",
+    "avg_value_per_container_usd": 85000,
+    "typical_disruption_impact_days": 14,
+    "key_chokepoints": [
+      "P047",
+      "P045",
+      "P049"
+    ],
+    "landmark_disruptions": [
+      "2021 semiconductor shortage \u2014 $500B global impact",
+      "2022 Shanghai lockdown \u2014 Apple, Samsung production halted"
+    ]
+  },
+  {
+    "commodity_id": "C002",
+    "name": "Oil and Petrochemicals",
+    "subcategories": [
+      "crude_oil",
+      "LNG",
+      "refined_products",
+      "petrochemicals"
+    ],
+    "primary_export_ports": [
+      "P017",
+      "P019",
+      "P034",
+      "P018"
+    ],
+    "primary_import_ports": [
+      "P021",
+      "P029",
+      "P032",
+      "P007",
+      "P014"
+    ],
+    "primary_routes": [
+      "R008",
+      "R006",
+      "R003"
+    ],
+    "supply_chain_sensitivity": "critical",
+    "avg_value_per_container_usd": 120000,
+    "typical_disruption_impact_days": 7,
+    "key_chokepoints": [
+      "P045",
+      "P047",
+      "P049"
+    ],
+    "landmark_disruptions": [
+      "2022 Russia-Ukraine \u2014 Black Sea oil disruption",
+      "2023-2024 Red Sea crisis \u2014 tanker rerouting surge"
+    ]
+  },
+  {
+    "commodity_id": "C003",
+    "name": "Textiles and Apparel",
+    "subcategories": [
+      "clothing",
+      "footwear",
+      "fabric",
+      "accessories"
+    ],
+    "primary_export_ports": [
+      "P001",
+      "P004",
+      "P011",
+      "P012",
+      "P014"
+    ],
+    "primary_import_ports": [
+      "P029",
+      "P032",
+      "P021",
+      "P022",
+      "P024"
+    ],
+    "primary_routes": [
+      "R003",
+      "R001",
+      "R005"
+    ],
+    "supply_chain_sensitivity": "high",
+    "avg_value_per_container_usd": 35000,
+    "typical_disruption_impact_days": 21,
+    "key_chokepoints": [
+      "P047",
+      "P045"
+    ],
+    "landmark_disruptions": [
+      "2020 COVID factory closures in Bangladesh and Vietnam",
+      "2021 Suez blockage \u2014 fashion season delays"
+    ]
+  },
+  {
+    "commodity_id": "C004",
+    "name": "Agricultural Products and Food",
+    "subcategories": [
+      "grain",
+      "soybeans",
+      "wheat",
+      "meat",
+      "dairy",
+      "fresh_produce"
+    ],
+    "primary_export_ports": [
+      "P035",
+      "P029",
+      "P036",
+      "P039",
+      "P042"
+    ],
+    "primary_import_ports": [
+      "P017",
+      "P019",
+      "P021",
+      "P001",
+      "P014"
+    ],
+    "primary_routes": [
+      "R010",
+      "R007",
+      "R009"
+    ],
+    "supply_chain_sensitivity": "critical",
+    "avg_value_per_container_usd": 28000,
+    "typical_disruption_impact_days": 7,
+    "key_chokepoints": [
+      "P045",
+      "P049"
+    ],
+    "landmark_disruptions": [
+      "2022 Russia-Ukraine war \u2014 global wheat supply shock",
+      "2024 Red Sea crisis \u2014 food price inflation in Middle East and Africa"
+    ]
+  },
+  {
+    "commodity_id": "C005",
+    "name": "Automobiles and Auto Parts",
+    "subcategories": [
+      "passenger_cars",
+      "commercial_vehicles",
+      "engines",
+      "parts"
+    ],
+    "primary_export_ports": [
+      "P023",
+      "P006",
+      "P007",
+      "P026",
+      "P008"
+    ],
+    "primary_import_ports": [
+      "P032",
+      "P021",
+      "P029",
+      "P014",
+      "P017"
+    ],
+    "primary_routes": [
+      "R007",
+      "R001",
+      "R003"
+    ],
+    "supply_chain_sensitivity": "high",
+    "avg_value_per_container_usd": 55000,
+    "typical_disruption_impact_days": 30,
+    "key_chokepoints": [
+      "P045",
+      "P047"
+    ],
+    "landmark_disruptions": [
+      "2021 semiconductor shortage \u2014 auto plant shutdowns worldwide",
+      "2022 Shanghai lockdown \u2014 Tesla production halted"
+    ]
+  },
+  {
+    "commodity_id": "C006",
+    "name": "Machinery and Industrial Equipment",
+    "subcategories": [
+      "construction",
+      "manufacturing",
+      "medical",
+      "agricultural_machinery"
+    ],
+    "primary_export_ports": [
+      "P023",
+      "P021",
+      "P001",
+      "P007",
+      "P029"
+    ],
+    "primary_import_ports": [
+      "P014",
+      "P017",
+      "P036",
+      "P039",
+      "P041"
+    ],
+    "primary_routes": [
+      "R001",
+      "R006",
+      "R007"
+    ],
+    "supply_chain_sensitivity": "high",
+    "avg_value_per_container_usd": 75000,
+    "typical_disruption_impact_days": 21,
+    "key_chokepoints": [
+      "P045",
+      "P047",
+      "P049"
+    ],
+    "landmark_disruptions": [
+      "2020 COVID \u2014 construction project delays globally",
+      "2021-2022 supply chain bottlenecks"
+    ]
+  },
+  {
+    "commodity_id": "C007",
+    "name": "Chemicals and Pharmaceuticals",
+    "subcategories": [
+      "industrial_chemicals",
+      "fertilizers",
+      "medicines",
+      "APIs"
+    ],
+    "primary_export_ports": [
+      "P021",
+      "P022",
+      "P034",
+      "P014",
+      "P001"
+    ],
+    "primary_import_ports": [
+      "P029",
+      "P032",
+      "P017",
+      "P036",
+      "P039"
+    ],
+    "primary_routes": [
+      "R007",
+      "R003",
+      "R006"
+    ],
+    "supply_chain_sensitivity": "critical",
+    "avg_value_per_container_usd": 95000,
+    "typical_disruption_impact_days": 14,
+    "key_chokepoints": [
+      "P045",
+      "P047"
+    ],
+    "landmark_disruptions": [
+      "2020 COVID \u2014 PPE and medicine supply crisis",
+      "2022 India API export restrictions"
+    ]
+  },
+  {
+    "commodity_id": "C008",
+    "name": "Raw Materials and Minerals",
+    "subcategories": [
+      "iron_ore",
+      "coal",
+      "copper",
+      "lithium",
+      "rare_earths"
+    ],
+    "primary_export_ports": [
+      "P042",
+      "P039",
+      "P036",
+      "P035",
+      "P015"
+    ],
+    "primary_import_ports": [
+      "P001",
+      "P003",
+      "P006",
+      "P023",
+      "P021"
+    ],
+    "primary_routes": [
+      "R009",
+      "R010",
+      "R001"
+    ],
+    "supply_chain_sensitivity": "high",
+    "avg_value_per_container_usd": 22000,
+    "typical_disruption_impact_days": 10,
+    "key_chokepoints": [
+      "P046",
+      "P047"
+    ],
+    "landmark_disruptions": [
+      "2022 nickel price shock \u2014 LME trading halted",
+      "2023 lithium supply chain tensions China-Australia"
+    ]
+  }
+]

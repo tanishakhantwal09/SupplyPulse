@@ -1,0 +1,302 @@
+[
+  {
+    "route_id": "R001",
+    "name": "Asia-Europe Main Line (via Suez)",
+    "description": "Primary trade route connecting East Asia to Northern Europe via Suez Canal",
+    "key_ports": [
+      "P001",
+      "P002",
+      "P006",
+      "P020",
+      "P021",
+      "P022",
+      "P023"
+    ],
+    "chokepoints": [
+      "P047",
+      "P045"
+    ],
+    "alternate_route": "R002",
+    "avg_transit_days": 28,
+    "alternate_transit_days": 42,
+    "annual_trade_value_billion_usd": 600,
+    "primary_commodities": [
+      "electronics",
+      "textiles",
+      "machinery",
+      "consumer_goods",
+      "chemicals"
+    ],
+    "disruption_impact": "critical",
+    "landmark_events": [
+      "2021 Suez blockage",
+      "2023-2024 Red Sea crisis"
+    ]
+  },
+  {
+    "route_id": "R002",
+    "name": "Asia-Europe via Cape of Good Hope",
+    "description": "Alternative Asia-Europe route bypassing Suez via southern Africa",
+    "key_ports": [
+      "P001",
+      "P002",
+      "P039",
+      "P040",
+      "P021",
+      "P022"
+    ],
+    "chokepoints": [
+      "P046"
+    ],
+    "alternate_route": "R001",
+    "avg_transit_days": 42,
+    "alternate_transit_days": 28,
+    "annual_trade_value_billion_usd": 0,
+    "primary_commodities": [
+      "all"
+    ],
+    "disruption_impact": "low",
+    "landmark_events": [
+      "2024 Red Sea diversion \u2014 thousands of vessels rerouted here"
+    ]
+  },
+  {
+    "route_id": "R003",
+    "name": "Transpacific Eastbound (Asia-North America West Coast)",
+    "description": "Highest volume route connecting East Asia to US West Coast",
+    "key_ports": [
+      "P001",
+      "P003",
+      "P006",
+      "P007",
+      "P029",
+      "P030",
+      "P031"
+    ],
+    "chokepoints": [
+      "P047"
+    ],
+    "alternate_route": "R004",
+    "avg_transit_days": 14,
+    "alternate_transit_days": 28,
+    "annual_trade_value_billion_usd": 700,
+    "primary_commodities": [
+      "electronics",
+      "consumer_goods",
+      "machinery",
+      "textiles",
+      "automobiles"
+    ],
+    "disruption_impact": "critical",
+    "landmark_events": [
+      "2021-2022 LA/Long Beach port congestion",
+      "COVID-19 container shortage"
+    ]
+  },
+  {
+    "route_id": "R004",
+    "name": "Asia-North America East Coast (via Panama)",
+    "description": "Asia to US East Coast via Panama Canal",
+    "key_ports": [
+      "P001",
+      "P002",
+      "P049",
+      "P032",
+      "P033"
+    ],
+    "chokepoints": [
+      "P049"
+    ],
+    "alternate_route": "R003",
+    "avg_transit_days": 24,
+    "alternate_transit_days": 35,
+    "annual_trade_value_billion_usd": 300,
+    "primary_commodities": [
+      "consumer_goods",
+      "electronics",
+      "agricultural",
+      "chemicals"
+    ],
+    "disruption_impact": "critical",
+    "landmark_events": [
+      "2024 Panama Canal drought \u2014 capacity reduced 36%"
+    ]
+  },
+  {
+    "route_id": "R005",
+    "name": "Intra-Asia Regional Route",
+    "description": "Short-sea shipping connecting East and Southeast Asian ports",
+    "key_ports": [
+      "P001",
+      "P004",
+      "P006",
+      "P007",
+      "P002",
+      "P010",
+      "P012"
+    ],
+    "chokepoints": [
+      "P047"
+    ],
+    "alternate_route": "R006",
+    "avg_transit_days": 5,
+    "alternate_transit_days": 9,
+    "annual_trade_value_billion_usd": 400,
+    "primary_commodities": [
+      "electronics",
+      "semiconductors",
+      "consumer_goods",
+      "chemicals"
+    ],
+    "disruption_impact": "high",
+    "landmark_events": [
+      "2022 Taiwan Strait tensions",
+      "COVID Shanghai lockdown 2022"
+    ]
+  },
+  {
+    "route_id": "R006",
+    "name": "Asia-Middle East-India Route",
+    "description": "Connecting East Asia to Middle East and South Asia",
+    "key_ports": [
+      "P001",
+      "P002",
+      "P016",
+      "P014",
+      "P017",
+      "P019"
+    ],
+    "chokepoints": [
+      "P047"
+    ],
+    "alternate_route": "R001",
+    "avg_transit_days": 18,
+    "alternate_transit_days": 25,
+    "annual_trade_value_billion_usd": 250,
+    "primary_commodities": [
+      "oil",
+      "electronics",
+      "textiles",
+      "machinery",
+      "consumer_goods"
+    ],
+    "disruption_impact": "high",
+    "landmark_events": [
+      "2023-2024 Red Sea Houthi attacks"
+    ]
+  },
+  {
+    "route_id": "R007",
+    "name": "Europe-North America North Atlantic Route",
+    "description": "Connecting Northern Europe to US East Coast",
+    "key_ports": [
+      "P021",
+      "P022",
+      "P023",
+      "P024",
+      "P032",
+      "P033"
+    ],
+    "chokepoints": [],
+    "alternate_route": "R008",
+    "avg_transit_days": 10,
+    "alternate_transit_days": 14,
+    "annual_trade_value_billion_usd": 200,
+    "primary_commodities": [
+      "machinery",
+      "automobiles",
+      "chemicals",
+      "consumer_goods"
+    ],
+    "disruption_impact": "medium",
+    "landmark_events": [
+      "2022 Russia-Ukraine war \u2014 Black Sea trade impact"
+    ]
+  },
+  {
+    "route_id": "R008",
+    "name": "Middle East-Europe Red Sea Route",
+    "description": "Oil and goods from Middle East to Europe via Red Sea and Suez",
+    "key_ports": [
+      "P017",
+      "P019",
+      "P020",
+      "P045",
+      "P021",
+      "P022"
+    ],
+    "chokepoints": [
+      "P045"
+    ],
+    "alternate_route": "R009",
+    "avg_transit_days": 12,
+    "alternate_transit_days": 26,
+    "annual_trade_value_billion_usd": 400,
+    "primary_commodities": [
+      "oil",
+      "petrochemicals",
+      "consumer_goods",
+      "food"
+    ],
+    "disruption_impact": "critical",
+    "landmark_events": [
+      "2023-2024 Houthi attacks \u2014 12% of world trade diverted"
+    ]
+  },
+  {
+    "route_id": "R009",
+    "name": "Africa Coastal Route",
+    "description": "Connecting African ports \u2014 also serves as Europe-Asia bypass",
+    "key_ports": [
+      "P039",
+      "P040",
+      "P041",
+      "P046"
+    ],
+    "chokepoints": [],
+    "alternate_route": "R001",
+    "avg_transit_days": 20,
+    "alternate_transit_days": 28,
+    "annual_trade_value_billion_usd": 80,
+    "primary_commodities": [
+      "minerals",
+      "agricultural",
+      "oil",
+      "consumer_goods"
+    ],
+    "disruption_impact": "medium",
+    "landmark_events": [
+      "2024 \u2014 surge in vessels rerouting around Africa due to Red Sea crisis"
+    ]
+  },
+  {
+    "route_id": "R010",
+    "name": "Transpacific Westbound (North America-Asia)",
+    "description": "US agricultural and commodity exports to Asia",
+    "key_ports": [
+      "P029",
+      "P030",
+      "P035",
+      "P001",
+      "P006",
+      "P007"
+    ],
+    "chokepoints": [
+      "P047"
+    ],
+    "alternate_route": "R004",
+    "avg_transit_days": 16,
+    "alternate_transit_days": 30,
+    "annual_trade_value_billion_usd": 200,
+    "primary_commodities": [
+      "agricultural",
+      "lumber",
+      "chemicals",
+      "machinery"
+    ],
+    "disruption_impact": "high",
+    "landmark_events": [
+      "2018-2019 US-China trade war tariff impacts"
+    ]
+  }
+]

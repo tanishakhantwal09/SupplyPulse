@@ -1,0 +1,346 @@
+{
+  "port_of_savannah": {
+    "utilization": 0.3,
+    "timestamp": "2026-09-26T14:10:59.959043",
+    "source": "portwatch_live",
+    "avg_daily_calls": 6.0,
+    "sample_days": 7,
+    "port_name": "Port of Savannah"
+  },
+  "port_of_vancouver": {
+    "utilization": 0.279,
+    "timestamp": "2026-09-26T14:11:01.036652",
+    "source": "portwatch_live",
+    "avg_daily_calls": 5.6,
+    "sample_days": 7,
+    "port_name": "Port of Vancouver"
+  },
+  "port_of_new_york-new_jersey": {
+    "utilization": 0.351,
+    "timestamp": "2026-09-26T14:11:01.942007",
+    "source": "portwatch_live",
+    "avg_daily_calls": 8.4,
+    "sample_days": 7,
+    "port_name": "Port of New York-New Jersey"
+  },
+  "port_of_mumbai_(jnpt)": {
+    "utilization": 1.243,
+    "timestamp": "2026-09-26T14:11:07.027690",
+    "source": "portwatch_live",
+    "avg_daily_calls": 24.9,
+    "sample_days": 7,
+    "port_name": "Port of Mumbai (JNPT)"
+  },
+  "port_of_jebel_ali_(dubai)": {
+    "utilization": 0.127,
+    "timestamp": "2026-09-26T14:11:08.256566",
+    "source": "portwatch_live",
+    "avg_daily_calls": 4.6,
+    "sample_days": 7,
+    "port_name": "Port of Jebel Ali (Dubai)"
+  },
+  "port_of_singapore": {
+    "utilization": 1.254,
+    "timestamp": "2026-09-26T14:11:09.388545",
+    "source": "portwatch_live",
+    "avg_daily_calls": 117.9,
+    "sample_days": 7,
+    "port_name": "Port of Singapore"
+  },
+  "port_of_houston": {
+    "utilization": 1.05,
+    "timestamp": "2026-09-26T14:11:14.509796",
+    "source": "portwatch_live",
+    "avg_daily_calls": 21.0,
+    "sample_days": 7,
+    "port_name": "Port of Houston"
+  },
+  "port_of_shenzhen": {
+    "utilization": 0.129,
+    "timestamp": "2026-09-27T02:46:16.462443",
+    "source": "portwatch_live",
+    "avg_daily_calls": 9.3,
+    "sample_days": 7,
+    "port_name": "Port of Shenzhen"
+  },
+  "port_of_busan": {
+    "utilization": 0.799,
+    "timestamp": "2026-09-27T02:46:17.383713",
+    "source": "portwatch_live",
+    "avg_daily_calls": 45.6,
+    "sample_days": 7,
+    "port_name": "Port of Busan"
+  },
+  "port_of_ho_chi_minh": {
+    "utilization": 1.136,
+    "timestamp": "2026-09-27T02:46:20.711148",
+    "source": "portwatch_live",
+    "avg_daily_calls": 22.7,
+    "sample_days": 7,
+    "port_name": "Port of Ho Chi Minh"
+  },
+  "port_of_laem_chabang": {
+    "utilization": 0.812,
+    "timestamp": "2026-09-27T02:46:21.734355",
+    "source": "portwatch_live",
+    "avg_daily_calls": 17.9,
+    "sample_days": 7,
+    "port_name": "Port of Laem Chabang"
+  },
+  "port_of_jakarta_(tanjung_priok)": {
+    "utilization": 1.364,
+    "timestamp": "2026-09-27T02:46:23.115668",
+    "source": "portwatch_live",
+    "avg_daily_calls": 27.3,
+    "sample_days": 7,
+    "port_name": "Port of Jakarta (Tanjung Priok)"
+  },
+  "port_of_shanghai": {
+    "utilization": 0.591,
+    "timestamp": "2026-09-27T02:46:24.037964",
+    "source": "portwatch_live",
+    "avg_daily_calls": 69.7,
+    "sample_days": 7,
+    "port_name": "Port of Shanghai"
+  },
+  "port_of_guangzhou": {
+    "utilization": 0.143,
+    "timestamp": "2026-09-27T02:46:25.061626",
+    "source": "portwatch_live",
+    "avg_daily_calls": 8.9,
+    "sample_days": 7,
+    "port_name": "Port of Guangzhou"
+  },
+  "port_of_tokyo-yokohama": {
+    "utilization": 0.82,
+    "timestamp": "2026-09-27T02:46:25.884018",
+    "source": "portwatch_live",
+    "avg_daily_calls": 37.7,
+    "sample_days": 7,
+    "port_name": "Port of Tokyo-Yokohama"
+  },
+  "port_of_osaka-kobe": {
+    "utilization": 0.877,
+    "timestamp": "2026-09-27T02:46:26.805424",
+    "source": "portwatch_live",
+    "avg_daily_calls": 31.6,
+    "sample_days": 7,
+    "port_name": "Port of Osaka-Kobe"
+  },
+  "port_klang": {
+    "utilization": 0.962,
+    "timestamp": "2026-09-27T02:46:27.636115",
+    "source": "portwatch_live",
+    "avg_daily_calls": 32.7,
+    "sample_days": 7,
+    "port_name": "Port Klang"
+  },
+  "port_of_tanjung_pelepas": {
+    "utilization": 0.495,
+    "timestamp": "2026-09-27T02:46:28.550215",
+    "source": "portwatch_live",
+    "avg_daily_calls": 13.9,
+    "sample_days": 7,
+    "port_name": "Port of Tanjung Pelepas"
+  },
+  "port_of_mundra": {
+    "utilization": 0.471,
+    "timestamp": "2026-09-27T02:46:29.567103",
+    "source": "portwatch_live",
+    "avg_daily_calls": 9.4,
+    "sample_days": 7,
+    "port_name": "Port of Mundra"
+  },
+  "port_of_colombo": {
+    "utilization": 0.55,
+    "timestamp": "2026-09-27T02:46:30.413641",
+    "source": "portwatch_live",
+    "avg_daily_calls": 11.0,
+    "sample_days": 7,
+    "port_name": "Port of Colombo"
+  },
+  "port_of_salalah": {
+    "utilization": 0.271,
+    "timestamp": "2026-09-27T02:46:31.411613",
+    "source": "portwatch_live",
+    "avg_daily_calls": 5.4,
+    "sample_days": 7,
+    "port_name": "Port of Salalah"
+  },
+  "port_of_jeddah": {
+    "utilization": 0.129,
+    "timestamp": "2026-09-27T02:46:31.856267",
+    "source": "portwatch_live",
+    "avg_daily_calls": 2.6,
+    "sample_days": 7,
+    "port_name": "Port of Jeddah"
+  },
+  "port_said": {
+    "utilization": 0.121,
+    "timestamp": "2026-09-27T02:46:32.736510",
+    "source": "portwatch_live",
+    "avg_daily_calls": 2.4,
+    "sample_days": 7,
+    "port_name": "Port Said"
+  },
+  "port_of_rotterdam": {
+    "utilization": 2.18,
+    "timestamp": "2026-09-27T02:46:33.843859",
+    "source": "portwatch_live",
+    "avg_daily_calls": 82.9,
+    "sample_days": 7,
+    "port_name": "Port of Rotterdam"
+  },
+  "port_of_antwerp-bruges": {
+    "utilization": 1.681,
+    "timestamp": "2026-09-27T02:46:34.687458",
+    "source": "portwatch_live",
+    "avg_daily_calls": 50.4,
+    "sample_days": 7,
+    "port_name": "Port of Antwerp-Bruges"
+  },
+  "port_of_hamburg": {
+    "utilization": 0.747,
+    "timestamp": "2026-09-27T02:46:35.578155",
+    "source": "portwatch_live",
+    "avg_daily_calls": 16.4,
+    "sample_days": 7,
+    "port_name": "Port of Hamburg"
+  },
+  "port_of_felixstowe": {
+    "utilization": 0.143,
+    "timestamp": "2026-09-27T02:46:37.350513",
+    "source": "portwatch_live",
+    "avg_daily_calls": 2.9,
+    "sample_days": 7,
+    "port_name": "Port of Felixstowe"
+  },
+  "port_of_southampton": {
+    "utilization": 0.321,
+    "timestamp": "2026-09-27T02:46:38.273201",
+    "source": "portwatch_live",
+    "avg_daily_calls": 6.4,
+    "sample_days": 7,
+    "port_name": "Port of Southampton"
+  },
+  "port_of_valencia": {
+    "utilization": 0.493,
+    "timestamp": "2026-09-27T02:46:39.287707",
+    "source": "portwatch_live",
+    "avg_daily_calls": 9.9,
+    "sample_days": 7,
+    "port_name": "Port of Valencia"
+  },
+  "port_of_genoa": {
+    "utilization": 0.386,
+    "timestamp": "2026-09-27T02:46:39.676412",
+    "source": "portwatch_live",
+    "avg_daily_calls": 7.7,
+    "sample_days": 7,
+    "port_name": "Port of Genoa"
+  },
+  "port_of_barcelona": {
+    "utilization": 0.514,
+    "timestamp": "2026-09-27T02:46:40.732150",
+    "source": "portwatch_live",
+    "avg_daily_calls": 10.3,
+    "sample_days": 7,
+    "port_name": "Port of Barcelona"
+  },
+  "port_of_long_beach": {
+    "utilization": 0.404,
+    "timestamp": "2026-09-27T02:46:41.582687",
+    "source": "portwatch_live",
+    "avg_daily_calls": 9.3,
+    "sample_days": 7,
+    "port_name": "Port of Long Beach"
+  },
+  "port_of_seattle-tacoma": {
+    "utilization": 0.114,
+    "timestamp": "2026-09-27T02:46:42.469886",
+    "source": "portwatch_live",
+    "avg_daily_calls": 2.3,
+    "sample_days": 7,
+    "port_name": "Port of Seattle-Tacoma"
+  },
+  "port_of_los_angeles": {
+    "utilization": 0.344,
+    "timestamp": "2026-09-27T02:46:42.597829",
+    "source": "portwatch_live",
+    "avg_daily_calls": 9.3,
+    "sample_days": 7,
+    "port_name": "Port of Los Angeles"
+  },
+  "port_of_callao": {
+    "utilization": 0.243,
+    "timestamp": "2026-09-27T02:46:43.700208",
+    "source": "portwatch_live",
+    "avg_daily_calls": 4.9,
+    "sample_days": 7,
+    "port_name": "Port of Callao"
+  },
+  "port_of_colon": {
+    "utilization": 0.121,
+    "timestamp": "2026-09-27T02:46:44.736697",
+    "source": "portwatch_live",
+    "avg_daily_calls": 2.4,
+    "sample_days": 7,
+    "port_name": "Port of Colon"
+  },
+  "port_of_santos": {
+    "utilization": 0.8,
+    "timestamp": "2026-09-27T02:46:45.644561",
+    "source": "portwatch_live",
+    "avg_daily_calls": 16.0,
+    "sample_days": 7,
+    "port_name": "Port of Santos"
+  },
+  "port_of_cape_town": {
+    "utilization": 0.164,
+    "timestamp": "2026-09-27T02:46:46.732862",
+    "source": "portwatch_live",
+    "avg_daily_calls": 3.3,
+    "sample_days": 7,
+    "port_name": "Port of Cape Town"
+  },
+  "port_of_lagos_(apapa)": {
+    "utilization": 0.236,
+    "timestamp": "2026-09-27T02:46:50.011794",
+    "source": "portwatch_live",
+    "avg_daily_calls": 4.7,
+    "sample_days": 7,
+    "port_name": "Port of Lagos (Apapa)"
+  },
+  "port_of_durban": {
+    "utilization": 0.221,
+    "timestamp": "2026-09-27T02:46:50.970331",
+    "source": "portwatch_live",
+    "avg_daily_calls": 4.4,
+    "sample_days": 7,
+    "port_name": "Port of Durban"
+  },
+  "port_of_sydney_(botany)": {
+    "utilization": 0.021,
+    "timestamp": "2026-09-27T02:46:54.965332",
+    "source": "portwatch_live",
+    "avg_daily_calls": 0.4,
+    "sample_days": 7,
+    "port_name": "Port of Sydney (Botany)"
+  },
+  "port_of_brisbane": {
+    "utilization": 0.279,
+    "timestamp": "2026-09-27T02:46:55.988851",
+    "source": "portwatch_live",
+    "avg_daily_calls": 5.6,
+    "sample_days": 7,
+    "port_name": "Port of Brisbane"
+  },
+  "port_of_melbourne": {
+    "utilization": 0.243,
+    "timestamp": "2026-09-27T02:46:56.959823",
+    "source": "portwatch_live",
+    "avg_daily_calls": 4.9,
+    "sample_days": 7,
+    "port_name": "Port of Melbourne"
+  }
+}
