@@ -1,0 +1,633 @@
+===== master /Users/tanishakhantwal/Downloads/Minor project/dataset/final/master_enriched.parquet (622699, 33)
+event_id                         int64
+event_date                         str
+event_location                     str
+event_country                      str
+event_lat                      float64
+event_lon                      float64
+goldstein_scale                float64
+avg_tone                       float64
+num_mentions                     int64
+source_url                         str
+data_source                        str
+severity                           str
+nearest_port_id                    str
+nearest_port_name                  str
+nearest_port_country               str
+distance_to_port_nm            float64
+port_type                          str
+port_strategic_importance          str
+affected_routes                    str
+affected_commodities               str
+freight_impact_pct             float64
+vessels_affected                 int64
+duration_hours                   int64
+decision_reroute                  bool
+decision_alternate_port            str
+decision_alternate_route           str
+decision_transit_days_added      int64
+decision_inventory_realloc        bool
+decision_financial_alert          bool
+decision_estimated_cost_usd      int64
+decision_delay_recommended        bool
+decision_confidence            float64
+year                             int64
+
+NULLS
+ event_id                            0
+event_date                          0
+event_location                      0
+event_country                       0
+event_lat                           0
+event_lon                           0
+goldstein_scale                     8
+avg_tone                            0
+num_mentions                        0
+source_url                          0
+data_source                         0
+severity                            0
+nearest_port_id                     0
+nearest_port_name                   0
+nearest_port_country                0
+distance_to_port_nm                 0
+port_type                           0
+port_strategic_importance           0
+affected_routes                     0
+affected_commodities                0
+freight_impact_pct                  0
+vessels_affected                    0
+duration_hours                      0
+decision_reroute                    0
+decision_alternate_port             0
+decision_alternate_route       194508
+decision_transit_days_added         0
+decision_inventory_realloc          0
+decision_financial_alert            0
+decision_estimated_cost_usd         0
+decision_delay_recommended          0
+decision_confidence                 0
+year                                0
+
+HEAD
+                                                                                                                                             0                                                                                                                        1                                                                              2                                                                            3                                                                                                                                                                   4
+event_id                                                                                                                           1211175541                                                                                                                919181228                                                                      995719184                                                                   1075867392                                                                                                                                                          1215421662
+event_date                                                                                                                         2024-11-21                                                                                                               2020-04-20                                                                     2021-07-19                                                                   2022-12-12                                                                                                                                                          2024-12-13
+event_location                                                                               White House, District of Columbia, United States                                                                                  Cobequid Mountains, Nova Scotia, Canada                                                        Oklahoma, United States                              Washington, District of Columbia, United States                                                                                                                                             Beijing, Beijing, China
+event_country                                                                                                                              US                                                                                                                       CA                                                                             US                                                                           US                                                                                                                                                                  CH
+event_lat                                                                                                                             38.8951                                                                                                                  45.5167                                                                        35.5376                                                                      38.8951                                                                                                                                                             39.9289
+event_lon                                                                                                                            -77.0364                                                                                                                 -64.0833                                                                       -96.9247                                                                     -77.0364                                                                                                                                                             116.388
+goldstein_scale                                                                                                                           8.0                                                                                                                      1.9                                                                           -5.0                                                                          1.9                                                                                                                                                                -0.4
+avg_tone                                                                                                                                -2.62                                                                                                                    -2.19                                                                          -2.02                                                                        -5.28                                                                                                                                                               -4.26
+num_mentions                                                                                                                                8                                                                                                                        4                                                                              5                                                                            4                                                                                                                                                                   4
+source_url                   https://www.jewishpress.com/news/us-news/us-arms-embargo-on-israel-biden-withholds-20000-heavy-bombs/2024/11/21/  https://www.saltwire.com/news/canada/nova-scotias-mass-shootings-this-was-not-supposed-to-happen-on-hunter-road-439753/  https://www.natlawreview.com/article/biden-calls-limits-noncompete-agreements              https://www.rte.ie/news/world/2022/1212/1341399-lockerbie-bomb/  https://www.guampdn.com/news/national/china-fm-says-deeply-concerned-about-syria-in-talks-with-egypt-counterpart/article_d092b339-b0e1-5bce-81ec-1563c2a016d4.html
+data_source                                                                                                                        GDELT_real                                                                                                               GDELT_real                                                                     GDELT_real                                                                   GDELT_real                                                                                                                                                          GDELT_real
+severity                                                                                                                                  low                                                                                                                      low                                                                       critical                                                                       medium                                                                                                                                                              medium
+nearest_port_id                                                                                                                          P032                                                                                                                     P032                                                                           P034                                                                         P032                                                                                                                                                                P001
+nearest_port_name                                                                                                 Port of New York-New Jersey                                                                                              Port of New York-New Jersey                                                                Port of Houston                                                  Port of New York-New Jersey                                                                                                                                                    Port of Shanghai
+nearest_port_country                                                                                                                      USA                                                                                                                      USA                                                                            USA                                                                          USA                                                                                                                                                               China
+distance_to_port_nm                                                                                                                     174.9                                                                                                                    523.7                                                                          355.6                                                                        174.9                                                                                                                                                               578.0
+port_type                                                                                                                            mega_hub                                                                                                                 mega_hub                                                                      major_hub                                                                     mega_hub                                                                                                                                                            mega_hub
+port_strategic_importance                                                                                                            critical                                                                                                                 critical                                                                           high                                                                     critical                                                                                                                                                            critical
+affected_routes                                                                                                              ["R004", "R007"]                                                                                                         ["R004", "R007"]                                                                             []                                                             ["R004", "R007"]                                                                                                            ["R001", "R002", "R003", "R004", "R005", "R006", "R010"]
+affected_commodities                                              ["agricultural", "chemicals", "consumer_goods", "automobiles", "machinery"]                                              ["agricultural", "chemicals", "consumer_goods", "automobiles", "machinery"]       ["agricultural", "petrochemicals", "oil", "consumer_goods", "machinery"]  ["agricultural", "chemicals", "consumer_goods", "automobiles", "machinery"]                                                                                                       ["all", "agricultural", "oil", "chemicals", "semiconductors"]
+freight_impact_pct                                                                                                                       3.24                                                                                                                     3.12                                                                           9.45                                                                         3.12                                                                                                                                                                3.12
+vessels_affected                                                                                                                           25                                                                                                                       25                                                                             40                                                                           25                                                                                                                                                                  25
+duration_hours                                                                                                                             12                                                                                                                       12                                                                             36                                                                           12                                                                                                                                                                  12
+decision_reroute                                                                                                                        False                                                                                                                    False                                                                          False                                                                        False                                                                                                                                                               False
+decision_alternate_port                                                                                                      Port of Savannah                                                                                                         Port of Savannah                                                               Port of Savannah                                                             Port of Savannah                                                                                                                                                   Port of Singapore
+decision_alternate_route                                                               Transpacific Eastbound (Asia-North America West Coast)                                                                   Transpacific Eastbound (Asia-North America West Coast)                                                                            NaN                       Transpacific Eastbound (Asia-North America West Coast)                                                                                                                                   Asia-Europe via Cape of Good Hope
+decision_transit_days_added                                                                                                                 0                                                                                                                        0                                                                              0                                                                            0                                                                                                                                                                   0
+decision_inventory_realloc                                                                                                              False                                                                                                                    False                                                                          False                                                                        False                                                                                                                                                               False
+decision_financial_alert                                                                                                                False                                                                                                                    False                                                                          False                                                                        False                                                                                                                                                               False
+decision_estimated_cost_usd                                                                                                           1742080                                                                                                                  1036339                                                                        7276259                                                                      1539879                                                                                                                                                             1467296
+decision_delay_recommended                                                                                                              False                                                                                                                    False                                                                           True                                                                        False                                                                                                                                                               False
+decision_confidence                                                                                                                      0.58                                                                                                                     0.58                                                                           0.71                                                                         0.58                                                                                                                                                                0.58
+year                                                                                                                                     2024                                                                                                                     2020                                                                           2021                                                                         2022                                                                                                                                                                2024
+
+COUNTS data_source 
+ data_source
+GDELT_real    622699
+
+COUNTS severity 
+ severity
+medium      326561
+critical    161094
+low          76075
+high         58969
+
+COUNTS nearest_port_country 
+ nearest_port_country
+USA             257776
+UK               62563
+India            51418
+Egypt            38174
+China            30968
+Nigeria          30284
+Germany          26982
+UAE              14486
+Italy            13572
+Australia        13509
+Spain             9587
+South Korea       8834
+Belgium           8211
+South Africa      7564
+Japan             7562
+
+COUNTS port_type 
+ port_type
+major_hub          271636
+mega_hub           211482
+regional_hub       105621
+chokepoint          31775
+alternate_route      2185
+
+COUNTS port_strategic_importance 
+ port_strategic_importance
+high        264884
+critical    253363
+medium      104452
+
+COUNTS affected_routes 
+ affected_routes
+[]                                                          194508
+["R004", "R007"]                                            154025
+["R003", "R010"]                                             35515
+["R008"]                                                     30444
+["R009"]                                                     30371
+["R001", "R007"]                                             26982
+["R006", "R008"]                                             19349
+["R003"]                                                     17477
+["R001", "R002", "R003", "R004", "R005", "R006", "R010"]     17427
+["R006"]                                                     16703
+["R007"]                                                     15618
+["R005"]                                                     13747
+["R001", "R002", "R007", "R008"]                             11643
+["R001", "R003", "R005", "R010"]                              8834
+["R001", "R008"]                                              7730
+
+COUNTS decision_alternate_port 
+ decision_alternate_port
+Port of Savannah               165037
+Port of Felixstowe              46945
+Port of New York-New Jersey     45030
+Port of Los Angeles             43354
+Port of Rotterdam               42923
+Port of Mumbai (JNPT)           42617
+Port of Singapore               32575
+Port of Durban                  31540
+Cape of Good Hope Route         30444
+Port of Barcelona               16426
+Port of Southampton             15618
+Port of Salalah                 14486
+Port of Mundra                  12752
+Port of Tokyo-Yokohama           9916
+Port of Melbourne                9136
+
+COUNTS decision_alternate_route 
+ decision_alternate_route
+Transpacific Eastbound (Asia-North America West Coast)    155116
+Asia-Europe via Cape of Good Hope                          76630
+Asia-Europe Main Line (via Suez)                           73900
+Asia-North America East Coast (via Panama)                 62736
+Africa Coastal Route                                       30444
+Middle East-Europe Red Sea Route                           15618
+Asia-Middle East-India Route                               13747
+
+DESCRIBE
+                                 count          mean           std           min           25%           50%           75%           max
+event_id                     622699.0  1.096966e+09  1.240963e+08  8.960984e+08  9.859238e+08  1.092616e+09  1.204474e+09  1.317287e+09
+event_lat                    622699.0  3.351870e+01  1.772398e+01 -5.480000e+01  2.956280e+01  3.777420e+01  4.274750e+01  6.623330e+01
+event_lon                    622699.0 -1.072791e+01  7.801165e+01 -1.380470e+02 -8.171700e+01 -4.500000e-01  4.250000e+01  1.679500e+02
+goldstein_scale              622691.0 -7.199096e-01  4.984007e+00 -1.000000e+01 -5.000000e+00  0.000000e+00  3.000000e+00  1.000000e+01
+avg_tone                     622699.0 -5.181108e+00  2.597191e+00 -3.636000e+01 -6.540000e+00 -4.570000e+00 -3.180000e+00 -2.000000e+00
+num_mentions                 622699.0  6.335994e+00  4.491022e+00  3.000000e+00  4.000000e+00  5.000000e+00  8.000000e+00  3.500000e+02
+distance_to_port_nm          622699.0  2.989014e+02  2.157742e+02  0.000000e+00  1.263000e+02  2.522000e+02  4.650000e+02  8.000000e+02
+freight_impact_pct           622699.0  8.315744e+00  7.773475e+00  3.090000e+00  3.150000e+00  3.300000e+00  9.540000e+00  6.500000e+01
+vessels_affected             622699.0  4.189788e+01  4.465108e+01  3.000000e+00  1.200000e+01  2.500000e+01  4.000000e+01  5.000000e+02
+duration_hours               622699.0  2.777766e+01  2.119885e+01  1.200000e+01  1.200000e+01  1.200000e+01  3.600000e+01  1.440000e+02
+decision_transit_days_added  622699.0  1.050874e+00  3.366783e+00  0.000000e+00  0.000000e+00  0.000000e+00  0.000000e+00  1.400000e+01
+decision_estimated_cost_usd  622699.0  1.027870e+07  2.187634e+07  7.516500e+04  6.934600e+05  1.637801e+06  8.822718e+06  6.769375e+08
+decision_confidence          622699.0  6.530922e-01  8.909471e-02  5.800000e-01  5.800000e-01  5.800000e-01  7.100000e-01  9.100000e-01
+year                         622699.0  2.022677e+03  1.947265e+00  2.020000e+03  2.021000e+03  2.023000e+03  2.024000e+03  2.026000e+03
+===== train /Users/tanishakhantwal/Downloads/Minor project/dataset/final/training_set.parquet (435889, 33)
+event_id                         int64
+event_date                         str
+event_location                     str
+event_country                      str
+event_lat                      float64
+event_lon                      float64
+goldstein_scale                float64
+avg_tone                       float64
+num_mentions                     int64
+source_url                         str
+data_source                        str
+severity                           str
+nearest_port_id                    str
+nearest_port_name                  str
+nearest_port_country               str
+distance_to_port_nm            float64
+port_type                          str
+port_strategic_importance          str
+affected_routes                    str
+affected_commodities               str
+freight_impact_pct             float64
+vessels_affected                 int64
+duration_hours                   int64
+decision_reroute                  bool
+decision_alternate_port            str
+decision_alternate_route           str
+decision_transit_days_added      int64
+decision_inventory_realloc        bool
+decision_financial_alert          bool
+decision_estimated_cost_usd      int64
+decision_delay_recommended        bool
+decision_confidence            float64
+year                             int64
+
+NULLS
+ event_id                            0
+event_date                          0
+event_location                      0
+event_country                       0
+event_lat                           0
+event_lon                           0
+goldstein_scale                     6
+avg_tone                            0
+num_mentions                        0
+source_url                          0
+data_source                         0
+severity                            0
+nearest_port_id                     0
+nearest_port_name                   0
+nearest_port_country                0
+distance_to_port_nm                 0
+port_type                           0
+port_strategic_importance           0
+affected_routes                     0
+affected_commodities                0
+freight_impact_pct                  0
+vessels_affected                    0
+duration_hours                      0
+decision_reroute                    0
+decision_alternate_port             0
+decision_alternate_route       136060
+decision_transit_days_added         0
+decision_inventory_realloc          0
+decision_financial_alert            0
+decision_estimated_cost_usd         0
+decision_delay_recommended          0
+decision_confidence                 0
+year                                0
+
+HEAD
+                                                                                                                                                       0                                                                                       1                                                                           2                                                                         3                                                                                                      4
+event_id                                                                                                                                     1249446151                                                                              1229052268                                                                   932667149                                                                1159424168                                                                                             1274361557
+event_date                                                                                                                                   2025-06-13                                                                              2025-02-27                                                                  2020-07-01                                                                2024-02-22                                                                                             2025-11-15
+event_location                                                                                                                 Multan, Punjab, Pakistan                                                           Bucharest, Bucuresti, Romania                                          Brasilia, Distrito Federal, Brazil                                           Tierra Caliente, Oaxaca, Mexico                                                                                Illinois, United States
+event_country                                                                                                                                        PK                                                                                      RO                                                                          BR                                                                        MX                                                                                                     US
+event_lat                                                                                                                                       30.1956                                                                                 44.4333                                                                    -15.7833                                                                   17.0597                                                                                                40.3363
+event_lon                                                                                                                                       71.4753                                                                                    26.1                                                                    -47.9167                                                                  -97.0031                                                                                               -89.0022
+goldstein_scale                                                                                                                                    -5.0                                                                                     4.0                                                                         0.0                                                                     -10.0                                                                                                   -5.0
+avg_tone                                                                                                                                          -9.79                                                                                   -6.05                                                                       -3.59                                                                     -5.63                                                                                                  -2.42
+num_mentions                                                                                                                                         10                                                                                       9                                                                           4                                                                         4                                                                                                     10
+source_url                   https://en.dailypakistan.com.pk/13-Jun-2025/doctor-arrested-for-raping-girl-on-pretext-of-entry-test-preparation-in-multan  https://www.bangkokpost.com/world/2969436/notorious-tate-brothers-leave-romania-for-us   https://in.reuters.com/article/brazil-environment-investors-idINL1N2E009L                       https://latinnews.com/component/k2/item/100391.html  https://therealdeal.com/chicago/2025/11/15/a-critique-of-the-mls-defense-of-private-listing-networks/
+data_source                                                                                                                                  GDELT_real                                                                              GDELT_real                                                                  GDELT_real                                                                GDELT_real                                                                                             GDELT_real
+severity                                                                                                                                       critical                                                                                  medium                                                                      medium                                                                  critical                                                                                               critical
+nearest_port_id                                                                                                                                    P015                                                                                    P028                                                                        P036                                                                      P034                                                                                                   P033
+nearest_port_name                                                                                                                        Port of Mundra                                                                           Port of Genoa                                                              Port of Santos                                                           Port of Houston                                                                                       Port of Savannah
+nearest_port_country                                                                                                                              India                                                                                   Italy                                                                      Brazil                                                                       USA                                                                                                    USA
+distance_to_port_nm                                                                                                                               451.7                                                                                   734.3                                                                       499.1                                                                     767.8                                                                                                  625.6
+port_type                                                                                                                                     major_hub                                                                            regional_hub                                                                   major_hub                                                                 major_hub                                                                                              major_hub
+port_strategic_importance                                                                                                                          high                                                                                  medium                                                                        high                                                                      high                                                                                                   high
+affected_routes                                                                                                                                      []                                                                                      []                                                                          []                                                                        []                                                                                       ["R004", "R007"]
+affected_commodities                                                             ["fertilizers", "agricultural", "coal", "chemicals", "consumer_goods"]                            ["machinery", "chemicals", "agricultural", "consumer_goods"]  ["agricultural", "iron_ore", "chemicals", "consumer_goods", "automobiles"]  ["agricultural", "petrochemicals", "oil", "consumer_goods", "machinery"]                            ["agricultural", "chemicals", "consumer_goods", "automobiles", "machinery"]
+freight_impact_pct                                                                                                                                 26.4                                                                                    3.27                                                                        3.12                                                                     24.96                                                                                                    9.9
+vessels_affected                                                                                                                                     90                                                                                       6                                                                          12                                                                        90                                                                                                     40
+duration_hours                                                                                                                                       72                                                                                      12                                                                          12                                                                        72                                                                                                     36
+decision_reroute                                                                                                                                   True                                                                                   False                                                                       False                                                                      True                                                                                                  False
+decision_alternate_port                                                                                                           Port of Mumbai (JNPT)                                                                       Port of Barcelona                                                              Port of Callao                                                          Port of Savannah                                                                            Port of New York-New Jersey
+decision_alternate_route                                                                                                                            NaN                                                                                     NaN                                                                         NaN                                                                       NaN                                                 Transpacific Eastbound (Asia-North America West Coast)
+decision_transit_days_added                                                                                                                           0                                                                                       0                                                                           0                                                                         0                                                                                                      0
+decision_inventory_realloc                                                                                                                         True                                                                                   False                                                                       False                                                                      True                                                                                                  False
+decision_financial_alert                                                                                                                           True                                                                                   False                                                                       False                                                                      True                                                                                                  False
+decision_estimated_cost_usd                                                                                                                    21974469                                                                                  372222                                                                      579589                                                                  28543280                                                                                                7769040
+decision_delay_recommended                                                                                                                        False                                                                                   False                                                                       False                                                                     False                                                                                                   True
+decision_confidence                                                                                                                                0.82                                                                                    0.58                                                                        0.58                                                                      0.82                                                                                                   0.71
+year                                                                                                                                               2025                                                                                    2025                                                                        2020                                                                      2024                                                                                                   2025
+
+COUNTS data_source 
+ data_source
+GDELT_real    435889
+
+COUNTS severity 
+ severity
+medium      228452
+critical    113082
+low          53186
+high         41169
+
+COUNTS nearest_port_country 
+ nearest_port_country
+USA             180598
+UK               43665
+India            36031
+Egypt            26714
+China            21695
+Nigeria          21225
+Germany          18928
+UAE              10147
+Australia         9453
+Italy             9415
+Spain             6663
+South Korea       6097
+Belgium           5783
+South Africa      5294
+Japan             5266
+
+COUNTS port_type 
+ port_type
+major_hub          190266
+mega_hub           148122
+regional_hub        73711
+chokepoint          22222
+alternate_route      1568
+
+COUNTS port_strategic_importance 
+ port_strategic_importance
+high        185591
+critical    177394
+medium       72904
+
+COUNTS affected_routes 
+ affected_routes
+[]                                                          136060
+["R004", "R007"]                                            107883
+["R003", "R010"]                                             24848
+["R009"]                                                     21288
+["R008"]                                                     21287
+["R001", "R007"]                                             18928
+["R006", "R008"]                                             13596
+["R003"]                                                     12253
+["R001", "R002", "R003", "R004", "R005", "R006", "R010"]     12247
+["R006"]                                                     11696
+["R007"]                                                     10965
+["R005"]                                                      9500
+["R001", "R002", "R007", "R008"]                              8196
+["R001", "R003", "R005", "R010"]                              6097
+["R001", "R008"]                                              5427
+
+COUNTS decision_alternate_port 
+ decision_alternate_port
+Port of Savannah               115764
+Port of Felixstowe              32700
+Port of New York-New Jersey     31487
+Port of Los Angeles             30335
+Port of Rotterdam               30138
+Port of Mumbai (JNPT)           29893
+Port of Singapore               22852
+Port of Durban                  22095
+Cape of Good Hope Route         21287
+Port of Barcelona               11355
+Port of Southampton             10965
+Port of Salalah                 10147
+Port of Mundra                   8917
+Port of Tokyo-Yokohama           6847
+Port of Melbourne                6420
+
+COUNTS decision_alternate_route 
+ decision_alternate_route
+Transpacific Eastbound (Asia-North America West Coast)    108652
+Asia-Europe via Cape of Good Hope                          53719
+Asia-Europe Main Line (via Suez)                           51811
+Asia-North America East Coast (via Panama)                 43895
+Africa Coastal Route                                       21287
+Middle East-Europe Red Sea Route                           10965
+Asia-Middle East-India Route                                9500
+
+DESCRIBE
+                                 count          mean           std           min           25%           50%           75%           max
+event_id                     435889.0  1.096948e+09  1.240039e+08  8.960984e+08  9.859998e+08  1.092615e+09  1.204390e+09  1.317287e+09
+event_lat                    435889.0  3.350997e+01  1.772635e+01 -5.480000e+01  2.956280e+01  3.776800e+01  4.274750e+01  6.623330e+01
+event_lon                    435889.0 -1.075948e+01  7.799983e+01 -1.380470e+02 -8.171700e+01 -4.500000e-01  4.266670e+01  1.679500e+02
+goldstein_scale              435883.0 -7.232911e-01  4.989919e+00 -1.000000e+01 -5.000000e+00  0.000000e+00  3.000000e+00  1.000000e+01
+avg_tone                     435889.0 -5.180174e+00  2.601442e+00 -3.636000e+01 -6.540000e+00 -4.570000e+00 -3.170000e+00 -2.000000e+00
+num_mentions                 435889.0  6.338552e+00  4.536399e+00  3.000000e+00  4.000000e+00  5.000000e+00  8.000000e+00  3.500000e+02
+distance_to_port_nm          435889.0  2.992023e+02  2.158281e+02  0.000000e+00  1.263000e+02  2.540000e+02  4.652000e+02  8.000000e+02
+freight_impact_pct           435889.0  8.324291e+00  7.780923e+00  3.090000e+00  3.150000e+00  3.300000e+00  9.540000e+00  6.500000e+01
+vessels_affected             435889.0  4.195383e+01  4.471671e+01  3.000000e+00  1.200000e+01  2.500000e+01  4.000000e+01  5.000000e+02
+duration_hours               435889.0  2.780067e+01  2.121195e+01  1.200000e+01  1.200000e+01  1.200000e+01  3.600000e+01  1.440000e+02
+decision_transit_days_added  435889.0  1.053052e+00  3.369902e+00  0.000000e+00  0.000000e+00  0.000000e+00  0.000000e+00  1.400000e+01
+decision_estimated_cost_usd  435889.0  1.030468e+07  2.195806e+07  7.516500e+04  6.945220e+05  1.639141e+06  8.841362e+06  6.769375e+08
+decision_confidence          435889.0  6.531890e-01  8.913315e-02  5.800000e-01  5.800000e-01  5.800000e-01  7.100000e-01  9.100000e-01
+year                         435889.0  2.022677e+03  1.945721e+00  2.020000e+03  2.021000e+03  2.023000e+03  2.024000e+03  2.026000e+03
+===== val /Users/tanishakhantwal/Downloads/Minor project/dataset/final/validation_set_REAL_ONLY.parquet (186810, 33)
+event_id                         int64
+event_date                         str
+event_location                     str
+event_country                      str
+event_lat                      float64
+event_lon                      float64
+goldstein_scale                float64
+avg_tone                       float64
+num_mentions                     int64
+source_url                         str
+data_source                        str
+severity                           str
+nearest_port_id                    str
+nearest_port_name                  str
+nearest_port_country               str
+distance_to_port_nm            float64
+port_type                          str
+port_strategic_importance          str
+affected_routes                    str
+affected_commodities               str
+freight_impact_pct             float64
+vessels_affected                 int64
+duration_hours                   int64
+decision_reroute                  bool
+decision_alternate_port            str
+decision_alternate_route           str
+decision_transit_days_added      int64
+decision_inventory_realloc        bool
+decision_financial_alert          bool
+decision_estimated_cost_usd      int64
+decision_delay_recommended        bool
+decision_confidence            float64
+year                             int64
+
+NULLS
+ event_id                           0
+event_date                         0
+event_location                     0
+event_country                      0
+event_lat                          0
+event_lon                          0
+goldstein_scale                    2
+avg_tone                           0
+num_mentions                       0
+source_url                         0
+data_source                        0
+severity                           0
+nearest_port_id                    0
+nearest_port_name                  0
+nearest_port_country               0
+distance_to_port_nm                0
+port_type                          0
+port_strategic_importance          0
+affected_routes                    0
+affected_commodities               0
+freight_impact_pct                 0
+vessels_affected                   0
+duration_hours                     0
+decision_reroute                   0
+decision_alternate_port            0
+decision_alternate_route       58448
+decision_transit_days_added        0
+decision_inventory_realloc         0
+decision_financial_alert           0
+decision_estimated_cost_usd        0
+decision_delay_recommended         0
+decision_confidence                0
+year                               0
+
+HEAD
+                                                                                                                                     0                                                                       1                                                                                               2                                                                                             3                                                                              4
+event_id                                                                                                                   1018290053                                                              1289813590                                                                                      1210294254                                                                                     976675380                                                                     1287421551
+event_date                                                                                                                 2021-12-09                                                              2026-02-18                                                                                      2024-11-16                                                                                    2021-03-26                                                                     2026-02-04
+event_location                                                                                       Jakarta, Jakarta Raya, Indonesia                                               Tarn Taran, Punjab, India                                                          Los Angeles, California, United States                                                                        Georgia, United States                                                         Georgia, United States
+event_country                                                                                                                      ID                                                                      IN                                                                                              US                                                                                            US                                                                             US
+event_lat                                                                                                                     -6.1744                                                                   31.45                                                                                         34.0522                                                                                       32.9866                                                                        32.9866
+event_lon                                                                                                                     106.829                                                                 74.9253                                                                                        -118.244                                                                                      -83.6487                                                                       -83.6487
+goldstein_scale                                                                                                                   7.0                                                                   -10.0                                                                                             7.0                                                                                         -10.0                                                                           -2.0
+avg_tone                                                                                                                        -3.56                                                                   -7.76                                                                                           -8.92                                                                                          -5.2                                                                          -4.65
+num_mentions                                                                                                                        6                                                                       8                                                                                              10                                                                                            10                                                                              3
+source_url                   https://en.antaranews.com/news/203617/public-perception-of-corruption-eradication-is-not-good-yet-jokowi                   https://www.prokerala.com/news/articles/a1730741.html  https://www.wbtv.com/2024/11/16/gang-member-sentenced-prison-smuggling-meth-charlotte-airport/  https://www.msn.com/en-us/news/us/unite-against-hate-rally-planned-in-doylestown/ar-BB1f0csg  https://www.thebulwark.com/p/why-is-tulsi-gabbard-investigating-wrong-georgia
+data_source                                                                                                                GDELT_real                                                              GDELT_real                                                                                      GDELT_real                                                                                    GDELT_real                                                                     GDELT_real
+severity                                                                                                                       medium                                                                critical                                                                                            high                                                                                      critical                                                                         medium
+nearest_port_id                                                                                                                  P013                                                                    P015                                                                                            P030                                                                                          P033                                                                           P033
+nearest_port_name                                                                                     Port of Jakarta (Tanjung Priok)                                                          Port of Mundra                                                                              Port of Long Beach                                                                              Port of Savannah                                                               Port of Savannah
+nearest_port_country                                                                                                        Indonesia                                                                   India                                                                                             USA                                                                                           USA                                                                            USA
+distance_to_port_nm                                                                                                               5.4                                                                   587.0                                                                                            17.9                                                                                         139.9                                                                          139.9
+port_type                                                                                                                regional_hub                                                               major_hub                                                                                        mega_hub                                                                                     major_hub                                                                      major_hub
+port_strategic_importance                                                                                                      medium                                                                    high                                                                                        critical                                                                                          high                                                                           high
+affected_routes                                                                                                                    []                                                                      []                                                                                ["R003", "R010"]                                                                              ["R004", "R007"]                                                               ["R004", "R007"]
+affected_commodities                                               ["agricultural", "coal", "palm_oil", "consumer_goods", "textiles"]  ["fertilizers", "agricultural", "coal", "chemicals", "consumer_goods"]                      ["agricultural", "chemicals", "textiles", "consumer_goods", "automobiles"]                   ["agricultural", "chemicals", "consumer_goods", "automobiles", "machinery"]    ["agricultural", "chemicals", "consumer_goods", "automobiles", "machinery"]
+freight_impact_pct                                                                                                               3.18                                                                   25.92                                                                                             9.9                                                                                          26.4                                                                           9.27
+vessels_affected                                                                                                                    6                                                                      90                                                                                              80                                                                                            90                                                                             40
+duration_hours                                                                                                                     12                                                                      72                                                                                              36                                                                                            72                                                                             36
+decision_reroute                                                                                                                False                                                                    True                                                                                            True                                                                                          True                                                                          False
+decision_alternate_port                                                                                             Port of Singapore                                                   Port of Mumbai (JNPT)                                                                             Port of Los Angeles                                                                   Port of New York-New Jersey                                                    Port of New York-New Jersey
+decision_alternate_route                                                                                                          NaN                                                                     NaN                                                      Asia-North America East Coast (via Panama)                                        Transpacific Eastbound (Asia-North America West Coast)                         Transpacific Eastbound (Asia-North America West Coast)
+decision_transit_days_added                                                                                                         0                                                                       0                                                                                               0                                                                                            11                                                                              0
+decision_inventory_realloc                                                                                                      False                                                                    True                                                                                           False                                                                                          True                                                                          False
+decision_financial_alert                                                                                                        False                                                                    True                                                                                           False                                                                                          True                                                                          False
+decision_estimated_cost_usd                                                                                                    285309                                                                19643915                                                                                        14151841                                                                                      31809625                                                                        6981755
+decision_delay_recommended                                                                                                      False                                                                   False                                                                                            True                                                                                         False                                                                           True
+decision_confidence                                                                                                              0.58                                                                    0.82                                                                                            0.71                                                                                          0.82                                                                           0.71
+year                                                                                                                             2021                                                                    2026                                                                                            2024                                                                                          2021                                                                           2026
+
+COUNTS data_source 
+ data_source
+GDELT_real    186810
+
+COUNTS severity 
+ severity
+medium      98109
+critical    48012
+low         22889
+high        17800
+
+COUNTS nearest_port_country 
+ nearest_port_country
+USA             77178
+UK              18898
+India           15387
+Egypt           11460
+China            9273
+Nigeria          9059
+Germany          8054
+UAE              4339
+Italy            4157
+Australia        4056
+Spain            2924
+South Korea      2737
+Belgium          2428
+Japan            2296
+South Africa     2270
+
+COUNTS port_type 
+ port_type
+major_hub          81370
+mega_hub           63360
+regional_hub       31910
+chokepoint          9553
+alternate_route      617
+
+COUNTS port_strategic_importance 
+ port_strategic_importance
+high        79293
+critical    75969
+medium      31548
+
+COUNTS affected_routes 
+ affected_routes
+[]                                                          58448
+["R004", "R007"]                                            46142
+["R003", "R010"]                                            10667
+["R008"]                                                     9157
+["R009"]                                                     9083
+["R001", "R007"]                                             8054
+["R006", "R008"]                                             5753
+["R003"]                                                     5224
+["R001", "R002", "R003", "R004", "R005", "R006", "R010"]     5180
+["R006"]                                                     5007
+["R007"]                                                     4653
+["R005"]                                                     4247
+["R001", "R002", "R007", "R008"]                             3447
+["R001", "R003", "R005", "R010"]                             2737
+["R001", "R008"]                                             2303
+
+COUNTS decision_alternate_port 
+ decision_alternate_port
+Port of Savannah               49273
+Port of Felixstowe             14245
+Port of New York-New Jersey    13543
+Port of Los Angeles            13019
+Port of Rotterdam              12785
+Port of Mumbai (JNPT)          12724
+Port of Singapore               9723
+Port of Durban                  9445
+Cape of Good Hope Route         9157
+Port of Barcelona               5071
+Port of Southampton             4653
+Port of Salalah                 4339
+Port of Mundra                  3835
+Port of Tokyo-Yokohama          3069
+Port of Melbourne               2716
+
+COUNTS decision_alternate_route 
+ decision_alternate_route
+Transpacific Eastbound (Asia-North America West Coast)    46464
+Asia-Europe via Cape of Good Hope                         22911
+Asia-Europe Main Line (via Suez)                          22089
+Asia-North America East Coast (via Panama)                18841
+Africa Coastal Route                                       9157
+Middle East-Europe Red Sea Route                           4653
+Asia-Middle East-India Route                               4247
+
+DESCRIBE
+                                 count          mean           std           min           25%           50%           75%           max
+event_id                     186810.0  1.097010e+09  1.243121e+08  8.960984e+08  9.855736e+08  1.092762e+09  1.205039e+09  1.317287e+09
+event_lat                    186810.0  3.353906e+01  1.771848e+01 -5.480000e+01  2.958675e+01  3.777490e+01  4.274750e+01  6.455000e+01
+event_lon                    186810.0 -1.065425e+01  7.803938e+01 -1.378840e+02 -8.171700e+01 -4.500000e-01  4.200418e+01  1.664500e+02
+goldstein_scale              186808.0 -7.120193e-01  4.970189e+00 -1.000000e+01 -5.000000e+00  0.000000e+00  3.000000e+00  1.000000e+01
+avg_tone                     186810.0 -5.183285e+00  2.587249e+00 -3.077000e+01 -6.550000e+00 -4.580000e+00 -3.180000e+00 -2.000000e+00
+num_mentions                 186810.0  6.330025e+00  4.383322e+00  3.000000e+00  4.000000e+00  5.000000e+00  8.000000e+00  2.000000e+02
+distance_to_port_nm          186810.0  2.981993e+02  2.156471e+02  0.000000e+00  1.263000e+02  2.487000e+02  4.644000e+02  7.996000e+02
+freight_impact_pct           186810.0  8.295801e+00  7.756053e+00  3.090000e+00  3.150000e+00  3.300000e+00  9.540000e+00  6.500000e+01
+vessels_affected             186810.0  4.176735e+01  4.449741e+01  3.000000e+00  1.200000e+01  2.500000e+01  4.000000e+01  5.000000e+02
+duration_hours               186810.0  2.772398e+01  2.116821e+01  1.200000e+01  1.200000e+01  1.200000e+01  3.600000e+01  1.440000e+02
+decision_transit_days_added  186810.0  1.045790e+00  3.359499e+00  0.000000e+00  0.000000e+00  0.000000e+00  0.000000e+00  1.400000e+01
+decision_estimated_cost_usd  186810.0  1.021809e+07  2.168441e+07  7.802400e+04  6.913100e+05  1.634288e+06  8.773316e+06  6.723775e+08
+decision_confidence          186810.0  6.528665e-01  8.900477e-02  5.800000e-01  5.800000e-01  5.800000e-01  7.100000e-01  9.100000e-01
+year                         186810.0  2.022678e+03  1.950867e+00  2.020000e+03  2.021000e+03  2.023000e+03  2.024000e+03  2.026000e+03
