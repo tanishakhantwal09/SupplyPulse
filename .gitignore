@@ -73,3 +73,5 @@ Research papers/
 
 # Live API caches
 dataset/reference/portwatch_cache.json
+# Datasets (never commit Parquet)
+*.parquet
