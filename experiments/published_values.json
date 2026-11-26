@@ -1,0 +1,57 @@
+{
+  "_instructions": [
+    "Values for the comparison with published systems (BUILD_PLAN 4a, Stages 2-3).",
+    "Fill every field ONLY from the PDF: copy the number exactly, give the page and table/figure.",
+    "Never type a number from memory. Leave value null until it is copied from the PDF.",
+    "Also confirm the metric name and unit from the PDF; the names below are placeholders.",
+    "Peer-reviewed versions only (journal / proceedings), not preprints."
+  ],
+  "systems": [
+    {
+      "id": "C1",
+      "system": "Wen / Rauca",
+      "citation": "TO FILL FROM PDF: full reference (authors, year, title, journal, volume, pages, DOI)",
+      "pdf_in_repo_folder": false,
+      "supplypulse_counterpart": "gap_ablation: over-capacity share and M/G/1 waiting time",
+      "metrics": [
+        {"name": "TO CONFIRM FROM PDF (port congestion / waiting-time metric)", "value": null, "unit": null,
+         "page": "TO FILL FROM PDF, page X", "table_or_figure": null},
+        {"name": "TO CONFIRM FROM PDF (M/G/1 service-time variance or SCV used)", "value": null, "unit": null,
+         "page": "TO FILL FROM PDF, page X", "table_or_figure": null}
+      ]
+    },
+    {
+      "id": "C2",
+      "system": "Vaca-Cabrero et al. (2024)",
+      "citation": "TO FILL FROM PDF: full reference (MDPI)",
+      "pdf_in_repo_folder": false,
+      "supplypulse_counterpart": "agents/carbon.py: EU ETS cost per voyage",
+      "metrics": [
+        {"name": "TO CONFIRM FROM PDF (EU ETS cost per voyage or per tonne CO2)", "value": null, "unit": null,
+         "page": "TO FILL FROM PDF, page X", "table_or_figure": null}
+      ]
+    },
+    {
+      "id": "C3",
+      "system": "Sun et al. (2026)",
+      "citation": "TO FILL FROM PDF: full reference",
+      "pdf_in_repo_folder": false,
+      "supplypulse_counterpart": "TO DECIDE after reading Table 10",
+      "metrics": [
+        {"name": "TO CONFIRM FROM PDF (Table 10 values)", "value": null, "unit": null,
+         "page": "TO FILL FROM PDF, page X", "table_or_figure": "Table 10"}
+      ]
+    },
+    {
+      "id": "C4",
+      "system": "Jannelli et al. (journal version)",
+      "citation": "TO FILL FROM PDF: full reference (journal version)",
+      "pdf_in_repo_folder": false,
+      "supplypulse_counterpart": "llm_vs_code_decision (Stage 2b)",
+      "metrics": [
+        {"name": "TO CONFIRM FROM PDF (LLM-decides vs code-decides metric)", "value": null, "unit": null,
+         "page": "TO FILL FROM PDF, page X", "table_or_figure": null}
+      ]
+    }
+  ]
+}
