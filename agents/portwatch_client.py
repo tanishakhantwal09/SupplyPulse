@@ -1,22 +1,39 @@
-import requests
+"""IMF PortWatch client: live port utilisation with a static fallback.
+
+Source: IMF PortWatch (2023), portwatch.imf.org, Daily_Ports_Data service
+(satellite AIS-derived daily port calls).
+
+Utilisation = trailing 7-day average daily port calls / static vessel_capacity
+from ports.json (both are vessels-per-day throughput proxies).
+
+Returned source labels:
+  'portwatch_live'   fetched from the API in this call
+  'portwatch_cache'  a cached API value up to CACHE_MAX_AGE_DAYS old
+  'static'           the static current_utilization in ports.json
+"""
 import json
 import os
 import time
 from datetime import datetime, timedelta
 
-PORTWATCH_BASE_URL = "https://services9.arcgis.com/weJ1QsnbMYJlCHdG/ArcGIS/rest/services/Daily_Ports_Data/FeatureServer/0/query"
-CACHE_FILE = "dataset/reference/portwatch_cache.json"
-PORTS_REFERENCE_FILE = "dataset/reference/ports.json"
+import requests
 
-# Port name (as used in ports.json) -> IMF PortWatch portid.
-# Verified 2026-09-14 against the live Daily_Ports_Data FeatureServer —
-# each entry was resolved with a `portname LIKE '%term%' AND ISO3='...'`
-# query and hand-checked against the returned portname/country.
-# The 6 SupplyPulse "ports" not listed here are canals/straits/bypass
-# routes (Suez Canal, Panama Canal, Strait of Malacca, Cape of Good Hope,
-# Lombok Strait, Cape Horn) — PortWatch's Daily_Ports_Data service tracks
-# cargo-handling ports, not transit chokepoints, so these have no live
-# entry and always use the static fallback from ports.json.
+from agents.reference_data import REFERENCE_DIR, ports
+
+PORTWATCH_BASE_URL = (
+    "https://services9.arcgis.com/weJ1QsnbMYJlCHdG/ArcGIS/rest/services/"
+    "Daily_Ports_Data/FeatureServer/0/query"
+)
+CACHE_FILE = REFERENCE_DIR / "portwatch_cache.json"
+CACHE_MAX_AGE_DAYS = 7      # ASSUMPTION: PortWatch updates daily; a week-old value is still usable.
+TRAILING_DAYS = 7           # ASSUMPTION: 7-day average smooths day-to-day noise.
+REQUEST_TIMEOUT_SECONDS = 10  # ASSUMPTION
+
+# Port name (as in ports.json) -> IMF PortWatch portid.
+# Verified 2026-09-14 against the live Daily_Ports_Data FeatureServer with a
+# `portname LIKE '%term%' AND ISO3='...'` query, hand-checked by name/country.
+# The 6 SupplyPulse "ports" not listed are canals/straits/bypass routes; PortWatch
+# Daily_Ports_Data tracks cargo ports, not chokepoints, so they use the static value.
 PORT_NAME_MAP = {
     "Port of Shanghai":               "port1188",
     "Port of Singapore":              "port1201",
@@ -46,6 +63,10 @@ PORT_NAME_MAP = {
     "Port of Barcelona":              "port118",
     "Port of Valencia":               "port1348",
     "Port of Genoa":                  "port387",
+    # Verified 2026-11-26: PortWatch has ONE entry, port664 = "Los Angeles-Long Beach",
+    # covering both ports. Its port calls are therefore divided by the COMBINED
+    # capacity of both ports (see _capacity_for), not by each port's own capacity,
+    # which used to count the same traffic twice.
     "Port of Los Angeles":            "port664",
     "Port of Long Beach":             "port664",
     "Port of Seattle-Tacoma":         "port1248",
@@ -64,98 +85,21 @@ PORT_NAME_MAP = {
     "Port of Brisbane":               "port174",
 }
 
-_ports_reference_cache = None
 
+def _capacity_for(port_name):
+    """Daily vessel capacity used to normalise PortWatch calls.
 
-def _load_vessel_capacity(port_name: str):
-    """Look up the port's static vessel_capacity (daily throughput proxy)
-    from ports.json — used to normalize live portcalls into a 0-1 ratio."""
-    global _ports_reference_cache
-    if _ports_reference_cache is None:
-        try:
-            with open(PORTS_REFERENCE_FILE) as f:
-                _ports_reference_cache = {p['name']: p.get('vessel_capacity', 0) for p in json.load(f)}
-        except Exception:
-            _ports_reference_cache = {}
-    return _ports_reference_cache.get(port_name, 0)
-
-
-def fetch_portwatch_utilization(port_name: str):
+    When several SupplyPulse ports share one PortWatch id, their capacities are summed.
     """
-    Fetch live port congestion/utilization from IMF PortWatch API.
-    Free academic API — satellite AIS-derived vessel port calls, updated daily.
-    Reference: IMF PortWatch (2023) portwatch.imf.org
-
-    Utilization = trailing 7-day average daily port calls / static vessel_capacity
-    from ports.json (both are "vessels/day" throughput proxies, so the ratio
-    is a live analogue of the same congestion signal BPR consumes).
-
-    Returns utilization as float >= 0.0 (uncapped — a value above 1.0 means the
-    port is running above its calibrated capacity, which is a legitimate
-    congestion signal) or None if no live data is available.
-    Falls back to static data in ports.json when this returns None.
-    """
-    cache = load_cache()
-    cache_key = port_name.lower().replace(" ", "_")
-
-    if cache_key in cache:
-        cached = cache[cache_key]
-        try:
-            cached_time = datetime.fromisoformat(cached['timestamp'])
-            if datetime.now() - cached_time < timedelta(days=7):
-                return cached['utilization']
-        except (KeyError, ValueError):
-            pass
-
-    try:
-        port_id = PORT_NAME_MAP.get(port_name)
-        if not port_id:
-            return None
-
-        capacity = _load_vessel_capacity(port_name)
-        if not capacity:
-            return None
-
-        params = {
-            'where': f"portid='{port_id}'",
-            'outFields': 'portid,portname,portcalls,date',
-            'orderByFields': 'date DESC',
-            'resultRecordCount': 7,
-            'f': 'json'
-        }
-
-        response = requests.get(PORTWATCH_BASE_URL, params=params, timeout=10)
-
-        if response.status_code == 200:
-            data = response.json()
-            features = data.get('features', [])
-
-            if features:
-                daily_calls = [
-                    f['attributes'].get('portcalls', 0) or 0
-                    for f in features
-                ]
-                avg_daily_calls = sum(daily_calls) / len(daily_calls)
-                utilization = round(avg_daily_calls / capacity, 3)
-
-                cache[cache_key] = {
-                    'utilization':     utilization,
-                    'timestamp':       datetime.now().isoformat(),
-                    'source':          'portwatch_live',
-                    'avg_daily_calls': round(avg_daily_calls, 1),
-                    'sample_days':     len(daily_calls),
-                    'port_name':       port_name,
-                }
-                save_cache(cache)
-                return utilization
-
-    except Exception as e:
-        print(f"  [PortWatch API] Could not fetch {port_name}: {e}")
-
-    return None  # Trigger static fallback
+    port_id = PORT_NAME_MAP.get(port_name)
+    if not port_id:
+        return 0
+    sharing = [n for n, pid in PORT_NAME_MAP.items() if pid == port_id]
+    caps = {p["name"]: p.get("vessel_capacity", 0) for p in ports()}
+    return sum(caps.get(n, 0) for n in sharing)
 
 
-def load_cache() -> dict:
+def load_cache():
     try:
         if os.path.exists(CACHE_FILE):
             with open(CACHE_FILE) as f:
@@ -165,28 +109,76 @@ def load_cache() -> dict:
     return {}
 
 
-def save_cache(cache: dict):
+def save_cache(cache):
     try:
         os.makedirs(os.path.dirname(CACHE_FILE), exist_ok=True)
-        with open(CACHE_FILE, 'w') as f:
+        with open(CACHE_FILE, "w") as f:
             json.dump(cache, f, indent=2)
     except Exception:
         pass
 
 
-def get_port_utilization(port_name: str, static_utilization: float):
-    """
-    Get port utilization — tries PortWatch live first, falls back to static.
-    Returns (utilization, source) where source is 'portwatch_live' or 'static'.
-    """
-    live = fetch_portwatch_utilization(port_name)
-    if live is not None:
-        return live, 'portwatch_live'
-    return static_utilization, 'static'
+def fetch_portwatch_utilization(port_name):
+    """Return (utilisation, source) or (None, None) when no live data is available."""
+    cache = load_cache()
+    cache_key = port_name.lower().replace(" ", "_")
+    port_id = PORT_NAME_MAP.get(port_name)
+    capacity = _capacity_for(port_name)
+    if not port_id or not capacity:
+        return None, None
+
+    cached = cache.get(cache_key)
+    if cached and cached.get("portid") == port_id and cached.get("capacity_used") == capacity:
+        try:
+            if datetime.now() - datetime.fromisoformat(cached["timestamp"]) < timedelta(days=CACHE_MAX_AGE_DAYS):
+                return cached["utilization"], "portwatch_cache"
+        except (KeyError, ValueError):
+            pass
+
+    try:
+        params = {
+            "where": f"portid='{port_id}'",
+            "outFields": "portid,portname,portcalls,date",
+            "orderByFields": "date DESC",
+            "resultRecordCount": TRAILING_DAYS,
+            "f": "json",
+        }
+        response = requests.get(PORTWATCH_BASE_URL, params=params, timeout=REQUEST_TIMEOUT_SECONDS)
+        if response.status_code == 200:
+            features = response.json().get("features", [])
+            if features:
+                daily_calls = [f["attributes"].get("portcalls", 0) or 0 for f in features]
+                avg_daily_calls = sum(daily_calls) / len(daily_calls)
+                utilization = round(avg_daily_calls / capacity, 3)
+                cache[cache_key] = {
+                    "utilization": utilization,
+                    "timestamp": datetime.now().isoformat(),
+                    "source": "portwatch_live",
+                    "portid": port_id,
+                    "capacity_used": capacity,
+                    "avg_daily_calls": round(avg_daily_calls, 1),
+                    "sample_days": len(daily_calls),
+                    "port_name": port_name,
+                }
+                save_cache(cache)
+                return utilization, "portwatch_live"
+    except Exception as e:  # network down, bad JSON, ...
+        print(f"  [PortWatch API] Could not fetch {port_name}: {e}")
+    return None, None
+
+
+def get_port_utilization(port_name, static_utilization):
+    """Return (utilisation, source). Falls back to the static value when PortWatch is unavailable."""
+    from agents.llm_utils import static_util
+
+    if not static_util():
+        live, source = fetch_portwatch_utilization(port_name)
+        if live is not None:
+            return live, source
+    return static_utilization, "static"
 
 
 if __name__ == "__main__":
-    for name in ["Port of Singapore", "Port of Shanghai", "Suez Canal (Northern Entry)"]:
+    for name in ["Port of Singapore", "Port of Long Beach", "Suez Canal (Northern Entry)"]:
         start = time.time()
-        result = fetch_portwatch_utilization(name)
-        print(f"{name}: {result} ({time.time() - start:.2f}s)")
+        print(name, fetch_portwatch_utilization(name), f"({time.time() - start:.2f}s)")
