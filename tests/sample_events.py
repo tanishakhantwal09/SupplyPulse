@@ -46,9 +46,13 @@ ROTTERDAM_HIGH = {
 }
 
 WEAK_SIGNAL = {**SHANGHAI_CRITICAL, "event_id": "TEST_WEAK",
-               "num_mentions": 3, "goldstein_scale": -1.0, "avg_tone": -2.5}  # gate score 0.120
+               "num_mentions": 3, "goldstein_scale": -1.0, "avg_tone": -2.5}  # gate score 0.121 (0.4*0.06 + 0.35*0.1 + 0.25*0.25)
 
 UNKNOWN_PORT = {**SHANGHAI_CRITICAL, "event_id": "TEST_UNKNOWN",
                 "nearest_port_id": "P999", "nearest_port_name": "Nowhere"}
 
 USER_SIMULATED = {**WEAK_SIGNAL, "event_id": "TEST_SIM", "data_source": "USER_SIMULATION"}
+
+# Live GDELT events: the only ones the gate is enforced for.
+LIVE_WEAK = {**WEAK_SIGNAL, "event_id": "TEST_LIVE_WEAK", "data_source": "GDELT_LIVE_API"}
+LIVE_STRONG = {**SHANGHAI_CRITICAL, "event_id": "TEST_LIVE_STRONG", "data_source": "GDELT_LIVE_API"}

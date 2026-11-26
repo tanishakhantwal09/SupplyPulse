@@ -17,7 +17,7 @@ from rich.panel import Panel
 from rich.table import Table
 
 from agents import llm_utils
-from agents.confidence import NOT_APPLICABLE, PROCEED, gate_event
+from agents.confidence import PROCEED, gate_event
 from agents.financial_auditor_agent import financial_auditor_agent
 from agents.inventory_agent import inventory_agent
 from agents.llm_utils import console
@@ -32,7 +32,7 @@ RESPONSE_TARGET_SECONDS = 30  # BUILD_PLAN section 1: plan within 30 seconds.
 
 class SupplyPulseState(TypedDict):
     event: dict
-    enforce_gate: bool
+    enforce_gate: Optional[bool]
     gate: Optional[dict]
     supervisor_assessment: Optional[str]
     route_output: Optional[dict]
@@ -54,15 +54,20 @@ def _timed(name, fn):
 
 
 def gate_node(state):
-    state["gate"] = gate_event(state["event"])
-    g = state["gate"]
-    console.print(f"  Signal gate: {g['action']} (score {g['score']}). {g['reason']}")
+    g = gate_event(state["event"])
+    # Policy: enforced for live GDELT events only, unless the caller overrides it.
+    if state["enforce_gate"] is not None:
+        g["enforced"] = bool(state["enforce_gate"])
+        g["policy_override"] = True
+    state["gate"] = g
+    console.print(f"  Signal gate: {g['action']} (score {g['score']}), "
+                  f"{'enforced' if g['enforced'] else 'not enforced'}: {g['label']}")
     return state
 
 
 def route_after_gate(state):
-    action = state["gate"]["action"]
-    if not state["enforce_gate"] or action in (PROCEED, NOT_APPLICABLE):
+    g = state["gate"]
+    if not g["enforced"] or g["action"] == PROCEED:
         return "supervisor"
     return "gated"
 
@@ -114,7 +119,7 @@ def _base_result(state, status):
 def gated_node(state):
     result = _base_result(state, "gated")
     result["decision"] = state["gate"]["action"]
-    result["decision_basis"] = "Signal gate did not reach PROCEED; no agent was run."
+    result["decision_basis"] = "Live event: the signal gate did not reach PROCEED, so no agent was run."
     result["total_response_time_seconds"] = round(time.time() - state["start_time"], 2)
     state["final_decision"] = result
     _save(result, {"metadata": result, "note": "Gated event: no plan was computed."})
@@ -261,9 +266,11 @@ def build_graph():
     return g.compile()
 
 
-def run_supplypulse(event, enforce_gate=True):
+def run_supplypulse(event, enforce_gate=None):
     """Run the pipeline on one event and return the final result dict.
 
+    enforce_gate=None follows the gate policy (enforced for live GDELT events only;
+    manual scenarios always run). True/False overrides it (experiments only).
     Errors (unknown port, no alternates, LLM failure) are raised, never hidden.
     """
     llm_utils.reset_usage()

@@ -36,9 +36,28 @@ def test_gate_does_not_depend_on_severity():
     assert len(scores) == 1
 
 
-def test_user_simulation_is_not_applicable():
-    g = confidence.gate_event({"data_source": "USER_SIMULATION", "num_mentions": 0})
-    assert g["action"] == confidence.NOT_APPLICABLE
+@pytest.mark.parametrize("source,enforced", [
+    ("GDELT_LIVE_API", True),      # live feed: gate enforced
+    ("USER_SIMULATION", False),    # dashboard / API simulation
+    ("GDELT_real", False),         # dataset event run by a user
+    ("TEST", False),
+    (None, False),
+])
+def test_gate_enforced_for_live_events_only(source, enforced):
+    g = confidence.gate_event({"data_source": source, "num_mentions": 3,
+                               "goldstein_scale": -1.0, "avg_tone": -2.5})
+    assert g["enforced"] is enforced
+    assert g["score"] == pytest.approx(0.1215, abs=1e-3)        # score is always computed
+    assert g["action"] == confidence.REJECT                    # and the signal verdict is still shown
+    assert g["label"] == (confidence.LIVE_LABEL if enforced else confidence.MANUAL_LABEL)
+
+
+def test_manual_label_text():
+    assert confidence.MANUAL_LABEL == "manual scenario – user-confirmed disruption"
+
+
+def test_thresholds_unchanged_by_policy():
+    assert (confidence.REJECT_BELOW, confidence.PROCEED_FROM) == (0.35, 0.60)
 
 
 def _names(terms):

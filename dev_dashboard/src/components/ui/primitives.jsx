@@ -250,22 +250,34 @@ export function StaggerGrid({ children, className = '' }) {
 // replaced by made-up numbers.
 export function RunStatusBanner() {
   const { pipelineResult: r, lastError, serverStatus, selectedEvent } = useSupplyPulse();
-  let tone = 'border-neutral-700 bg-neutral-900/60 text-neutral-300';
-  let text = null;
+  const NEUTRAL = 'border-neutral-700 bg-neutral-900/60 text-neutral-300';
+  const AMBER = 'border-amber-500/50 bg-amber-500/10 text-amber-300';
+  const SKY = 'border-sky-500/40 bg-sky-500/10 text-sky-300';
+  const msgs = [];
+  const g = r?.signal_gate;
   if (lastError) {
-    tone = 'border-rose-500/50 bg-rose-500/10 text-rose-300';
-    text = `Run failed: ${lastError}`;
+    msgs.push(['border-rose-500/50 bg-rose-500/10 text-rose-300', `Run failed: ${lastError}`]);
   } else if (!r && serverStatus !== 'online') {
-    text = 'API server offline. No run yet: start python3 dev_dashboard/server.py. Synthetic scenarios are shown for browsing only.';
+    msgs.push([NEUTRAL, 'API server offline. No run yet: start python3 dev_dashboard/server.py. Synthetic scenarios are shown for browsing only.']);
   } else if (!r) {
-    text = `No run yet for ${selectedEvent?.nearest_port_name ?? 'this event'}. Press Run Pipeline.`;
-  } else if (r.status === 'gated') {
-    tone = 'border-amber-500/50 bg-amber-500/10 text-amber-300';
-    text = `Signal gate: ${r.signal_gate?.action} (score ${r.signal_gate?.score}). ${r.signal_gate?.reason}. No plan was computed.`;
-  } else if (r.llm_enabled === false) {
-    tone = 'border-sky-500/40 bg-sky-500/10 text-sky-300';
-    text = 'LLM disabled for this run (SUPPLYPULSE_NO_LLM): numbers are real, explanation text is not generated.';
+    msgs.push([NEUTRAL, `No run yet for ${selectedEvent?.nearest_port_name ?? 'this event'}. Press Run Pipeline.`]);
+  } else {
+    if (r.status === 'gated') {
+      msgs.push([AMBER, `Live event gated: ${g?.action} (score ${g?.score}). ${g?.reason}. No plan was computed.`]);
+    } else if (g && g.enforced === false) {
+      // Gate policy: manual scenarios always run; the score is shown, not enforced.
+      msgs.push([AMBER, `${g.label}. Signal gate score ${g.score} (${g.action}) is shown for information only and was not enforced.`]);
+    }
+    if (r.llm_enabled === false) {
+      msgs.push([SKY, 'LLM disabled for this run (SUPPLYPULSE_NO_LLM): numbers are real, explanation text is not generated.']);
+    }
   }
-  if (!text) return null;
-  return <div className={`mb-8 border px-4 py-3 text-xs sm:text-sm ${tone}`}>{text}</div>;
+  if (msgs.length === 0) return null;
+  return (
+    <div className="mb-8 space-y-2">
+      {msgs.map(([tone, text]) => (
+        <div key={text} className={`border px-4 py-3 text-xs sm:text-sm ${tone}`}>{text}</div>
+      ))}
+    </div>
+  );
 }

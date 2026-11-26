@@ -79,3 +79,6 @@ dataset/reference/portwatch_cache.json
 # Pipeline run outputs (change on every run; a sample is kept in docs/sample_run/)
 agents/pipeline_result.json
 agents/pipeline_attribution.json
+
+# Local Claude Code settings
+.claude/

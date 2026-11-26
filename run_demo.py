@@ -25,7 +25,7 @@ results = []
 
 for label, event in test_cases:
     console.print(Rule(f"[bold white]{label}[/bold white]", style="white"))
-    result = run_supplypulse(event, enforce_gate=False)  # demo: show a plan even if the gate holds
+    result = run_supplypulse(event)  # dataset event = manual scenario: the gate is shown, not enforced
     results.append(result)
     console.print("\n")
 

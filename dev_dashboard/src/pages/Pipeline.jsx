@@ -52,7 +52,7 @@ export default function PipelinePage() {
       agentName: 'agents/confidence.py',
       icon: MapPin,
       summary: r?.signal_gate ? `${r.signal_gate.action} (score ${r.signal_gate.score})` : 'No run yet',
-      systemPrompt: 'Scores the news signal (mention volume 40%, |Goldstein| 35%, |tone| 25%). Agents run only on PROCEED (score >= 0.60). Weights and thresholds are assumptions; it is not a conformal method.',
+      systemPrompt: 'Scores the news signal (mention volume 40%, |Goldstein| 35%, |tone| 25%). The gate is enforced for live GDELT events only (agents run on PROCEED, score >= 0.60); manual scenarios always run and show the score. Weights and thresholds are assumptions; it is not a conformal method.',
       userPayload: selectedEvent?.raw || selectedEvent || {},
       llmParams: { llm: 'none (deterministic)', reject_below: 0.35, proceed_from: 0.60 },
       output: r?.signal_gate || {}

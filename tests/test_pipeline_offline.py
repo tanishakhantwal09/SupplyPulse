@@ -1,11 +1,11 @@
 """Whole pipeline, offline (no LLM): deterministic numbers, honest failures."""
 import pytest
 
-from agents.confidence import NOT_APPLICABLE
+from agents.confidence import MANUAL_LABEL
 from agents.langgraph_orchestrator import run_supplypulse
 from agents.route_optimization_agent import UnknownPortError
-from tests.sample_events import (ROTTERDAM_HIGH, SHANGHAI_CRITICAL, SUEZ_CRITICAL, UNKNOWN_PORT,
-                                 USER_SIMULATED, WEAK_SIGNAL)
+from tests.sample_events import (LIVE_STRONG, LIVE_WEAK, ROTTERDAM_HIGH, SHANGHAI_CRITICAL, SUEZ_CRITICAL,
+                                 UNKNOWN_PORT, USER_SIMULATED, WEAK_SIGNAL)
 
 COMPONENTS = ("rerouting_cost", "delay_cost", "freight_rate_increase",
               "inventory_at_risk", "operational_cost", "carbon_penalty")
@@ -53,21 +53,33 @@ def test_runs_are_deterministic():
     assert a["ship_allocation"] == b["ship_allocation"]
 
 
-def test_weak_signal_is_gated_and_no_agent_runs():
-    r = run_supplypulse(WEAK_SIGNAL)
+def test_live_weak_signal_is_gated_and_no_agent_runs():
+    r = run_supplypulse(LIVE_WEAK)
     assert r["status"] == "gated"
+    assert r["signal_gate"]["enforced"] is True
     assert r["agents_activated"] == []
     assert "recommended_alternate_port" not in r
 
 
-def test_gate_can_be_bypassed_for_experiments():
-    assert run_supplypulse(WEAK_SIGNAL, enforce_gate=False)["status"] == "completed"
-
-
-def test_user_simulation_skips_the_gate():
-    r = run_supplypulse(USER_SIMULATED)
-    assert r["signal_gate"]["action"] == NOT_APPLICABLE
+def test_live_strong_signal_runs():
+    r = run_supplypulse(LIVE_STRONG)
     assert r["status"] == "completed"
+    assert r["signal_gate"]["action"] == "PROCEED" and r["signal_gate"]["enforced"] is True
+
+
+@pytest.mark.parametrize("event", [WEAK_SIGNAL, USER_SIMULATED], ids=["dataset-event", "user-simulation"])
+def test_manual_scenario_always_runs_but_shows_the_gate(event):
+    r = run_supplypulse(event)
+    assert r["status"] == "completed"                     # weak signal, but the user confirmed it
+    g = r["signal_gate"]
+    assert g["enforced"] is False
+    assert g["label"] == MANUAL_LABEL
+    assert g["action"] == "REJECTED" and g["score"] == pytest.approx(0.1215, abs=1e-3)
+
+
+def test_gate_can_be_forced_for_experiments():
+    assert run_supplypulse(WEAK_SIGNAL, enforce_gate=True)["status"] == "gated"
+    assert run_supplypulse(LIVE_WEAK, enforce_gate=False)["status"] == "completed"
 
 
 def test_unknown_port_fails_loudly():

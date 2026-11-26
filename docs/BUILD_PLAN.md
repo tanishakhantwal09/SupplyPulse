@@ -44,6 +44,8 @@ Last updated 26 Nov 2026. A new chat must read this whole file before doing anyt
 Each gap is tied to a cited paper and a measurable before/after.
 - **Gap 1:** BPR congestion function, plus a capacity split across receiving ports (Wardrop 1952).
 - **Gap 2:** three-factor confidence gate with weights 0.40/0.35/0.25 and thresholds 0.35 and 0.60. Inspired by Angelopoulos and Bates 2023; it is NOT a conformal method.
+  - **Gate policy (decided 26 Nov 2026):** thresholds stay 0.35/0.60. The gate is enforced for **live GDELT events only**. Manual scenarios (a user triggers a run from the dashboard, API or a script, including dataset events) always run; the gate score is still computed and shown, labelled "manual scenario – user-confirmed disruption".
+  - All labelled events in experiments/labeling/ (random 100, targeted 50, maritime 40; no overlap) are from the **held-out** set: use them for evaluation only, never for designing rules.
 - **Gap 3:** deterministic attribution lineage (Turpin et al., NeurIPS 2023).
 - **Gap 7:** EU ETS carbon cost with Directive 2023/959 coverage and phase-in (Vaca-Cabrero et al. 2024 method), plus cost, carbon and time options.
 - **Queued:** Arrhenius decay for perishables; geopolitical escalation tracking.

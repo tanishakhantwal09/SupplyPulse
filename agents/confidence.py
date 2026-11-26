@@ -23,7 +23,6 @@ PROCEED_FROM = 0.60        # ASSUMPTION: BUILD_PLAN section 2 threshold; not tun
 PROCEED = "PROCEED"
 MONITOR = "MONITOR_AND_HOLD"
 REJECT = "REJECTED"
-NOT_APPLICABLE = "NOT_APPLICABLE"
 USER_SIMULATION = "USER_SIMULATION"
 
 
@@ -58,9 +57,26 @@ def score_signal(num_mentions, goldstein, avg_tone):
             "weights": WEIGHTS, "thresholds": {"reject_below": REJECT_BELOW, "proceed_from": PROCEED_FROM}}
 
 
+# Gate policy (Tanisha, 26 Nov 2026): thresholds stay 0.35 / 0.60.
+# The gate is ENFORCED only for live GDELT events. Every other run is a manual
+# scenario that a user triggered (dashboard / API / script): the pipeline always
+# runs, and the gate score is still computed and shown with MANUAL_LABEL.
+LIVE_SOURCES = {"GDELT_LIVE_API"}
+LIVE_LABEL = "live GDELT event – gated"
+MANUAL_LABEL = "manual scenario – user-confirmed disruption"
+
+
+def is_live(event):
+    return str(event.get("data_source", "")).upper() in LIVE_SOURCES
+
+
 def gate_event(event):
-    """Gate a pipeline event. User-simulated events have no news signal."""
-    if str(event.get("data_source", "")).upper() == USER_SIMULATION:
-        return {"score": None, "action": NOT_APPLICABLE, "factors": None,
-                "reason": "User-simulated event: there is no news signal to gate"}
-    return score_signal(event.get("num_mentions"), event.get("goldstein_scale"), event.get("avg_tone"))
+    """Score the event's news signal and say whether the gate is enforced for it."""
+    result = score_signal(event.get("num_mentions"), event.get("goldstein_scale"), event.get("avg_tone"))
+    live = is_live(event)
+    result.update({
+        "mode": "live" if live else "manual",
+        "enforced": live,
+        "label": LIVE_LABEL if live else MANUAL_LABEL,
+    })
+    return result

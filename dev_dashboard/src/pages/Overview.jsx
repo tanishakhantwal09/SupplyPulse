@@ -112,7 +112,7 @@ export default function Overview() {
               <div className="flex items-center justify-between">
                 <span className="cred-label text-neutral-500">Recommendation</span>
                 <span className="mono text-xs text-rose-400 font-bold tracking-wider">
-                  SIGNAL GATE {gate ? `${gate.action}${gate.score != null ? ` (${gate.score})` : ''}` : NA}
+                  SIGNAL GATE {gate ? `${gate.action}${gate.score != null ? ` (${gate.score})` : ''}${gate.enforced === false ? ' · not enforced (manual)' : ''}` : NA}
                 </span>
               </div>
               <div className="flex items-start gap-4">
