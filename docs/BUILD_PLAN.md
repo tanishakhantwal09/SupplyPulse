@@ -128,6 +128,7 @@ Each gap is tied to a cited paper and a measurable before/after.
 - New files: agents/confidence.py, agents/carbon.py.
 
 **Stages 2 and 3: experiments** (documented in docs/EXPERIMENTS.md)
+- *Status 26 Nov 2026:* Item 0 (LLM reasoning effort 'low', truncation flagged and not retried, port names for Inventory, split-plan vs single-port labels, number-and-wording check) **done**. **Stage 2a built and tested, not yet run at full size:** experiments/common.py, gap_ablation.py (with M/G/1; service-time SCV is an ASSUMPTION until the Rauca PDF), labelling_kit.py (waiting for the two reviewers' labels), published_comparison.py (all values empty, 'TO FILL FROM PDF'). Stage 2b (LLM) not started.
 - **agents/architectures.py:** sequential, parallel (Route and Inventory together) and hierarchical (the supervisor picks agents by severity).
 - **experiments/gap_ablation.py:** no LLM. Compares nearest-port vs score-without-BPR vs SupplyPulse, judged by over-capacity share and an M/G/1 queue (Rauca et al. 2025); also the carbon trade-off and the gate split.
 - **experiments/labelling_kit.py:** 100 events, two reviewers, kappa, gate P/R/F1, severity check.
