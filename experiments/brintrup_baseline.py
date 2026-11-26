@@ -1,3 +1,13 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# RETIRED (26 Nov 2026), see docs/RETIRED.md. Kept for the record only.
+# - The F1 / precision / recall here are CIRCULAR: the "ground truth" label
+#   (decision_reroute) is produced by the same severity rule the pipeline uses.
+# - The cost per analysis is an ASSUMPTION (1,500 tokens x 4 calls x $0.15/M),
+#   not a measurement. Use the measured llm_usage token counts instead.
+# - It also evaluates on the held-out set, which is reserved for the final
+#   evaluation (BUILD_PLAN section 6, item 4).
+# Do not quote its numbers. Replacement experiments are built in Stage 2-3.
+# ─────────────────────────────────────────────────────────────────────────────
 """
 Brintrup 2026 Baseline Implementation
 Paper: "Automating Supply Chain Disruption Monitoring via an Agentic AI Approach"
@@ -249,7 +259,7 @@ def run_evaluation():
     # Cost calculation matching Brintrup's methodology
     # They use GPT-4 at ~$0.01/1K tokens, ~8K tokens per analysis
     brintrup_cost_per_analysis = 0.0836  # their published figure
-    our_cost = (1500 * 4 / 1_000_000) * 0.15  # our Groq cost
+    our_cost = (1500 * 4 / 1_000_000) * 0.15  # ASSUMPTION (RETIRED): not measured
 
     # ── Results table ─────────────────────────────────────────────────────────
     console.print("\n")

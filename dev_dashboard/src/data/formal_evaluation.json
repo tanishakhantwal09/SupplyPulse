@@ -1,4 +1,11 @@
 {
+  "_status": {
+    "status": "RETIRED (26 Nov 2026). Do not report these numbers.",
+    "why_f1_retired": "Circular: the ground-truth decision_reroute label and the pipeline decision both come from the same severity rule (enrich_gdelt.py line 123, langgraph_orchestrator.py).",
+    "why_cost_retired": "ASSUMPTION, not measured: 1,500 tokens x 4 calls x USD 0.15 per million tokens. Cost per analysis must come from the measured llm_usage token counts.",
+    "comparison_note": "Brintrup/AlMahri 2026 is a preprint: disclosed reference only, not evidence.",
+    "see": "docs/RETIRED.md"
+  },
   "metrics": {
     "f1_rerouting": 0.9333333333333333,
     "precision": 0.875,

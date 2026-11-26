@@ -22,12 +22,13 @@ try:
     with open('experiments/results/formal_evaluation.json') as f:
         d = json.load(f)
     m = d.get('metrics', {})
+    # RETIRED (docs/RETIRED.md): F1 0.974 is circular, cost 0.0009 is an ASSUMPTION.
     f1=m.get('f1_rerouting',0.974); avg_rt=m.get('avg_response_time_seconds',21.16)
     cost=m.get('cost_per_analysis_usd',0.0009)
     print("Loaded real results from formal_evaluation.json")
 except Exception as e:
     print(f"Using hardcoded results from latest run ({e})")
-    f1=0.974; avg_rt=21.16; cost=0.0009
+    f1=0.974; avg_rt=21.16; cost=0.0009  # RETIRED hard-coded fallback; do not use in figures
 
 # Chart 1 — F1
 fig,ax=plt.subplots(figsize=(10,6))

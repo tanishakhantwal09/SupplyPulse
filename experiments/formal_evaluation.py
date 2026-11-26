@@ -1,3 +1,13 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# RETIRED (26 Nov 2026), see docs/RETIRED.md. Kept for the record only.
+# - The F1 / precision / recall here are CIRCULAR: the "ground truth" label
+#   (decision_reroute) is produced by the same severity rule the pipeline uses.
+# - The cost per analysis is an ASSUMPTION (1,500 tokens x 4 calls x $0.15/M),
+#   not a measurement. Use the measured llm_usage token counts instead.
+# - It also evaluates on the held-out set, which is reserved for the final
+#   evaluation (BUILD_PLAN section 6, item 4).
+# Do not quote its numbers. Replacement experiments are built in Stage 2-3.
+# ─────────────────────────────────────────────────────────────────────────────
 import pandas as pd
 import json
 import time
@@ -84,7 +94,7 @@ min_time      = min(response_times)
 max_time      = max(response_times)
 plan_correct  = sum(port_correct) / len(port_correct) if port_correct else 0
 
-# Cost calculation
+# Cost calculation: ASSUMPTION (RETIRED), not measured
 tokens_per_call    = 1500
 agents_per_pipeline = 4
 total_tokens       = tokens_per_call * agents_per_pipeline
@@ -220,5 +230,5 @@ with open("experiments/results/formal_evaluation.json", "w") as f:
 console.print(f"\n[bold green]Results saved to experiments/results/formal_evaluation.json[/bold green]")
 console.print(f"\n[bold]Key findings:[/bold]")
 console.print(f"  SupplyPulse is [bold green]{229.8/avg_time:.1f}x faster[/bold green] than Brintrup 2026")
-console.print(f"  SupplyPulse costs [bold green]{0.0836/cost_per_analysis:.0f}x less[/bold green] per analysis than Brintrup 2026")
+console.print(f"  [RETIRED, ASSUMPTION] SupplyPulse costs [bold green]{0.0836/cost_per_analysis:.0f}x less[/bold green] per analysis than Brintrup 2026")
 console.print(f"  SupplyPulse adds route optimization, financial assessment, and inventory reallocation — none of which existing papers provide")
