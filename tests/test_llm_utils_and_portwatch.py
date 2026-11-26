@@ -6,9 +6,11 @@ from agents import portwatch_client as pw
 
 
 class FakeResponse:
-    def __init__(self, text, tin=10, tout=5):
+    def __init__(self, text, tin=10, tout=5, finish="stop", reasoning=0):
         self.content = text
-        self.usage_metadata = {"input_tokens": tin, "output_tokens": tout}
+        self.usage_metadata = {"input_tokens": tin, "output_tokens": tout,
+                               "output_token_details": {"reasoning": reasoning}}
+        self.response_metadata = {"finish_reason": finish}
 
 
 class FakeLLM:
@@ -65,6 +67,44 @@ def test_empty_output_is_a_failure(llm_on):
     llm_on(FakeLLM([FakeResponse(""), FakeResponse("  "), FakeResponse("")]))
     with pytest.raises(llm_utils.LLMError):
         llm_utils.invoke_with_retry([], 100, agent="x", sleep=lambda s: None)
+
+
+def test_truncated_answer_is_flagged_and_not_retried(llm_on):
+    fake = llm_on(FakeLLM([FakeResponse("half an answer", tout=400, finish="length", reasoning=300),
+                           FakeResponse("never used")]))
+    text = llm_utils.invoke_with_retry([], 400, agent="route", sleep=lambda s: None)
+    assert text == "half an answer" and fake.calls == 1
+    u = llm_utils.USAGE["route"]
+    assert u["truncated"] is True and u["wasted_output_tokens"] == 400 and u["reasoning_tokens"] == 300
+    assert llm_utils.usage_totals()["truncated_agents"] == ["route"]
+
+
+def test_truncated_with_no_text_is_flagged_not_retried(llm_on):
+    fake = llm_on(FakeLLM([FakeResponse("", tout=700, finish="length"), FakeResponse("never used")]))
+    assert llm_utils.invoke_with_retry([], 700, agent="sup", sleep=lambda s: None) == llm_utils.TRUNCATED_EMPTY_TEXT
+    assert fake.calls == 1
+
+
+def test_empty_answer_that_is_retried_counts_as_wasted(llm_on):
+    llm_on(FakeLLM([FakeResponse("", tout=50), FakeResponse("ok", tout=20)]))
+    assert llm_utils.invoke_with_retry([], 700, agent="sup", sleep=lambda s: None) == "ok"
+    assert llm_utils.USAGE["sup"]["wasted_output_tokens"] == 50
+    assert llm_utils.USAGE["sup"]["truncated"] is False
+
+
+def test_client_uses_low_reasoning_effort(monkeypatch):
+    import langchain_groq
+    seen = {}
+
+    class StubGroq:
+        def __init__(self, **kw):
+            seen.update(kw)
+    monkeypatch.setattr(langchain_groq, "ChatGroq", StubGroq)
+    monkeypatch.setattr(llm_utils, "_CLIENTS", {})
+    monkeypatch.setenv("GROQ_API_KEY", "test-not-a-real-key")
+    llm_utils.get_llm(400)
+    assert seen["reasoning_effort"] == "low" and seen["max_tokens"] == 400
+    assert seen["model_name"] == "openai/gpt-oss-20b"
 
 
 def test_missing_key_is_a_clear_error(monkeypatch):

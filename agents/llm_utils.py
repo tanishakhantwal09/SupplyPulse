@@ -26,6 +26,11 @@ load_dotenv(ROOT / ".env")
 # BUILD_PLAN section 2 (decided): model and Groq free tier.
 MODEL_NAME = "openai/gpt-oss-20b"
 TEMPERATURE = 0.1  # ASSUMPTION: low temperature for stable wording; not tuned.
+# gpt-oss is a reasoning model: hidden reasoning tokens count against max_tokens.
+# In the 26 Nov 2026 Groq run, default reasoning used the whole budget (empty or cut-off
+# answers). "low" is one of Groq's documented reasoning_effort levels for gpt-oss
+# (console.groq.com/docs/reasoning). ASSUMPTION: "low" is enough for short explanations.
+REASONING_EFFORT = "low"
 
 # BUILD_PLAN section 2: "Retry wait of 60 s on HTTP 429".
 RATE_LIMIT_WAIT_SECONDS = 60
@@ -34,6 +39,7 @@ REQUEST_TIMEOUT_SECONDS = 60  # ASSUMPTION: generous limit for a 700-token answe
 TIMEOUT_RETRY_WAIT_SECONDS = 5  # ASSUMPTION: short pause before retrying a timeout.
 
 NO_LLM_TEXT = "[LLM disabled (SUPPLYPULSE_NO_LLM=1): no explanation generated]"
+TRUNCATED_EMPTY_TEXT = "[LLM answer truncated at max_tokens before any text was produced]"
 
 
 def flag(name):
@@ -82,11 +88,17 @@ def reset_usage():
     USAGE.clear()
 
 
-def _record(agent, input_tokens, output_tokens, seconds):
-    u = USAGE.setdefault(agent, {"calls": 0, "input_tokens": 0, "output_tokens": 0, "seconds": 0.0})
+def _record(agent, input_tokens, output_tokens, seconds, reasoning_tokens=0, wasted=False, truncated=False):
+    u = USAGE.setdefault(agent, {"calls": 0, "input_tokens": 0, "output_tokens": 0, "reasoning_tokens": 0,
+                                 "wasted_output_tokens": 0, "truncated": False, "seconds": 0.0})
     u["calls"] += 1
     u["input_tokens"] += int(input_tokens or 0)
     u["output_tokens"] += int(output_tokens or 0)
+    u["reasoning_tokens"] += int(reasoning_tokens or 0)
+    if wasted or truncated:
+        # Output tokens of a call whose answer was discarded (empty, retried) or cut off.
+        u["wasted_output_tokens"] += int(output_tokens or 0)
+    u["truncated"] = u["truncated"] or truncated
     u["seconds"] = round(u["seconds"] + seconds, 3)
 
 
@@ -95,6 +107,9 @@ def usage_totals():
         "calls": sum(u["calls"] for u in USAGE.values()),
         "input_tokens": sum(u["input_tokens"] for u in USAGE.values()),
         "output_tokens": sum(u["output_tokens"] for u in USAGE.values()),
+        "reasoning_tokens": sum(u.get("reasoning_tokens", 0) for u in USAGE.values()),
+        "wasted_output_tokens": sum(u.get("wasted_output_tokens", 0) for u in USAGE.values()),
+        "truncated_agents": [k for k, u in USAGE.items() if u.get("truncated")],
         "per_agent": {k: dict(v) for k, v in USAGE.items()},
     }
 
@@ -115,6 +130,7 @@ def get_llm(max_tokens):
             model_name=MODEL_NAME,
             temperature=TEMPERATURE,
             max_tokens=max_tokens,
+            reasoning_effort=REASONING_EFFORT,
             timeout=REQUEST_TIMEOUT_SECONDS,
             max_retries=0,  # retries are handled below, in one place
         )
@@ -130,10 +146,17 @@ def _is_timeout(err):
     return "timeout" in type(err).__name__.lower() or "timed out" in str(err).lower()
 
 
+def _finish_reason(response):
+    meta = getattr(response, "response_metadata", None) or {}
+    return meta.get("finish_reason")
+
+
 def invoke_with_retry(messages, max_tokens, agent, sleep=time.sleep):
     """Call the LLM and return its text. Raises LLMError after MAX_ATTEMPTS.
 
-    Empty or missing text is treated as a failure, never passed on silently.
+    - A TRUNCATED answer (finish_reason == "length") is flagged in USAGE and returned
+      as it is, without a retry: retrying with the same budget would truncate again.
+    - Empty text that was NOT truncated is a failure and is retried.
     """
     if no_llm():
         fake = float(os.getenv("SUPPLYPULSE_FAKE_LLM_SECONDS", "0") or 0)
@@ -150,7 +173,14 @@ def invoke_with_retry(messages, max_tokens, agent, sleep=time.sleep):
             response = llm.invoke(messages)
             text = (getattr(response, "content", "") or "").strip()
             meta = getattr(response, "usage_metadata", None) or {}
-            _record(agent, meta.get("input_tokens"), meta.get("output_tokens"), time.time() - start)
+            reasoning = (meta.get("output_token_details") or {}).get("reasoning", 0)
+            truncated = _finish_reason(response) == "length"
+            _record(agent, meta.get("input_tokens"), meta.get("output_tokens"), time.time() - start,
+                    reasoning_tokens=reasoning, wasted=(not text and not truncated), truncated=truncated)
+            if truncated:
+                console.print(f"  [yellow]{agent}: answer truncated at max_tokens={max_tokens} "
+                              f"(not retried)[/yellow]")
+                return text or TRUNCATED_EMPTY_TEXT
             if not text:
                 raise LLMError("LLM returned empty text")
             return text

@@ -8,7 +8,7 @@ from rich.panel import Panel
 from rich.table import Table
 
 from agents.llm_utils import console, invoke_with_retry
-from agents.reference_data import commodities
+from agents.reference_data import commodities, port_by_id
 
 # ASSUMPTION: containers carried per affected vessel, by event severity. No source yet,
 # and a ship's size should not depend on severity; to be calibrated (BUILD_PLAN 7.1).
@@ -49,6 +49,11 @@ def match_commodities(affected_terms):
     return matched, unmatched
 
 
+def _port_name(port_id):
+    port = port_by_id(port_id)
+    return port["name"] if port else port_id
+
+
 def calculate_exposure(commodity, severity, vessels_affected):
     containers = vessels_affected * CONTAINERS_PER_VESSEL[severity]
     share = SENSITIVITY_SHARE[commodity["supply_chain_sensitivity"]]
@@ -82,7 +87,8 @@ def inventory_agent(state, route_agent_output=None):
             "exposure_value": value,
             "priority": PRIORITY_BY_SENSITIVITY[c["supply_chain_sensitivity"]],
             "typical_disruption_days": c.get("typical_disruption_impact_days"),  # from commodities.json
-            "reallocation_ports": c.get("primary_import_ports", [])[:2],          # from commodities.json
+            # from commodities.json (ids), shown to the LLM as port names
+            "reallocation_ports": [_port_name(pid) for pid in c.get("primary_import_ports", [])[:2]],
         })
     analysis.sort(key=lambda a: (a["priority"], -a["exposure_value"]))
 
