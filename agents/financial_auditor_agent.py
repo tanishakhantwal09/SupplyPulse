@@ -163,8 +163,17 @@ def build_user_prompt(state, fin, alert, threshold, pareto):
     vessels = int(state["vessels_affected"])
     split = "\n".join(f"- {r['port']}: {r['vessels']} ships, BPR delay {r['bpr_delay_days']} d, "
                       f"rerouting ${r['rerouting_cost_usd']:,.0f}" for r in fin["per_port"])
-    opts = "\n".join(f"- {o['option']}: {o['port']}, cost ${o['cost_usd']:,.0f}, "
-                     f"delay {o['delay_days']} d, CO2 {o['co2_tonnes']:,.0f} t" for o in pareto)
+    # Compare like with like: single-port REROUTING cost vs split-plan REROUTING cost.
+    # "lower"/"higher" is decided by code, so the LLM does not have to compare numbers.
+    def cmp(a, b):
+        return "lower than" if a < b else "higher than" if a > b else "equal to"
+    split_co2 = fin["carbon_details"]["total_co2_tonnes"]
+    opts = "\n".join(
+        f"- {o['option']}: {o['port']}: rerouting cost ${o['cost_usd']:,.0f} "
+        f"({cmp(o['cost_usd'], fin['rerouting_cost'])} the split plan rerouting cost ${fin['rerouting_cost']:,.0f}); "
+        f"delay {o['delay_days']} d ({cmp(o['delay_days'], fin['delay_days'])} the split plan {fin['delay_days']} d); "
+        f"CO2 {o['co2_tonnes']:,.0f} t ({cmp(o['co2_tonnes'], split_co2)} the split plan {split_co2:,.0f} t)"
+        for o in pareto)
     return f"""Port disruption: {state['nearest_port_name']} (severity {state['severity'].upper()}), {vessels} ships affected
 
 {SPLIT_HEADING} (this is the recommendation: ships are shared across several ports):
@@ -189,7 +198,9 @@ Rules: every time you give a number, say whether it belongs to the "split plan" 
 
 Write:
 1. COST ASSESSMENT: which parts of the split plan cost dominate the total (2 sentences).
-2. TRADE-OFF: what the single-port options show about cost, time and carbon compared with the split plan (2 sentences).
+2. TRADE-OFF: what the single-port options show about rerouting cost, delay and CO2 compared with the split plan,
+   using the "lower than / higher than" words given above (2 sentences). Compare rerouting cost with rerouting cost,
+   never with the split plan TOTAL.
 3. CAVEAT: one sentence noting that several cost constants are assumptions."""
 
 

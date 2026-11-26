@@ -198,13 +198,15 @@ ROUTE_MAX_TOKENS = 400  # BUILD_PLAN section 2.
 SYSTEM_PROMPT = """You are the Route Optimization Agent in SupplyPulse.
 The port has ALREADY been selected by deterministic code. Do not choose a different port.
 Explain, in plain language, why the code's scoring ranks the selected port first.
-Use only the numbers given to you. Do not invent numbers. Do not give a confidence percentage."""
+Use only the numbers given to you. Do not invent numbers. Do not give a confidence percentage.
+The score uses delay and cost divided by their maximum (normalised), not the raw values."""
 
 
 def build_user_prompt(disrupted_port_name, severity, affected_routes, alternates):
     selected = alternates[0]
     table = [{
-        "name": a["name"], "country": a["country"], "distance_nm": a["distance_nm"],
+        "name": a["name"], "country": a["country"],
+        "distance_from_disrupted_port_nm": a["distance_nm"],
         "raw_delay_days": a["estimated_delay_days"], "bpr_delay_days": a["bpr_adjusted_delay"],
         "load_vs_capacity": a["volume_ratio"], "ships_sent": a["vessels_diverted_here"],
         "cost_per_vessel_usd": a["estimated_cost_usd"], "risk": a["risk_level"], "score": a["score"],
