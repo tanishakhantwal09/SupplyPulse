@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Check, Copy } from 'lucide-react';
+import { useSupplyPulse } from '../../context/SupplyPulseContext';
 
 /* ── CountUp Numeric Animator ────────────────────────────────────────────── */
 export function CountUp({ value, decimals = 0, prefix = '', suffix = '' }) {
@@ -242,4 +243,29 @@ export function RiseItem({ children, className = '', delay = 0 }) {
 
 export function StaggerGrid({ children, className = '' }) {
   return <div className={className}>{children}</div>;
+}
+
+/* ── Run status banner (no run yet / gated / failed / offline) ───────────── */
+// Shown on every page that displays run results, so a missing run is never
+// replaced by made-up numbers.
+export function RunStatusBanner() {
+  const { pipelineResult: r, lastError, serverStatus, selectedEvent } = useSupplyPulse();
+  let tone = 'border-neutral-700 bg-neutral-900/60 text-neutral-300';
+  let text = null;
+  if (lastError) {
+    tone = 'border-rose-500/50 bg-rose-500/10 text-rose-300';
+    text = `Run failed: ${lastError}`;
+  } else if (!r && serverStatus !== 'online') {
+    text = 'API server offline. No run yet: start python3 dev_dashboard/server.py. Synthetic scenarios are shown for browsing only.';
+  } else if (!r) {
+    text = `No run yet for ${selectedEvent?.nearest_port_name ?? 'this event'}. Press Run Pipeline.`;
+  } else if (r.status === 'gated') {
+    tone = 'border-amber-500/50 bg-amber-500/10 text-amber-300';
+    text = `Signal gate: ${r.signal_gate?.action} (score ${r.signal_gate?.score}). ${r.signal_gate?.reason}. No plan was computed.`;
+  } else if (r.llm_enabled === false) {
+    tone = 'border-sky-500/40 bg-sky-500/10 text-sky-300';
+    text = 'LLM disabled for this run (SUPPLYPULSE_NO_LLM): numbers are real, explanation text is not generated.';
+  }
+  if (!text) return null;
+  return <div className={`mb-8 border px-4 py-3 text-xs sm:text-sm ${tone}`}>{text}</div>;
 }

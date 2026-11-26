@@ -13,7 +13,8 @@ import {
 } from 'lucide-react';
 import PageShell from '../components/layout/PageShell';
 import { useSupplyPulse } from '../context/SupplyPulseContext';
-import { JsonBlock, CredCard, SeverityBadge } from '../components/ui/primitives';
+import { NA, fmtUsd, hasPlan } from '../lib/format';
+import { JsonBlock, CredCard, RunStatusBanner, SeverityBadge } from '../components/ui/primitives';
 
 const PIPELINE_NODE_IDS = [
   'telemetry',
@@ -29,26 +30,32 @@ export default function PipelinePage() {
   const [activeNode, setActiveNode] = useState('supervisor');
   const [runStep, setRunStep] = useState(6);
 
+  // Every value comes from the selected event or the last real API run (missing = "—").
+  // "description" text describes what the code does; it is not the LLM prompt itself.
+  const r = pipelineResult;
+  const plan = hasPlan(r);
+  const t = r?.agent_timings_seconds || {};
+  const u = r?.llm_usage?.per_agent || {};
+  const model = r?.llm_model || 'openai/gpt-oss-20b';
+  const llmParams = (agent, maxTokens) => ({
+    model, max_tokens: maxTokens,
+    seconds: t[agent] ?? NA,
+    tokens_in_out: u[agent] ? `${u[agent].input_tokens} / ${u[agent].output_tokens}` : NA,
+  });
+
   const nodes = [
     {
       id: 'telemetry',
-      name: 'GDELT Telemetry',
+      name: 'Signal Gate',
       index: '01',
-      type: 'Input Stream',
-      agentName: 'fetch_gdelt.py / enrich_gdelt.py',
+      type: 'Input + Gate',
+      agentName: 'agents/confidence.py',
       icon: MapPin,
-      summary: `${selectedEvent?.nearest_port_name || 'Port of Shanghai'} (${selectedEvent?.severity || 'critical'})`,
-      systemPrompt: 'Ingests GDELT news event telemetry, computes Goldstein Instability index, average tone, and maps coordinates to nearest seaport using spherical Haversine trigonometric distance.',
-      userPayload: selectedEvent || {},
-      llmParams: { provider: 'GDELT 2.0 Broadcast', polling: '15 mins', distance_formula: 'Haversine NM', tone: selectedEvent?.avg_tone || -4.5 },
-      output: {
-        nearest_port_name: selectedEvent?.nearest_port_name || 'Port of Shanghai',
-        severity: selectedEvent?.severity || 'critical',
-        goldstein_scale: selectedEvent?.goldstein_scale || -6.2,
-        avg_tone: selectedEvent?.avg_tone || -4.5,
-        affected_routes: selectedEvent?.alternative_routes || ['R01', 'R05'],
-        freight_impact_pct: selectedEvent?.freight_impact_pct || 24.5
-      }
+      summary: r?.signal_gate ? `${r.signal_gate.action} (score ${r.signal_gate.score})` : 'No run yet',
+      systemPrompt: 'Scores the news signal (mention volume 40%, |Goldstein| 35%, |tone| 25%). Agents run only on PROCEED (score >= 0.60). Weights and thresholds are assumptions; it is not a conformal method.',
+      userPayload: selectedEvent?.raw || selectedEvent || {},
+      llmParams: { llm: 'none (deterministic)', reject_below: 0.35, proceed_from: 0.60 },
+      output: r?.signal_gate || {}
     },
     {
       id: 'supervisor',
@@ -57,64 +64,37 @@ export default function PipelinePage() {
       type: 'LLM Orchestrator',
       agentName: 'agents/supervisor_agent.py',
       icon: Cpu,
-      summary: 'Initial situational triage and task delegation to downstream specialized agents',
-      systemPrompt: `You are the Supervisor Agent of SupplyPulse.\nYou coordinate EXACTLY these 4 agents:\n1. Route Optimization Agent\n2. Inventory Agent\n3. Financial Auditor Agent\n4. Supervisor Agent (yourself)\n\nProvide:\n1. SITUATION ASSESSMENT\n2. IMMEDIATE ACTIONS\n3. AGENT DELEGATION\n4. REROUTING RECOMMENDATION\n5. RISK LEVEL`,
-      userPayload: {
-        nearest_port: selectedEvent?.nearest_port_name,
-        severity: selectedEvent?.severity,
-        affected_routes: selectedEvent?.alternative_routes,
-        at_risk_commodities: selectedEvent?.affected_commodities
-      },
-      llmParams: { provider: 'Groq Cloud', model: 'openai/gpt-oss-120b', temperature: 0.1, max_tokens: 1500 },
-      output: {
-        assessment: `DISRUPTION CONFIRMED: High severity event at ${selectedEvent?.nearest_port_name || 'Port of Shanghai'}. Operational bottleneck detected across major shipping corridors.`,
-        delegation: ['Route Optimization Agent', 'Inventory Agent', 'Financial Auditor Agent'],
-        preliminary_action: 'Prepare immediate vessel rerouting protocols and calculate draft-compatible alternate berths.'
-      }
+      summary: plan ? 'Situation assessment and delegation written' : 'No plan',
+      systemPrompt: 'Writes the situation assessment, immediate actions and delegation. It is told not to choose a port, a risk rating or any number.',
+      userPayload: { nearest_port: selectedEvent?.nearest_port_name ?? NA, severity: selectedEvent?.severity ?? NA },
+      llmParams: llmParams('supervisor', 700),
+      output: { assessment: r?.agent_assessments?.supervisor ?? NA }
     },
     {
       id: 'route_optimization',
       name: 'Route Optimization',
       index: '03',
-      type: 'Spatial Logistics',
+      type: 'Port Scoring',
       agentName: 'agents/route_optimization_agent.py',
       icon: Compass,
-      summary: `Alternate port: ${pipelineResult?.recommended_alternate_port || 'Ningbo-Zhoushan'} (+${pipelineResult?.additional_transit_days || 2.1} days)`,
-      systemPrompt: 'You are the Route Optimization Agent.\nCalculate alternate port options based on nautical distance (NM), vessel draft compatibility, port throughput capacity, transit delay days, and rerouting costs (USD).',
-      userPayload: {
-        disrupted_port: selectedEvent?.nearest_port_name,
-        vessel_draft_m: 14.5,
-        available_alternate_ports: selectedEvent?.alternative_routes || ['Port of Ningbo-Zhoushan', 'Port of Busan', 'Port of Tokyo']
-      },
-      llmParams: { provider: 'Groq Cloud', model: 'openai/gpt-oss-120b', temperature: 0.1, distance_metric: 'Great Circle NM' },
-      output: {
-        recommended_port: pipelineResult?.recommended_alternate_port || 'Port of Ningbo-Zhoushan',
-        country: pipelineResult?.alternate_port_country || 'China',
-        distance_nm: pipelineResult?.distance_nm || 114.5,
-        estimated_delay_days: pipelineResult?.additional_transit_days || 2.1,
-        estimated_cost_usd: pipelineResult?.rerouting_cost_usd || 45200
-      }
+      summary: plan ? `Code-selected port: ${r.recommended_alternate_port} (BPR delay ${r.additional_transit_days} d)` : 'No plan',
+      systemPrompt: 'Code splits ships per day across alternate ports by free capacity, applies BPR congestion (alpha 0.15, beta 4; U.S. Bureau of Public Roads 1964) and scores 0.40 risk + 0.35 delay + 0.25 cost. The LLM only explains the chosen port.',
+      userPayload: { disrupted_port: selectedEvent?.nearest_port_name ?? NA, vessels_affected: selectedEvent?.vessels_affected ?? NA, duration_hours: selectedEvent?.duration_hours ?? NA },
+      llmParams: llmParams('route_optimization', 400),
+      output: plan ? { recommended_port: r.recommended_alternate_port, ship_allocation: r.ship_allocation, explanation: r.agent_assessments?.route } : {}
     },
     {
       id: 'inventory',
       name: 'Inventory Agent',
       index: '04',
-      type: 'Buffer Exposure',
+      type: 'Commodity Exposure',
       agentName: 'agents/inventory_agent.py',
       icon: Package,
-      summary: `Priority: ${pipelineResult?.top_priority_commodity || 'Semiconductors'} ($${(pipelineResult?.inventory_exposure_usd || 1250000).toLocaleString()})`,
-      systemPrompt: 'You are the Inventory Agent.\nAssess commodity inventory exposures, safety stock depletion rates, critical component lead-time impacts, and factory stockout timelines.',
-      userPayload: {
-        affected_commodities: selectedEvent?.affected_commodities,
-        estimated_delay_days: pipelineResult?.additional_transit_days || 2.1
-      },
-      llmParams: { provider: 'Groq Cloud', model: 'openai/gpt-oss-120b', temperature: 0.1, buffer_horizon_days: 14 },
-      output: {
-        top_priority_commodity: pipelineResult?.top_priority_commodity || 'Semiconductors',
-        inventory_exposure_usd: pipelineResult?.inventory_exposure_usd || 1250000,
-        buffer_days_remaining: 4.5,
-        stockout_risk: 'CRITICAL'
-      }
+      summary: plan ? `Priority: ${r.top_priority_commodity} (${fmtUsd(r.inventory_exposure_usd)})` : 'No plan',
+      systemPrompt: 'Code matches commodity words to commodities.json (whole words) and computes exposed containers and value. Containers per vessel is an assumption. The LLM only explains.',
+      userPayload: { affected_commodities: selectedEvent?.affected_commodities ?? NA },
+      llmParams: llmParams('inventory', 700),
+      output: plan ? { inventory_analysis: r.inventory_analysis, unmatched_commodities: r.unmatched_commodities, explanation: r.agent_assessments?.inventory } : {}
     },
     {
       id: 'financial_auditor',
@@ -123,34 +103,24 @@ export default function PipelinePage() {
       type: 'Cost Audit',
       agentName: 'agents/financial_auditor_agent.py',
       icon: DollarSign,
-      summary: `Total Impact: $${(pipelineResult?.total_financial_impact_usd || 382000).toLocaleString()} (Alert: ${pipelineResult?.financial_alert ? 'TRIGGERED' : 'CLEAR'})`,
-      systemPrompt: 'You are the Financial Auditor Agent.\nAudit complete financial exposure: demurrage charges, fuel surcharges, alternative port handling fees, lost customer revenue, and total USD impact. Trigger alert if > $100,000 USD.',
-      userPayload: {
-        rerouting_cost_usd: pipelineResult?.rerouting_cost_usd || 45200,
-        inventory_exposure_usd: pipelineResult?.inventory_exposure_usd || 1250000,
-        delay_days: pipelineResult?.additional_transit_days || 2.1
-      },
-      llmParams: { provider: 'Groq Cloud', model: 'openai/gpt-oss-120b', temperature: 0.1, threshold_usd: 100000 },
-      output: {
-        total_financial_impact_usd: pipelineResult?.total_financial_impact_usd || 382000,
-        financial_alert: pipelineResult?.financial_alert ?? true,
-        demurrage_usd: 85000,
-        fuel_surcharge_usd: 24500,
-        port_handling_usd: 20700
-      }
+      summary: plan ? `Total: ${fmtUsd(r.total_financial_impact_usd)} (alert ${r.financial_alert ? 'TRIGGERED' : 'not triggered'}, threshold ${fmtUsd(r.alert_threshold_usd)})` : 'No plan',
+      systemPrompt: 'Code prices each receiving port: rerouting + ship-weighted BPR delay + freight + inventory at risk + operating cost + EU ETS carbon (Directive (EU) 2023/959). Several constants are assumptions. The LLM only explains.',
+      userPayload: plan ? { ship_allocation: r.ship_allocation } : {},
+      llmParams: llmParams('financial_auditor', 400),
+      output: plan ? { cost_breakdown_usd: r.cost_breakdown_usd, cost_per_port: r.cost_per_port, carbon: r.carbon_details, single_port_options: r.single_port_options, explanation: r.agent_assessments?.financial } : {}
     },
     {
       id: 'final_decision',
       name: 'Final Decision Node',
       index: '06',
-      type: 'Consensus Synthesis',
+      type: 'Result',
       agentName: 'agents/langgraph_orchestrator.py',
       icon: ShieldCheck,
-      summary: `UNIFIED: ${pipelineResult?.decision || 'REROUTE'} (Confidence: ${pipelineResult?.confidence || '92%'})`,
-      systemPrompt: 'Synthesizes all specialized agent outputs into a unified, actionable supply chain response plan with state convergence.',
-      userPayload: pipelineResult || {},
-      llmParams: { framework: 'LangGraph StateGraph', execution_time_sec: pipelineResult?.total_response_time_seconds || 3.42 },
-      output: pipelineResult || {}
+      summary: r ? `${r.decision} (${r.status})` : 'No run yet',
+      systemPrompt: 'Combines the agent outputs. The decision itself is a severity rule (REROUTE if critical or high), recorded as an assumption.',
+      userPayload: {},
+      llmParams: { framework: 'LangGraph StateGraph', response_time_s: r?.total_response_time_seconds ?? NA },
+      output: r || {}
     }
   ];
 
@@ -178,13 +148,13 @@ export default function PipelinePage() {
       eyebrow="autonomous multi-agent orchestrator"
       title="The LangGraph"
       accent="Pipeline."
-      sub="Six stages, one directed state graph. Click any node to inspect its execution parameters, system prompt, and state payloads."
+      sub="Six stages, one directed state graph. Click a node to see what it does and its real inputs and outputs from the last run. The step animation while running is cosmetic; real per-agent times are shown after the run."
       right={
         <div className="flex items-center gap-4">
           <div className="hidden sm:flex items-center gap-2 text-xs text-neutral-400">
             <span className="mono text-neutral-300 font-semibold">{isPipelineRunning ? 'Executing…' : 'Graph Ready'}</span>
             <span className="text-neutral-700">·</span>
-            <span className="mono text-neutral-400">{pipelineResult?.total_response_time_seconds || 3.42}s</span>
+            <span className="mono text-neutral-400">{pipelineResult ? `${pipelineResult.total_response_time_seconds}s` : NA}</span>
           </div>
 
           <button
@@ -207,32 +177,32 @@ export default function PipelinePage() {
         </div>
       }
     >
-      {/* ── 1. Unified Decision Banner ─────────────────────────────────── */}
+      <RunStatusBanner />
+      {/* ── 1. Decision banner (from the last real run) ────────────────── */}
       <section className="mb-12">
         <CredCard elevated hover={false} className="p-8 sm:p-10">
           <div className="flex flex-wrap items-center justify-between gap-6">
             <div className="flex items-center gap-6">
               <div className="text-xl sm:text-2xl font-black tracking-tight text-rose-500">
-                {pipelineResult?.decision || 'REROUTE'}
+                {r?.decision ?? 'NO RUN YET'}
               </div>
               <div className="border-l border-[rgba(225,29,72,0.3)] pl-6">
                 <div className="text-base sm:text-lg font-bold text-white tracking-tight">
-                  {pipelineResult?.disrupted_port} ➔ {pipelineResult?.recommended_alternate_port}
+                  {plan ? `${r.disrupted_port} ➔ ${r.recommended_alternate_port}` : (selectedEvent?.nearest_port_name ?? NA)}
                 </div>
                 <div className="mono text-xs text-neutral-400 mt-1 flex items-center gap-3">
-                  <span>+{pipelineResult?.additional_transit_days} Transit Days</span>
+                  <span>{plan ? `${r.additional_transit_days} d BPR delay` : NA}</span>
                   <span>·</span>
-                  <span>${(pipelineResult?.rerouting_cost_usd || 0).toLocaleString()} Reroute Cost</span>
+                  <span>{plan ? `${fmtUsd(r.rerouting_cost_usd)} rerouting` : NA}</span>
                   <span>·</span>
-                  <span>{pipelineResult?.distance_nm} NM</span>
+                  <span>{plan ? `${r.distance_nm} nm` : NA}</span>
                 </div>
               </div>
             </div>
-
             <div className="flex items-center gap-6">
-              <SeverityBadge severity={pipelineResult?.severity} />
+              {r?.severity && <SeverityBadge severity={r.severity} />}
               <div className="text-xs text-neutral-400">
-                Confidence <b className="mono text-emerald-400 font-bold text-sm ml-1">{pipelineResult?.confidence}</b>
+                Signal gate <b className="mono text-emerald-400 font-bold text-sm ml-1">{r?.signal_gate ? `${r.signal_gate.action} ${r.signal_gate.score ?? ''}` : NA}</b>
               </div>
             </div>
           </div>
@@ -342,7 +312,7 @@ export default function PipelinePage() {
               <div className="mb-6">
                 <div className="cred-label mb-3 flex items-center gap-2 text-neutral-300">
                   <FileCode2 className="h-4 w-4 text-rose-400" />
-                  <span>System Prompt & Role Definition</span>
+                  <span>What this stage does (description, not the prompt)</span>
                 </div>
                 <pre className="mono max-h-60 overflow-y-auto whitespace-pre-wrap rounded-2xl bg-[#08080C] border border-[rgba(225,29,72,0.25)] p-5 text-xs leading-relaxed text-neutral-300">
                   {currentNode.systemPrompt}

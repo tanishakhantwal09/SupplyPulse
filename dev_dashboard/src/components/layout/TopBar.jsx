@@ -65,7 +65,7 @@ export default function TopBar() {
               className="flex items-center gap-2.5 px-3 py-1.5 text-xs text-neutral-300 hover:text-white transition-all cursor-pointer border border-transparent hover:border-[rgba(225,29,72,0.4)]"
             >
               <span className="mono text-[11px] font-semibold text-[#E11D48]">
-                {selectedEvent?.scenario_id || 'SYN_0001'}
+                {selectedEvent?.scenario_id ?? '—'}
               </span>
               <span className="text-neutral-600">·</span>
               <span className="truncate max-w-[160px] font-medium text-neutral-200">
@@ -85,7 +85,7 @@ export default function TopBar() {
                   data-lenis-prevent
                 >
                   <div className="px-3 py-2 text-[10px] font-semibold tracking-wider uppercase text-neutral-500 border-b border-[rgba(225,29,72,0.2)]">
-                    Select Benchmark Scenario ({scenariosList.length})
+                    Select Event ({scenariosList.length})
                   </div>
                   {scenariosList.slice(0, 15).map((sc, idx) => (
                     <button

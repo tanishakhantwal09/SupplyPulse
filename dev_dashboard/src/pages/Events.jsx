@@ -95,8 +95,11 @@ export default function Events() {
                 <h3 className="text-xl font-bold text-white mb-1 tracking-tight">
                   {sc.affected_port}
                 </h3>
-                <span className="text-xs font-semibold text-rose-400 block mb-4 capitalize">
+                <span className="text-xs font-semibold text-rose-400 block capitalize">
                   {sc.disruption_type?.replace(/_/g, ' ')}
+                </span>
+                <span className={`mono text-[10px] font-bold uppercase tracking-wider block mb-4 ${sc.origin === 'synthetic' ? 'text-amber-400' : 'text-emerald-400'}`}>
+                  {sc.origin === 'synthetic' ? 'SYNTHETIC SCENARIO (cannot be run)' : 'Development-set event'}
                 </span>
 
                 <div className="grid grid-cols-2 gap-4 pt-4 border-t border-[rgba(225,29,72,0.25)] text-xs text-neutral-400">

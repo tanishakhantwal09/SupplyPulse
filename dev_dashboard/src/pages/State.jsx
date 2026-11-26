@@ -2,51 +2,65 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import PageShell from '../components/layout/PageShell';
 import { useSupplyPulse } from '../context/SupplyPulseContext';
-import { CredCard } from '../components/ui/primitives';
+import { NA, hasPlan } from '../lib/format';
+import { CredCard, RunStatusBanner } from '../components/ui/primitives';
 
-const SECTIONS = ['all', 'input_event', 'routing_state', 'inventory_state', 'financial_state', 'decision_state'];
+const SECTIONS = ['all', 'input_event', 'gate_state', 'routing_state', 'inventory_state', 'financial_state', 'decision_state'];
 
 export default function StatePage() {
   const { pipelineResult, selectedEvent } = useSupplyPulse();
   const [activeSection, setActiveSection] = useState('all');
 
+  // Every value comes from the selected event or the last real API run; missing = "—".
+  const r = pipelineResult;
+  const plan = hasPlan(r);
+  const v = (x) => (x === null || x === undefined ? NA : x);
+  const fin = r?.llm_usage ? r : null;
   const stateSchema = {
     input_event: {
-      nearest_port_name: selectedEvent?.nearest_port_name || 'Port of Shanghai',
-      severity: selectedEvent?.severity || 'critical',
-      goldstein_scale: selectedEvent?.goldstein_scale || -6.2,
-      avg_tone: selectedEvent?.avg_tone || -4.5,
-      affected_routes: selectedEvent?.alternative_routes || ['R01', 'R05'],
-      affected_commodities: selectedEvent?.affected_commodities || ['Electronics & Semiconductors'],
+      origin: v(selectedEvent?.origin),
+      nearest_port_name: v(selectedEvent?.nearest_port_name),
+      severity: v(selectedEvent?.severity),
+      goldstein_scale: v(selectedEvent?.goldstein_scale),
+      avg_tone: v(selectedEvent?.avg_tone),
+      num_mentions: v(selectedEvent?.num_mentions),
+      affected_routes: v(selectedEvent?.affected_routes),
+      affected_commodities: v(selectedEvent?.affected_commodities),
       mutated: false
     },
+    gate_state: {
+      action: v(r?.signal_gate?.action),
+      score: v(r?.signal_gate?.score),
+      factors: v(r?.signal_gate?.factors),
+      mutated: true
+    },
     routing_state: {
-      recommended_alternate_port: pipelineResult?.recommended_alternate_port || 'Port of Ningbo-Zhoushan',
-      alternate_port_country: pipelineResult?.alternate_port_country || 'China',
-      distance_nm: pipelineResult?.distance_nm || 114.5,
-      additional_transit_days: pipelineResult?.additional_transit_days || 2.1,
-      rerouting_cost_usd: pipelineResult?.rerouting_cost_usd || 45200,
+      recommended_alternate_port: plan ? r.recommended_alternate_port : NA,
+      alternate_port_country: plan ? r.alternate_port_country : NA,
+      distance_nm: plan ? r.distance_nm : NA,
+      bpr_delay_days: plan ? r.additional_transit_days : NA,
+      ship_allocation: plan ? r.ship_allocation : NA,
       mutated: true
     },
     inventory_state: {
-      top_priority_commodity: pipelineResult?.top_priority_commodity || 'Electronics & Semiconductors',
-      inventory_exposure_usd: pipelineResult?.inventory_exposure_usd || 1250000,
-      safety_buffer_days: 4.5,
-      stockout_risk: 'CRITICAL',
+      top_priority_commodity: plan ? r.top_priority_commodity : NA,
+      inventory_exposure_usd: plan ? r.inventory_exposure_usd : NA,
       mutated: true
     },
     financial_state: {
-      total_financial_impact_usd: pipelineResult?.total_financial_impact_usd || 382000,
-      financial_alert: pipelineResult?.financial_alert ?? true,
-      demurrage_usd: 85000,
-      fuel_surcharges_usd: 24500,
+      total_financial_impact_usd: plan ? r.total_financial_impact_usd : NA,
+      rerouting_cost_usd: plan ? r.rerouting_cost_usd : NA,
+      plan_weighted_delay_days: plan ? r.plan_weighted_delay_days : NA,
+      financial_alert: plan ? r.financial_alert : NA,
+      alert_threshold_usd: plan ? r.alert_threshold_usd : NA,
       mutated: true
     },
     decision_state: {
-      decision: pipelineResult?.decision || 'REROUTE',
-      confidence: pipelineResult?.confidence || '92%',
-      agents_activated: pipelineResult?.agents_activated || ['supervisor', 'route_optimization', 'inventory', 'financial_auditor', 'supervisor_final'],
-      total_response_time_seconds: pipelineResult?.total_response_time_seconds || 3.42,
+      status: v(r?.status),
+      decision: v(r?.decision),
+      agents_activated: v(r?.agents_activated),
+      total_response_time_seconds: v(r?.total_response_time_seconds),
+      llm_tokens_in_out: fin ? `${r.llm_usage.input_tokens} / ${r.llm_usage.output_tokens}` : NA,
       mutated: true
     }
   };
@@ -56,7 +70,7 @@ export default function StatePage() {
       eyebrow="langgraph memory & state inspector"
       title="The Directed"
       accent="State Machine."
-      sub="Live immutable and mutated state attributes flowing across the LangGraph multi-agent execution channels."
+      sub="State values from the selected event and the last real pipeline run."
       right={
         <div className="flex flex-wrap items-center gap-6 text-xs">
           {SECTIONS.map((sec) => (
@@ -75,6 +89,7 @@ export default function StatePage() {
         </div>
       }
     >
+      <RunStatusBanner />
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-16">
         <AnimatePresence mode="popLayout">
           {Object.entries(stateSchema).map(([key, val]) => {

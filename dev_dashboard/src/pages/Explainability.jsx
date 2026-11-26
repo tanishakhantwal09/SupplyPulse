@@ -2,67 +2,60 @@ import React from 'react';
 import { Compass, DollarSign, Package } from 'lucide-react';
 import PageShell from '../components/layout/PageShell';
 import { useSupplyPulse } from '../context/SupplyPulseContext';
-import { CredCard, SeverityBadge } from '../components/ui/primitives';
+import { NA, fmtUsd, hasPlan } from '../lib/format';
+import { CredCard, RunStatusBanner, SeverityBadge } from '../components/ui/primitives';
 
 export default function Explainability() {
   const { pipelineResult, selectedEvent } = useSupplyPulse();
 
-  const result = pipelineResult || {
-    disrupted_port: selectedEvent?.nearest_port_name || 'Port of Shanghai',
-    severity: (selectedEvent?.severity || 'critical').toUpperCase(),
-    decision: 'REROUTE',
-    recommended_alternate_port: 'Port of Ningbo-Zhoushan',
-    alternate_port_country: 'China',
-    distance_nm: 114.5,
-    additional_transit_days: 2.1,
-    rerouting_cost_usd: 45200,
-    total_financial_impact_usd: 382000,
-    financial_alert: true,
-    top_priority_commodity: 'Electronics & Semiconductors',
-    inventory_exposure_usd: 1250000,
-    confidence: '92%',
-    total_response_time_seconds: 3.42
-  };
+  // Values come only from the last real run; formulas match the code.
+  const r = pipelineResult;
+  const plan = hasPlan(r);
+  const cb = r?.cost_breakdown_usd || {};
+  const v = (x) => (plan ? x : NA);
 
   const pillars = [
     {
       icon: Compass,
-      tag: 'HAVERSINE NM',
+      tag: 'HAVERSINE + BPR',
       title: 'Route Optimization Math',
       rows: [
-        { label: 'Disrupted Seaport', value: result.disrupted_port },
-        { label: 'Recommended Alternate', value: `${result.recommended_alternate_port} (${result.alternate_port_country})` },
-        { label: 'Spherical Distance', value: `${result.distance_nm} NM` },
-        { label: 'Transit Delay Delta', value: `+${result.additional_transit_days} Days` }
+        { label: 'Disrupted Seaport', value: r?.disrupted_port ?? selectedEvent?.nearest_port_name ?? NA },
+        { label: 'Code-selected Alternate', value: v(`${r?.recommended_alternate_port} (${r?.alternate_port_country})`) },
+        { label: 'Great-circle Distance', value: v(`${r?.distance_nm} nm`) },
+        { label: 'BPR-adjusted Sailing Time', value: v(`${r?.additional_transit_days} days`) }
       ],
-      formula: 'R = 3440.065 NM; d = 2R · arcsin(√(sin²(Δφ/2) + cos φ1 · cos φ2 · sin²(Δλ/2)))',
-      note: 'Computes great-circle nautical distance between coordinates and filters alternate berths by maximum allowable vessel draft and container throughput capacity.'
+      formula: 'd = 2R·arcsin(√(sin²(Δφ/2) + cos φ1·cos φ2·sin²(Δλ/2))), R = 3440.065 nm;  t = t0·(1 + 0.15·(V/C)^4)',
+      note: 'BPR function: U.S. Bureau of Public Roads (1964). V/C = (current daily load + diverted ships per day) / daily capacity. Score = 0.40 risk + 0.35 delay + 0.25 cost (weights are assumptions).'
     },
     {
       icon: Package,
-      tag: 'BUFFER EXPOSURE',
-      title: 'Inventory Risk Exposure',
+      tag: 'COMMODITY EXPOSURE',
+      title: 'Inventory Exposure',
       rows: [
-        { label: 'Priority Cargo', value: result.top_priority_commodity },
-        { label: 'Quantified Value at Risk', value: `$${(result.inventory_exposure_usd || 0).toLocaleString()}` },
-        { label: 'Safety Buffer Remaining', value: '4.5 Days' },
-        { label: 'Stockout Risk Level', value: 'CRITICAL' }
+        { label: 'Priority Cargo', value: v(r?.top_priority_commodity) },
+        { label: 'Exposure Value', value: v(fmtUsd(r?.inventory_exposure_usd)) },
+        { label: 'Unmatched Commodity Terms', value: v((r?.unmatched_commodities || []).join(', ') || 'none') }
       ],
-      formula: 'Exposure = Σ (Cargo Value × Delay Days / Buffer Threshold) × Criticality Tier',
-      note: 'Evaluates tier-1 manufacturing component stockout windows against facility safety buffers to prioritize vessel rerouting sequence.'
+      formula: 'Exposure = vessels × containers_per_vessel(severity) × sensitivity_share × value_per_container',
+      note: 'containers_per_vessel and sensitivity_share are assumptions without a source yet; value_per_container comes from commodities.json.'
     },
     {
       icon: DollarSign,
       tag: 'COST AUDIT',
-      title: 'Financial Exposure Audit',
+      title: 'Financial Impact',
       rows: [
-        { label: 'Direct Rerouting Cost', value: `$${(result.rerouting_cost_usd || 0).toLocaleString()}` },
-        { label: 'Total Bottom-Line Impact', value: `$${(result.total_financial_impact_usd || 0).toLocaleString()}` },
-        { label: 'Alert Trigger Status', value: result.financial_alert ? 'TRIGGERED (> $100k)' : 'CLEAR' },
-        { label: 'Executive Threshold', value: '$100,000 USD' }
+        { label: 'Rerouting', value: v(fmtUsd(cb.rerouting_cost)) },
+        { label: 'Trade Delay', value: v(fmtUsd(cb.delay_cost)) },
+        { label: 'Freight Increase', value: v(fmtUsd(cb.freight_rate_increase)) },
+        { label: 'Inventory at Risk', value: v(fmtUsd(cb.inventory_at_risk)) },
+        { label: 'Operating Cost', value: v(fmtUsd(cb.operational_cost)) },
+        { label: 'EU ETS Carbon', value: v(fmtUsd(cb.carbon_penalty)) },
+        { label: 'Total', value: v(fmtUsd(r?.total_financial_impact_usd)) },
+        { label: 'Alert', value: v(`${r?.financial_alert ? 'TRIGGERED' : 'not triggered'} (threshold ${fmtUsd(r?.alert_threshold_usd)})`) }
       ],
-      formula: 'Total Impact = Carrier Demurrage + Fuel Surcharges + Port Handling + SLA Penalties',
-      note: 'Triggers automated CFO executive escalation whenever total quantified financial impact exceeds the $100,000 USD threshold.'
+      formula: 'Total = C_reroute + C_delay + C_freight + C_inventory + C_operational + C_carbon(EU ETS)',
+      note: 'EU ETS coverage and phase-in follow Directive (EU) 2023/959. Daily trade value, inventory share, operating cost and alert thresholds are assumptions.'
     }
   ];
 
@@ -71,17 +64,18 @@ export default function Explainability() {
       eyebrow="explainable multi-agent rationale"
       title="Why the System"
       accent="Decided."
-      sub="The mathematical and operational reasoning behind the autonomous recommendation — every trigonometric formula, threshold, and risk metric."
+      sub="The formulas the code uses, with the values from the last run. Constants without a source are marked as assumptions."
       right={
         <div className="flex items-center gap-6">
           <div className="flex items-center gap-2 text-xs">
-            <span className="cred-label text-[10px] text-neutral-500">Confidence</span>
-            <span className="mono text-sm font-bold text-emerald-400">{result.confidence}</span>
+            <span className="cred-label text-[10px] text-neutral-500">Signal gate</span>
+            <span className="mono text-sm font-bold text-emerald-400">{r?.signal_gate ? `${r.signal_gate.action} ${r.signal_gate.score ?? ''}` : NA}</span>
           </div>
-          <SeverityBadge severity={result.severity} />
+          {r?.severity && <SeverityBadge severity={r.severity} />}
         </div>
       }
     >
+      <RunStatusBanner />
       {/* ── 1. Explainable Decision Matrix ───────────────────────────────── */}
       <section className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
         {pillars.map((p) => (

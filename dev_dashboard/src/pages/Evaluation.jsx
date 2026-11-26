@@ -1,85 +1,68 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import PageShell from '../components/layout/PageShell';
-import { CountUp, CredCard } from '../components/ui/primitives';
+import { API_BASE, NA, fmtNum } from '../lib/format';
+import { CredCard } from '../components/ui/primitives';
 
-const BENCHMARK_METRICS = [
-  { name: 'Decision F1-Score', supplypulse: '0.967', baseline: '0.812', diff: '+15.5%' },
-  { name: 'Precision', supplypulse: '0.967', baseline: '0.833', diff: '+13.4%' },
-  { name: 'Recall', supplypulse: '1.000', baseline: '0.792', diff: '+20.8%' },
-  { name: 'Accuracy', supplypulse: '0.967', baseline: '0.800', diff: '+16.7%' },
-  { name: 'Alternate Port Accuracy', supplypulse: '90.0%', baseline: '63.3%', diff: '+26.7%' },
-  { name: 'Response Latency', supplypulse: '3.42s', baseline: 'Manual Review (Days)', diff: '1,000× faster' },
-  { name: 'Cost per Analysis', supplypulse: '$0.0006', baseline: 'Human Overhead ($500+)', diff: '99.9% savings' }
-];
-
+// Values are read from experiments/results/*.json through /api/evaluation.
+// Nothing on this page is typed in by hand. These results are RETIRED
+// (see docs/RETIRED.md) and are shown only so they are not hidden.
 export default function Evaluation() {
+  const [data, setData] = useState(null);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    fetch(`${API_BASE}/api/evaluation`)
+      .then(r => r.json())
+      .then(setData)
+      .catch(e => setError(e.message));
+  }, []);
+
+  const sp = data?.supplypulse?.metrics;
+  const bl = data?.brintrup_baseline?.metrics;
+  const rows = [
+    ['Rerouting F1', sp?.f1_rerouting, bl?.f1_score, 3],
+    ['Precision', sp?.precision, bl?.precision, 3],
+    ['Recall', sp?.recall, bl?.recall, 3],
+    ['Accuracy', sp?.accuracy, bl?.accuracy, 3],
+    ['Plan correctness', sp?.plan_correctness, null, 3],
+    ['Avg response time (s)', sp?.avg_response_time_seconds, bl?.avg_response_time_seconds, 2],
+    ['Cost per analysis (USD, ASSUMPTION)', sp?.cost_per_analysis_usd, bl?.cost_per_analysis_usd, 4],
+  ];
+
   return (
     <PageShell
-      eyebrow="academic evaluation benchmark"
-      title="Against the State"
-      accent="of the Art."
-      sub="Formal quantitative comparison matching the Cambridge multi-agent benchmark methodology (arXiv: 2601.09680) across real-world validated maritime disruption scenarios."
+      eyebrow="evaluation results"
+      title="Evaluation"
+      accent="(Retired)."
+      sub="Old results read from experiments/results. They are retired and must not be reported. New results come from the Stage 2-3 experiments."
     >
-      {/* ── 1. Key Performance Metric Open Strip ───────────────────────── */}
-      <section className="grid grid-cols-1 md:grid-cols-3 gap-10 mb-16 border-b border-[rgba(225,29,72,0.25)] pb-14">
-        <div>
-          <span className="cred-label text-neutral-500 block mb-2">Decision F1-Score</span>
-          <div className="mono text-5xl sm:text-6xl font-bold text-emerald-400 my-2">
-            <CountUp value={0.967} decimals={3} />
-          </div>
-          <span className="text-xs text-neutral-400 font-medium mt-1 block">
-            +15.5% improvement over literature baseline
-          </span>
-        </div>
+      <div className="mb-10 border border-rose-500/50 bg-rose-500/10 px-5 py-4 text-sm text-rose-200 leading-relaxed">
+        <b>RETIRED.</b> The F1 scores below are circular: the "ground truth" labels and the pipeline's
+        decision both come from the same severity rule. The cost per analysis is an ASSUMPTION
+        (1,500 tokens × 4 calls × $0.15 per million), not a measurement. The Brintrup et al. comparison uses a
+        preprint, which may only be cited as a disclosed reference. See docs/RETIRED.md.
+        {data?.retired_note && <span className="block mt-2 text-rose-300/80">{data.retired_note}</span>}
+      </div>
 
-        <div>
-          <span className="cred-label text-neutral-500 block mb-2">Average Response Time</span>
-          <div className="mono text-5xl sm:text-6xl font-bold text-white my-2">
-            <CountUp value={3.42} decimals={2} suffix="s" />
-          </div>
-          <span className="text-xs text-neutral-400 font-medium mt-1 block">
-            Sub-5s complete multi-agent consensus cycle
-          </span>
-        </div>
+      {error && <div className="mb-8 text-sm text-neutral-400">API server offline: no results shown ({error}).</div>}
 
-        <div>
-          <span className="cred-label text-neutral-500 block mb-2">Alternate Port Accuracy</span>
-          <div className="mono text-5xl sm:text-6xl font-bold text-sky-400 my-2">
-            <CountUp value={90.0} decimals={1} suffix="%" />
-          </div>
-          <span className="text-xs text-neutral-400 font-medium mt-1 block">
-            Ground-truth nautical match against historical diversions
-          </span>
-        </div>
-      </section>
-
-      {/* ── 2. Formal Comparison Table ───────────────────────────────────── */}
       <section className="mb-16">
-        <div className="mb-8">
-          <span className="cred-label">Quantitative Matrix</span>
-          <h2 className="cred-hero text-2xl sm:text-3xl text-white font-bold tracking-tight mt-1">
-            Multi-Agent Performance vs Baseline
-          </h2>
-        </div>
-
         <CredCard hover={false} className="overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse">
               <thead>
                 <tr className="border-b border-[rgba(225,29,72,0.3)] bg-white/[0.02]">
                   <th className="py-5 px-8 text-xs font-bold uppercase tracking-wider text-neutral-400">Metric</th>
-                  <th className="py-5 px-8 text-xs font-bold uppercase tracking-wider text-emerald-400">SupplyPulse (Multi-Agent)</th>
-                  <th className="py-5 px-8 text-xs font-bold uppercase tracking-wider text-neutral-400">Brintrup et al. Baseline</th>
-                  <th className="py-5 px-8 text-xs font-bold uppercase tracking-wider text-white">Delta</th>
+                  <th className="py-5 px-8 text-xs font-bold uppercase tracking-wider text-neutral-300">SupplyPulse (formal_evaluation.json)</th>
+                  <th className="py-5 px-8 text-xs font-bold uppercase tracking-wider text-neutral-400">Rule baseline (brintrup_baseline.json)</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-[rgba(225,29,72,0.22)]">
-                {BENCHMARK_METRICS.map((row) => (
-                  <tr key={row.name} className="hover:bg-white/[0.02] transition-colors">
-                    <td className="py-5 px-8 text-sm font-semibold text-white">{row.name}</td>
-                    <td className="py-5 px-8 mono text-sm font-bold text-emerald-400">{row.supplypulse}</td>
-                    <td className="py-5 px-8 mono text-sm text-neutral-400">{row.baseline}</td>
-                    <td className="py-5 px-8 mono text-sm font-bold text-white">{row.diff}</td>
+                {rows.map(([name, a, b, d]) => (
+                  <tr key={name}>
+                    <td className="py-5 px-8 text-sm font-semibold text-white">{name}</td>
+                    <td className="py-5 px-8 mono text-sm text-neutral-300">{a == null ? NA : fmtNum(a, d)}</td>
+                    <td className="py-5 px-8 mono text-sm text-neutral-400">{b == null ? NA : fmtNum(b, d)}</td>
                   </tr>
                 ))}
               </tbody>

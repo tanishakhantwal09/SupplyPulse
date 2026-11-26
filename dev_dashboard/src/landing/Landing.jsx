@@ -399,7 +399,7 @@ function RouteVisual() {
         </span>
       </div>
       <span className="pl-mono absolute bottom-4 right-4 text-[10px] tracking-[0.16em] text-neutral-500">
-        +2 DAYS TRANSIT · GEODESIC PATH
+        ILLUSTRATION (DEMO) · NOT A REAL RESULT
       </span>
     </div>
   );

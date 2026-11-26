@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { ChevronRight, Clock } from 'lucide-react';
 import PageShell from '../components/layout/PageShell';
 import { useSupplyPulse } from '../context/SupplyPulseContext';
+import { NA, hasPlan } from '../lib/format';
 import { JsonBlock, CredCard } from '../components/ui/primitives';
 
 const BAR_SHADES = [
@@ -18,44 +19,44 @@ export default function Trace() {
   const { pipelineResult, selectedEvent } = useSupplyPulse();
   const [selectedTraceStep, setSelectedTraceStep] = useState(0);
 
-  const traceSteps = [
-    {
-      id: 0, timestamp: '00:00.000', timeMs: 0, agent: 'GDELT Ingestion Stream', type: 'TELEMETRY STREAM',
-      latency: '0.034s', status: 'completed', tokens: 0, model: 'GDELT 2.0 Broadcast API',
-      inputPayload: { port: selectedEvent?.nearest_port_name, severity: selectedEvent?.severity },
-      outputPayload: { goldstein_scale: selectedEvent?.goldstein_scale, avg_tone: selectedEvent?.avg_tone, freight_shock_pct: selectedEvent?.freight_impact_pct }
-    },
-    {
-      id: 1, timestamp: '00:00.034', timeMs: 34, agent: 'Supervisor Agent', type: 'LLM ORCHESTRATOR',
-      latency: '1.167s', status: 'completed', tokens: 1450, model: 'Groq Cloud / gpt-oss-120b',
-      inputPayload: { disruption_event: selectedEvent?.nearest_port_name, severity: selectedEvent?.severity },
-      outputPayload: { situation_assessment: 'CONFIRMED DISRUPTION', delegated_agents: ['route_optimization', 'inventory', 'financial_auditor'] }
-    },
-    {
-      id: 2, timestamp: '00:01.201', timeMs: 1201, agent: 'Route Optimization Agent', type: 'SPATIAL LOGISTICS',
-      latency: '0.673s', status: 'completed', tokens: 1210, model: 'Groq Cloud / gpt-oss-120b',
-      inputPayload: { origin_port: selectedEvent?.nearest_port_name, candidate_ports: selectedEvent?.alternative_routes },
-      outputPayload: { recommended_alternate_port: pipelineResult?.recommended_alternate_port || 'Port of Ningbo-Zhoushan', distance_nm: pipelineResult?.distance_nm || 114.5 }
-    },
-    {
-      id: 3, timestamp: '00:01.874', timeMs: 1874, agent: 'Inventory Agent', type: 'BUFFER EXPOSURE',
-      latency: '0.568s', status: 'completed', tokens: 980, model: 'Groq Cloud / gpt-oss-120b',
-      inputPayload: { commodities: selectedEvent?.affected_commodities },
-      outputPayload: { priority_commodity: pipelineResult?.top_priority_commodity || 'Electronics & Semiconductors', inventory_exposure_usd: pipelineResult?.inventory_exposure_usd || 1250000 }
-    },
-    {
-      id: 4, timestamp: '00:02.442', timeMs: 2442, agent: 'Financial Auditor Agent', type: 'COST AUDIT',
-      latency: '0.650s', status: 'completed', tokens: 1120, model: 'Groq Cloud / gpt-oss-120b',
-      inputPayload: { rerouting_cost: pipelineResult?.rerouting_cost_usd || 45200 },
-      outputPayload: { total_financial_impact_usd: pipelineResult?.total_financial_impact_usd || 382000, alert_triggered: true }
-    },
-    {
-      id: 5, timestamp: '00:03.092', timeMs: 3092, agent: 'LangGraph Unified State', type: 'CONSENSUS SYNTHESIS',
-      latency: '0.328s', status: 'completed', tokens: 450, model: 'LangGraph StateGraph',
-      inputPayload: { pipeline_outputs: 'all_specialized_agents' },
-      outputPayload: pipelineResult || {}
-    }
+  // Built only from the last real run: measured per-agent seconds and token counts.
+  const r = pipelineResult;
+  const plan = hasPlan(r);
+  const timings = r?.agent_timings_seconds || {};
+  const usage = r?.llm_usage?.per_agent || {};
+  const model = r?.llm_model || 'openai/gpt-oss-20b';
+  const total = r?.total_response_time_seconds || 0;
+  const defs = [
+    ['supervisor', 'Supervisor Agent', 'LLM ORCHESTRATOR', { assessment: r?.agent_assessments?.supervisor }],
+    ['route_optimization', 'Route Optimization Agent', 'PORT SCORING',
+      plan ? { recommended_alternate_port: r.recommended_alternate_port, ship_allocation: r.ship_allocation } : {}],
+    ['inventory', 'Inventory Agent', 'COMMODITY EXPOSURE',
+      plan ? { top_priority_commodity: r.top_priority_commodity, inventory_exposure_usd: r.inventory_exposure_usd } : {}],
+    ['financial_auditor', 'Financial Auditor Agent', 'COST AUDIT',
+      plan ? { total_financial_impact_usd: r.total_financial_impact_usd, cost_breakdown_usd: r.cost_breakdown_usd } : {}],
+    ['final_decision', 'Final Decision', 'RESULT', r || {}],
   ];
+  let elapsed = 0;
+  const traceSteps = defs.filter(([key]) => timings[key] !== undefined).map(([key, agent, type, out], id) => {
+    const start = elapsed;
+    elapsed += timings[key];
+    const tok = usage[key];
+    return {
+      id, agent, type, status: 'completed',
+      timestamp: `${start.toFixed(3)}s`, timeSec: start, latencySec: timings[key],
+      latency: `${timings[key].toFixed(3)}s`,
+      tokens: tok ? tok.input_tokens + tok.output_tokens : 0,
+      model: key === 'final_decision' ? 'LangGraph StateGraph' : model,
+      inputPayload: { port: selectedEvent?.nearest_port_name ?? NA, severity: selectedEvent?.severity ?? NA },
+      outputPayload: out,
+    };
+  });
+  if (traceSteps.length === 0) {
+    traceSteps.push({ id: 0, agent: r ? `No agents ran (${r.status})` : 'No run yet', type: 'NO TRACE',
+      status: 'none', timestamp: NA, timeSec: 0, latencySec: 0, latency: NA, tokens: 0, model: NA,
+      inputPayload: {}, outputPayload: r?.signal_gate || {} });
+  }
+  const scale = total || 1;
 
   const activeStep = traceSteps[selectedTraceStep] || traceSteps[0];
 
@@ -64,12 +65,12 @@ export default function Trace() {
       eyebrow="chronological execution trace"
       title="Every Step,"
       accent="Accounted For."
-      sub="Chronological timeline of agent activations, precise latency metrics, token consumption, and input/output states."
+      sub="Timeline of the last real run: measured seconds and LLM tokens per agent."
       right={
         <div className="flex items-center gap-2 text-xs">
           <span className="cred-label text-[10px] text-neutral-500">Total Latency</span>
           <span className="mono text-base font-bold text-rose-400">
-            {pipelineResult?.total_response_time_seconds || '3.42'}s
+            {r ? `${r.total_response_time_seconds}s` : NA}
           </span>
         </div>
       }
@@ -109,10 +110,10 @@ export default function Trace() {
                   <div className="relative mx-3 h-2 flex-1 overflow-hidden bg-black/40">
                     <motion.div
                       initial={{ width: 0 }}
-                      animate={{ width: `${Math.max(18, (parseFloat(step.latency) / 3.42) * 100)}%` }}
+                      animate={{ width: `${Math.max(4, (step.latencySec / scale) * 100)}%` }}
                       transition={{ delay: 0.1 + idx * 0.05, duration: 0.6 }}
                       className={`h-full ${BAR_SHADES[idx]}`}
-                      style={{ marginLeft: `${(step.timeMs / 3420) * 70}%` }}
+                      style={{ marginLeft: `${(step.timeSec / scale) * 96}%` }}
                     />
                   </div>
 
