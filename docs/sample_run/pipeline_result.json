@@ -1,0 +1,26 @@
+{
+  "disrupted_port": "Port of Mundra",
+  "event_date": "2026-02-18",
+  "analysis_date": "2026-11-03 10:05 UTC",
+  "severity": "CRITICAL",
+  "decision": "REROUTE",
+  "recommended_alternate_port": "Port of Mumbai (JNPT)",
+  "alternate_port_display": "Port of Mumbai (JNPT)",
+  "alternate_port_country": "India",
+  "distance_nm": 297.7,
+  "additional_transit_days": 0.7,
+  "rerouting_cost_usd": 24114,
+  "total_financial_impact_usd": 3533554660.5620003,
+  "financial_alert": true,
+  "top_priority_commodity": "Oil and Petrochemicals",
+  "inventory_exposure_usd": 19526400000,
+  "agents_activated": [
+    "supervisor",
+    "route_optimization",
+    "inventory",
+    "financial_auditor",
+    "supervisor_final"
+  ],
+  "total_response_time_seconds": 26.87,
+  "confidence": "91%"
+}

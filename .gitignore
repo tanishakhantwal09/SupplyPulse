@@ -75,3 +75,7 @@ Research papers/
 dataset/reference/portwatch_cache.json
 # Datasets (never commit Parquet)
 *.parquet
+
+# Pipeline run outputs (change on every run; a sample is kept in docs/sample_run/)
+agents/pipeline_result.json
+agents/pipeline_attribution.json
