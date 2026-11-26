@@ -111,7 +111,7 @@ Each gap is tied to a cited paper and a measurable before/after.
 
 ### 4a. What the three commits contain (now the rebuild specification)
 
-**Stage 1: honesty fixes**
+**Stage 1: honesty fixes** — **DONE 26 Nov 2026** on branch `major-project` (commits 92cc44f to the Stage 1 tests commit; audit in docs/AUDIT.md, retired figures in docs/RETIRED.md). Extra items agreed with Tanisha and also done: approved local edits merged; requirements.txt + README "How to run"; BPR set to the standard alpha 0.15 / beta 4 (U.S. Bureau of Public Roads 1964) and diverted ships spread over max(duration_days, 1); dashboard hand-typed values removed or labelled demo; model name gpt-oss-20b; F1 0.974 and $0.0009 marked RETIRED; run outputs untracked (sample in docs/sample_run/); 73 pytest tests. EU ETS berth emissions are marked "not modelled" (ASSUMPTION). Shanghai, critical, 350 ships: Busan BPR delay 74.1 d → 1.26 d.
 - Severity-fixed 91/82/71% confidence replaced by the signal gate.
 - Route LLM explains instead of choosing.
 - Risk term normalised to 0/0.5/1.
@@ -150,9 +150,11 @@ Each gap is tied to a cited paper and a measurable before/after.
 ## 5. Known open issues
 
 1. **Cost model:** default vessel counts (for example 350 for a critical mega-hub) exceed the alternative ports' vessel_capacity, so BPR delays and the trade-delay cost explode. A Shanghai simulation gives a 74-day delay and about USD 94 billion. Calibrate vessel counts, capacities and daily trade values against published figures. This must be fixed before any result is reported.
+   - *Status 26 Nov 2026 (Stage 1):* the delay blow-up is fixed (standard BPR alpha, ships spread per day): Shanghai now gives a ship-weighted delay of 3.0 days and a total of USD 9.1 B. **Still open:** USD 6.4 B of that is "inventory at risk", driven by 800 containers per vessel tied to severity and unsourced values; daily trade value (USD 850 M/day) is also unsourced. These are labelled ASSUMPTION and still need calibration (Section 7, item 1).
+   - *Observation (development set, not tuned):* with the fixed 0.35/0.60 thresholds only 3% of development events reach PROCEED (11% of "critical" ones). To be discussed before Stage 2-3; thresholds must not be tuned on the held-out set.
 2. **Cost constants** are still assumptions: daily trade value, 45 USD/nm, 15% inventory risk, 25,000 USD per vessel per day. Each needs a source or must be labelled as an assumption in the paper.
 3. **Cost per analysis** is now measured from token counts (USAGE). The old $0.0009 figure is not measured and must not be used.
-4. **Older dashboard pages** may still contain hard-coded demo values. The audit must find and remove them.
+4. **Older dashboard pages** may still contain hard-coded demo values. The audit must find and remove them. *Done in Stage 1 (26 Nov 2026).*
 5. **No results have been produced on the real dataset yet** (all experiments are pending).
 
 ## 6. Audit checklist (next chat, step 2)
