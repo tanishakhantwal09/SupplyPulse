@@ -1,0 +1,27 @@
+# SupplyPulse core dependencies (pinned). Tested with Python 3.14.
+# Install:  python3 -m venv venv && source venv/bin/activate && pip3 install -r requirements.txt
+
+# Data
+pandas==3.0.6
+numpy==2.5.3
+pyarrow==25.0.1
+requests==2.34.2
+
+# Agents and LLM (Groq, openai/gpt-oss-20b)
+langgraph==1.2.12
+langchain-core==1.6.5
+langchain-groq==1.1.3
+groq==0.37.1
+python-dotenv==1.2.3
+
+# Console output, metrics, figures
+rich==15.0.0
+scikit-learn==1.9.1
+matplotlib==3.11.2
+
+# API (FastAPI backend is built in Stage 4)
+fastapi==0.141.1
+uvicorn==0.54.0
+
+# Tests
+pytest==9.2.0

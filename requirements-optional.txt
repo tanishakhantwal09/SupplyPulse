@@ -1,0 +1,6 @@
+# Optional: only needed by the old EDA / figure scripts
+# (create_eda_notebook.py, generate_graphs.py, notebooks/). Not pinned yet
+# because they are not installed in the reference venv.
+seaborn
+folium
+nbformat
