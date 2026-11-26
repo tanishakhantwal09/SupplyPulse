@@ -215,6 +215,7 @@ def final_decision_node(state):
         "decision_summary": {"final_decision": decision, "decision_basis": result["decision_basis"],
                              "response_time_seconds": elapsed},
         "llm_usage": result["llm_usage"],
+        "llm_prompts": dict(llm_utils.PROMPTS),  # what each LLM was given (Gap 3 lineage)
     }
     _print(result)
     _save(result, attribution)

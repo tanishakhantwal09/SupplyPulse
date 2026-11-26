@@ -138,38 +138,58 @@ def calculate_pareto_options(state, alternates, year):
         return []
     return [
         {**min(options, key=lambda x: (x["cost_usd"], x["co2_tonnes"], x["delay_days"])),
-         "option": "Min Cost", "best_for": "Cost-priority operators"},
+         "option": "Min Cost", "best_for": "Cost-priority operators", "kind": "single-port option"},
         {**min(options, key=lambda x: (x["co2_tonnes"], x["cost_usd"], x["delay_days"])),
-         "option": "Min Carbon", "best_for": "Lowest CO2"},
+         "option": "Min Carbon", "best_for": "Lowest CO2", "kind": "single-port option"},
         {**min(options, key=lambda x: (x["delay_days"], x["cost_usd"], x["co2_tonnes"])),
-         "option": "Min Time", "best_for": "Time-priority (BPR delay, all ships to one port)"},
+         "option": "Min Time", "best_for": "Time-priority (BPR delay, all ships to one port)",
+         "kind": "single-port option"},
     ]
 
 
 SYSTEM_PROMPT = """You are the Financial Auditor Agent in SupplyPulse.
 All figures were calculated by deterministic code. Explain them in plain language.
-Use only the numbers given. Do not invent numbers, savings, probabilities or insurance decisions."""
+Use only the numbers given. Do not invent numbers, savings, probabilities or insurance decisions.
+Keep the split plan (the recommendation) and the single-port what-if options clearly apart."""
+
+
+# Section headings used in the prompt. The number-and-wording check
+# (experiments/llm_number_check.py) uses them to know what each number is.
+SPLIT_HEADING = "SPLIT PLAN"
+SINGLE_HEADING = "SINGLE-PORT OPTIONS"
 
 
 def build_user_prompt(state, fin, alert, threshold, pareto):
+    vessels = int(state["vessels_affected"])
+    split = "\n".join(f"- {r['port']}: {r['vessels']} ships, BPR delay {r['bpr_delay_days']} d, "
+                      f"rerouting ${r['rerouting_cost_usd']:,.0f}" for r in fin["per_port"])
     opts = "\n".join(f"- {o['option']}: {o['port']}, cost ${o['cost_usd']:,.0f}, "
                      f"delay {o['delay_days']} d, CO2 {o['co2_tonnes']:,.0f} t" for o in pareto)
-    return f"""Port disruption: {state['nearest_port_name']} (severity {state['severity'].upper()})
-Six-part cost (USD):
+    return f"""Port disruption: {state['nearest_port_name']} (severity {state['severity'].upper()}), {vessels} ships affected
+
+{SPLIT_HEADING} (this is the recommendation: ships are shared across several ports):
+{split}
+- Ship-weighted BPR delay of the split plan: {fin['delay_days']} days
+
+{SPLIT_HEADING} COST, six parts (USD):
 - Rerouting: {fin['rerouting_cost']:,.0f}
-- Trade delay ({fin['delay_days']} days, ship-weighted BPR delay): {fin['delay_cost']:,.0f}
+- Trade delay ({fin['delay_days']} days): {fin['delay_cost']:,.0f}
 - Freight increase: {fin['freight_rate_increase']:,.0f}
 - Inventory at risk: {fin['inventory_at_risk']:,.0f}
 - Operational: {fin['operational_cost']:,.0f}
 - EU ETS carbon: {fin['carbon_penalty']:,.0f} ({fin['carbon_details']['total_co2_tonnes']:,.0f} t CO2)
 - TOTAL: {fin['total_impact']:,.0f}
 Alert: {'TRIGGERED' if alert else 'not triggered'} (threshold {threshold:,.0f})
-Single-port options:
+
+{SINGLE_HEADING} (what-if only, NOT the plan: ALL {vessels} ships sent to ONE port):
 {opts}
 
+Rules: every time you give a number, say whether it belongs to the "split plan" or to a
+"single-port option". Never describe a single-port option figure as the plan.
+
 Write:
-1. COST ASSESSMENT: which parts dominate the total (2 sentences).
-2. TRADE-OFF: what the single-port options show about cost, time and carbon (2 sentences).
+1. COST ASSESSMENT: which parts of the split plan cost dominate the total (2 sentences).
+2. TRADE-OFF: what the single-port options show about cost, time and carbon compared with the split plan (2 sentences).
 3. CAVEAT: one sentence noting that several cost constants are assumptions."""
 
 
@@ -185,7 +205,8 @@ def _print(fin, alert, threshold, pareto):
     console.print(t)
     console.print(f"  Alert: {'TRIGGERED' if alert else 'within threshold'} (threshold ${threshold:,.0f})")
     if pareto:
-        p = Table(title="Single-port options", box=box.ROUNDED, border_style="cyan")
+        p = Table(title="Single-port options (what-if: ALL ships to one port; not the plan)",
+                  box=box.ROUNDED, border_style="cyan")
         for c in ["Option", "Port", "Cost", "Delay", "CO2 (t)", "Carbon cost"]:
             p.add_column(c)
         for o in pareto:

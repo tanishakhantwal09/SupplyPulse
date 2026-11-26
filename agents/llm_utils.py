@@ -80,12 +80,14 @@ class LLMError(RuntimeError):
     """Raised when the LLM call fails after all retries."""
 
 
-# ── Usage counter ────────────────────────────────────────────────────────────
+# ── Usage counter and prompt record ──────────────────────────────────────────
 USAGE = {}
+PROMPTS = {}  # agent -> the exact prompt text sent (for the number-and-wording check, Gap 3)
 
 
 def reset_usage():
     USAGE.clear()
+    PROMPTS.clear()
 
 
 def _record(agent, input_tokens, output_tokens, seconds, reasoning_tokens=0, wasted=False, truncated=False):
@@ -158,6 +160,7 @@ def invoke_with_retry(messages, max_tokens, agent, sleep=time.sleep):
       as it is, without a retry: retrying with the same budget would truncate again.
     - Empty text that was NOT truncated is a failure and is retried.
     """
+    PROMPTS[agent] = "\n\n".join(str(getattr(m, "content", m)) for m in messages)
     if no_llm():
         fake = float(os.getenv("SUPPLYPULSE_FAKE_LLM_SECONDS", "0") or 0)
         if fake > 0:
