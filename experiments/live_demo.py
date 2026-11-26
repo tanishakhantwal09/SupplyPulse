@@ -6,7 +6,9 @@ import json
 import time
 import math
 from datetime import datetime, timezone, timedelta
+from agents.confidence import score_signal
 from agents.langgraph_orchestrator import run_supplypulse
+from agents.reference_data import DATA_DIR
 from rich.console import Console
 from rich.panel import Panel
 from rich.rule import Rule
@@ -42,53 +44,13 @@ TRADING_NATIONS = [
 
 # ── Gap 2: Epistemic Confidence Scoring ──────────────────────────────────────
 def compute_confidence_score(row):
+    """Gap 2 signal gate for a raw GDELT row (columns 31 NumMentions, 30 Goldstein, 34 AvgTone).
+
+    Uses the shared gate in agents/confidence.py (inspired by Angelopoulos and
+    Bates 2023; NOT a conformal method).
     """
-    Three-factor epistemic confidence scoring.
-    Based on: Angelopoulos & Bates (2023) Conformal Prediction framework.
-    Applied to GDELT supply chain event validation before agent activation.
-
-    Factor 1 (40%) — Source Credibility : distinct news mentions
-    Factor 2 (35%) — Signal Strength    : Goldstein instability score
-    Factor 3 (25%) — Tone Consistency   : average news tone negativity
-
-    Thresholds:
-      < 0.35  → REJECTED         (pipeline not activated)
-      0.35–0.60 → MONITOR_AND_HOLD (logged, agents not activated)
-      ≥ 0.60  → PROCEED           (full 4-agent pipeline activated)
-    """
-    try:
-        mentions  = int(row[31])   if pd.notna(row[31]) else 0
-        goldstein = float(row[30]) if pd.notna(row[30]) else 0
-        tone      = float(row[34]) if pd.notna(row[34]) else 0
-    except Exception:
-        return 0.0, 'REJECTED', 'Could not parse event signal values'
-
-    source_score = min(mentions / 50.0, 1.0)
-    signal_score = min(abs(goldstein) / 10.0, 1.0)
-    tone_score   = min(abs(tone) / 10.0, 1.0)
-
-    confidence = round(
-        0.40 * source_score +
-        0.35 * signal_score +
-        0.25 * tone_score,
-        3
-    )
-
-    if confidence < 0.35:
-        action = 'REJECTED'
-        reason = (f'Confidence {confidence} below threshold 0.35 — '
-                  f'insufficient evidence of supply chain disruption '
-                  f'(mentions={mentions}, goldstein={goldstein}, tone={tone:.2f})')
-    elif confidence < 0.60:
-        action = 'MONITOR_AND_HOLD'
-        reason = (f'Confidence {confidence} — low-certainty signal, '
-                  f'monitoring only, agents not activated')
-    else:
-        action = 'PROCEED'
-        reason = (f'Confidence {confidence} — high-certainty supply chain '
-                  f'disruption signal, activating 4-agent pipeline')
-
-    return confidence, action, reason
+    g = score_signal(row[31], row[30], row[34])
+    return g["score"], g["action"], g["reason"]
 
 
 # ── GDELT URL generation ──────────────────────────────────────────────────────
@@ -146,7 +108,13 @@ def score_event(row):
 
 
 # ── Main GDELT fetch ──────────────────────────────────────────────────────────
-def fetch_live_gdelt_event():
+def fetch_live_gdelt_event(hours_back=48, require_proceed=True):
+    """Find the strongest real supply-chain event in recent GDELT 2.0 files.
+
+    Returns (event, file_timestamp), or (None, None) when there is no live event.
+    With require_proceed=False the event is returned even if the gate holds or
+    rejects it (the gate result is in event['signal_gate']).
+    """
     console.print(Panel(
         f"[bold white]SUPPLYPULSE LIVE INGESTION PROOF[/bold white]\n\n"
         f"[cyan][SYSTEM CLOCK]:[/cyan]      "
@@ -158,7 +126,7 @@ def fetch_live_gdelt_event():
         title="LIVE DATA VERIFICATION"
     ))
 
-    gdelt_urls         = get_gdelt_urls(hours_back=48)
+    gdelt_urls         = get_gdelt_urls(hours_back=hours_back)
     best_event         = None
     best_score         = 0
     found_ts           = None
@@ -247,9 +215,10 @@ def fetch_live_gdelt_event():
 
     lat       = float(event_row[56]) if pd.notna(event_row[56]) else 0
     lon       = float(event_row[57]) if pd.notna(event_row[57]) else 0
-    goldstein = float(event_row[30]) if pd.notna(event_row[30]) else -3.0
-    tone      = float(event_row[34]) if pd.notna(event_row[34]) else -5.0
-    mentions  = int(event_row[31])   if pd.notna(event_row[31]) else 5
+    # Missing values stay missing (NaN); the gate then rejects the event.
+    goldstein = float(event_row[30]) if pd.notna(event_row[30]) else float('nan')
+    tone      = float(event_row[34]) if pd.notna(event_row[34]) else float('nan')
+    mentions  = int(event_row[31])   if pd.notna(event_row[31]) else float('nan')
 
     console.print(f"\n  [yellow]→[/yellow] [cyan][RAW GDELT EVENT ID]:[/cyan] {event_id}")
     console.print(f"  [yellow]→[/yellow] [cyan][NEWS HEADLINE / URL]:[/cyan] {source_url[:80]}")
@@ -274,7 +243,7 @@ def fetch_live_gdelt_event():
     )
     console.print(f"  [yellow]→[/yellow] [cyan][REASON]:[/cyan] {reason}")
 
-    if action == 'REJECTED':
+    if action == 'REJECTED' and require_proceed:
         console.print(Panel(
             f"[bold red]EVENT REJECTED — PIPELINE NOT ACTIVATED[/bold red]\n\n"
             f"Confidence Score : {confidence}\n"
@@ -285,7 +254,7 @@ def fetch_live_gdelt_event():
         ))
         return None, None
 
-    if action == 'MONITOR_AND_HOLD':
+    if action == 'MONITOR_AND_HOLD' and require_proceed:
         console.print(Panel(
             f"[bold yellow]MONITOR AND HOLD — LOW CERTAINTY SIGNAL[/bold yellow]\n\n"
             f"Confidence Score : {confidence}\n"
@@ -298,11 +267,8 @@ def fetch_live_gdelt_event():
 
     # ── Dataset membership check ──────────────────────────────────────────────
     try:
-        val_df = pd.read_parquet(
-            r'dataset/final/validation_set_REAL_ONLY.parquet',
-            columns=['event_id']
-        )
-        in_dataset = event_id in val_df['event_id'].astype(str).values
+        all_df = pd.read_parquet(DATA_DIR / 'master_enriched.parquet', columns=['event_id'])
+        in_dataset = event_id in all_df['event_id'].astype(str).values
         status = (
             "[red]YES — already in dataset[/red]"
             if in_dataset else
@@ -311,11 +277,11 @@ def fetch_live_gdelt_event():
     except Exception:
         status = "[yellow]dataset check skipped[/yellow]"
 
-    console.print(f"  [yellow]→[/yellow] [cyan][IN VALIDATION DATASET]:[/cyan] {status}")
+    console.print(f"  [yellow]→[/yellow] [cyan][IN DATASET]:[/cyan] {status}")
 
     # ── Port mapping ──────────────────────────────────────────────────────────
-    with open("dataset/reference/ports.json") as f:
-        ports = json.load(f)
+    from agents.reference_data import ports as _ports
+    ports = _ports()
 
     def haversine(lat1, lon1, lat2, lon2):
         R    = 3440.065
@@ -326,16 +292,21 @@ def fetch_live_gdelt_event():
                 math.sin(math.radians(lon2 - lon1) / 2) ** 2)
         return 2 * R * math.asin(math.sqrt(a))
 
-    nearest_port = ports[0]
+    if lat == 0 and lon == 0:
+        console.print("[red]Live event has no coordinates; it cannot be mapped to a port.[/red]")
+        return None, None
+    nearest_port = None
     min_dist     = float('inf')
-    if lat != 0 and lon != 0:
-        for port in ports:
-            dist = haversine(lat, lon, port['lat'], port['lon'])
-            if dist < min_dist:
-                min_dist     = dist
-                nearest_port = port
+    for port in ports:
+        dist = haversine(lat, lon, port['lat'], port['lon'])
+        if dist < min_dist:
+            min_dist     = dist
+            nearest_port = port
 
     # ── Severity classification ───────────────────────────────────────────────
+    # ASSUMPTION: this live severity rule DIFFERS from enrich_gdelt.assign_severity,
+    # and the freight / vessels / duration values below ignore port type. They will be
+    # replaced by the dataset enrichment rules in Stage 4 (agents/simulation.py).
     if goldstein <= -5 or (tone <= -8 and mentions >= 20) or mentions >= 100:
         severity = 'critical'
     elif goldstein <= -3 or (tone <= -5 and mentions >= 10) or mentions >= 40:
@@ -376,6 +347,8 @@ def fetch_live_gdelt_event():
         # Gap 2 metadata
         'confidence_score':           confidence,
         'confidence_action':          action,
+        'signal_gate':                score_signal(mentions, goldstein, tone),
+        'gdelt_file_timestamp':       found_ts,
     }
 
     return live_event, found_ts
@@ -417,14 +390,9 @@ if __name__ == "__main__":
         'epistemic_confidence': {
             'score':   live_event['confidence_score'],
             'action':  live_event['confidence_action'],
-            'factors': {
-                'source_credibility_weight': 0.40,
-                'signal_strength_weight':    0.35,
-                'tone_consistency_weight':   0.25,
-                'proceed_threshold':         0.60,
-                'reject_threshold':          0.35,
-            },
-            'reference': 'Angelopoulos & Bates (2023) — Conformal Prediction'
+            'details': live_event['signal_gate'],
+            'reference': ('Inspired by Angelopoulos & Bates (2023); not a conformal method. '
+                          'Weights and thresholds are ASSUMPTIONS (agents/confidence.py).'),
         },
         'agent_decision':        result,
         'total_latency_seconds': elapsed
