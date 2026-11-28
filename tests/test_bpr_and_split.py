@@ -37,7 +37,7 @@ def test_link_types_follow_port_type():
 
 def test_free_flow_times_are_labelled_constants():
     assert ra.PORT_FREE_FLOW_DAYS == 1.0 and ra.CANAL_FREE_FLOW_DAYS == 1.0
-    assert ra.MAIN_ALLOCATION == ra.USER_EQUILIBRIUM
+    assert ra.MAIN_ALLOCATION == ra.CAPPED_USER_EQUILIBRIUM and ra.RHO_MAX == 0.95
 
 
 @pytest.mark.parametrize("vessels,hours,expected", [
@@ -67,8 +67,17 @@ def test_split_gives_nothing_to_full_ports():
     assert ra.split_vessels(10, [0, 0, 0]) == [0, 0, 0]
 
 
-def test_shanghai_user_equilibrium():
+def test_shanghai_capped_user_equilibrium_is_the_main_plan():
     plan = ra.plan_routes("P001", "critical", 350, 144)
+    alts = plan["alternates"]
+    assert plan["method"] == ra.CAPPED_USER_EQUILIBRIUM and plan["rho_max"] == 0.95
+    assert all(a["utilisation"] <= 0.95 + 1e-3 for a in alts)                # never above the ceiling
+    assert plan["saturated"] and plan["excess_ships"] == 55                  # 58.33 ships/day vs 49.22 capped room
+    assert sum(a["vessels_diverted_here"] for a in alts) + plan["excess_ships"] == 350
+
+
+def test_shanghai_uncapped_user_equilibrium_ablation():
+    plan = ra.plan_routes("P001", "critical", 350, 144, method=ra.USER_EQUILIBRIUM)
     alts = plan["alternates"]
     assert plan["converged"] and sum(a["vessels_diverted_here"] for a in alts) == 350
     used = [a for a in alts if a["vessels_diverted_here"] > 0]
@@ -94,20 +103,25 @@ def test_suez_uses_the_uncongested_cape_route():
         assert plan["level"] == pytest.approx(cape["sailing_time_days"], abs=1e-3)
 
 
-def test_full_port_gets_fewer_ships(monkeypatch):
+def test_port_above_the_ceiling_gets_no_ships(monkeypatch):
     def util(name, static):
         return (1.2, "test") if name == "Port of Busan" else (static, "static")
     monkeypatch.setattr(ra, "get_port_utilization", util)
-    alts = ra.get_alternate_ports("P001", "critical", 350, 144)
-    busan = next(a for a in alts if a["name"] == "Port of Busan")
-    assert busan["vessels_diverted_here"] < 259                   # 259 with its normal load
-    assert sum(a["vessels_diverted_here"] for a in alts) == 350
+    plan = ra.plan_routes("P001", "critical", 350, 144)
+    busan = next(a for a in plan["alternates"] if a["name"] == "Port of Busan")
+    assert busan["vessels_diverted_here"] == 0                    # already at 120% > 95% ceiling
+    assert sum(a["vessels_diverted_here"] for a in plan["alternates"]) + plan["excess_ships"] == 350
+    uncapped = ra.get_alternate_ports("P001", "critical", 350, 144, method=ra.USER_EQUILIBRIUM)
+    assert next(a for a in uncapped if a["name"] == "Port of Busan")["vessels_diverted_here"] < 259
 
 
-@pytest.mark.parametrize("method", ["user_equilibrium", "system_optimal", "free_capacity_split"])
-def test_every_method_places_every_ship(method):
-    alts = ra.get_alternate_ports("P021", "high", 90, 72, method=method)
-    assert sum(a["vessels_diverted_here"] for a in alts) == 90
+@pytest.mark.parametrize("method", ["capped_user_equilibrium", "capped_system_optimal", "user_equilibrium",
+                                    "system_optimal", "free_capacity_split"])
+def test_every_ship_is_assigned_or_reported_waiting(method):
+    plan = ra.plan_routes("P021", "high", 90, 72, method=method)
+    assert sum(a["vessels_diverted_here"] for a in plan["alternates"]) + plan["excess_ships"] == 90
+    if method in ("user_equilibrium", "system_optimal", "free_capacity_split"):
+        assert plan["excess_ships"] == 0                          # uncapped strategies force every ship in
 
 
 def test_unknown_method_is_an_error():

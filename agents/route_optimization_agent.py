@@ -56,11 +56,19 @@ CANAL_FREE_FLOW_DAYS = 1.0  # ASSUMPTION: canal / strait transit plus normal que
 UNCONGESTED_PORT_TYPES = {"alternate_route"}
 CANAL_PORT_TYPES = {"chokepoint"}
 
-USER_EQUILIBRIUM = wardrop.UE
-SYSTEM_OPTIMAL = wardrop.SO
-FREE_CAPACITY_SPLIT = "free_capacity_split"
-ALLOCATION_METHODS = (USER_EQUILIBRIUM, SYSTEM_OPTIMAL, FREE_CAPACITY_SPLIT)
-MAIN_ALLOCATION = USER_EQUILIBRIUM  # SupplyPulse's plan
+# A2 (28 Nov 2026): utilisation ceiling for the capacity-constrained equilibrium.
+RHO_MAX = 0.95  # ASSUMPTION: keeps the M/G/1 queue stable (rho < 1); no source yet (BUILD_PLAN 5).
+
+USER_EQUILIBRIUM = wardrop.UE                  # uncapped: ablation only
+SYSTEM_OPTIMAL = wardrop.SO                    # uncapped: ablation only
+CAPPED_USER_EQUILIBRIUM = "capped_user_equilibrium"
+CAPPED_SYSTEM_OPTIMAL = "capped_system_optimal"
+FREE_CAPACITY_SPLIT = "free_capacity_split"    # ablation only
+ALLOCATION_METHODS = (CAPPED_USER_EQUILIBRIUM, CAPPED_SYSTEM_OPTIMAL, USER_EQUILIBRIUM, SYSTEM_OPTIMAL,
+                      FREE_CAPACITY_SPLIT)
+MAIN_ALLOCATION = CAPPED_USER_EQUILIBRIUM  # SupplyPulse's plan
+_SOLVER = {CAPPED_USER_EQUILIBRIUM: (wardrop.UE, True), CAPPED_SYSTEM_OPTIMAL: (wardrop.SO, True),
+           USER_EQUILIBRIUM: (wardrop.UE, False), SYSTEM_OPTIMAL: (wardrop.SO, False)}
 SCORE_NOTE = "comparison only, not used for allocation"
 
 
@@ -100,12 +108,17 @@ def link_type(port):
     return "port"
 
 
-def to_link(alt):
-    """agents.wardrop.Link for one alternate (all in days and ships per day)."""
+def to_link(alt, capped=False, rho_max=None):
+    """agents.wardrop.Link for one alternate (all in days and ships per day).
+
+    capped=True applies the utilisation ceiling (RHO_MAX unless rho_max is given).
+    Open-ocean bypass routes are never capped.
+    """
     if not alt["congested"]:
         return wardrop.Link(alt["name"], alt["sailing_time_days"], congested=False)
     return wardrop.Link(alt["name"], alt["sailing_time_days"], alt["free_flow_days"],
-                        alt["port_capacity"], alt["port_capacity"] * alt["port_utilization"])
+                        alt["port_capacity"], alt["port_capacity"] * alt["port_utilization"],
+                        rho_max=(rho_max if rho_max is not None else RHO_MAX) if capped else None)
 
 
 def link_times(alt, per_day):
@@ -141,17 +154,29 @@ def free_capacity_flows(alternates, per_day):
     return [per_day * w / total for w in slots] if total > 0 else [0.0] * len(alternates)
 
 
-def allocate(alternates, vessels_affected, duration_hours, method=MAIN_ALLOCATION):
-    """Ships per day and whole ships per alternate for one allocation method."""
+def allocate(alternates, vessels_affected, duration_hours, method=MAIN_ALLOCATION, rho_max=None):
+    """Ships per day and whole ships per alternate for one allocation method.
+
+    With a capped method, ships that do not fit under the ceiling are NOT assigned:
+    info["excess_ships"] (whole ships) and info["excess_demand_per_day"] report them.
+    """
     if method not in ALLOCATION_METHODS:
         raise ValueError(f"unknown allocation method {method!r}")
     per_day = ships_per_day(vessels_affected, duration_hours)
+    info = {"level": None, "iterations": 0, "converged": True, "excess_demand_per_day": 0.0,
+            "saturated": False, "rho_max": None}
     if method == FREE_CAPACITY_SPLIT:
-        flows, info = free_capacity_flows(alternates, per_day), {"level": None, "iterations": 0, "converged": True}
+        flows = free_capacity_flows(alternates, per_day)
     else:
-        r = wardrop.solve([to_link(a) for a in alternates], per_day, method)
-        flows, info = r["flows"], {k: r[k] for k in ("level", "iterations", "converged")}
-    return flows, split_vessels(vessels_affected, flows), info
+        solver_method, capped = _SOLVER[method]
+        r = wardrop.solve([to_link(a, capped, rho_max) for a in alternates], per_day, solver_method)
+        flows = r["flows"]
+        info.update({k: r[k] for k in ("level", "iterations", "converged", "saturated")},
+                    excess_demand_per_day=r["excess_demand"],
+                    rho_max=(rho_max if rho_max is not None else RHO_MAX) if capped else None)
+    assigned = (round(vessels_affected * sum(flows) / per_day) if per_day > 0 else 0)
+    info["excess_ships"] = vessels_affected - assigned
+    return flows, split_vessels(assigned, flows), info
 
 
 def apply_allocation(alternates, flows, ships):
@@ -160,6 +185,7 @@ def apply_allocation(alternates, flows, ships):
         t = link_times(alt, x)
         vc = t["volume_ratio"]
         alt.update({
+            "utilisation": round(vc, 3) if vc is not None else None,
             "vessels_diverted_here": n,
             "vessels_per_day_here": round(x, 2),
             "current_load": round(alt["port_capacity"] * alt["port_utilization"], 1) if alt["congested"] else None,
@@ -171,7 +197,8 @@ def apply_allocation(alternates, flows, ships):
         })
 
 
-def plan_routes(disrupted_port_id, severity, vessels_affected=0, duration_hours=24, method=MAIN_ALLOCATION):
+def plan_routes(disrupted_port_id, severity, vessels_affected=0, duration_hours=24, method=MAIN_ALLOCATION,
+                rho_max=None):
     """Allocate the diverted ships over the usable alternates.
 
     Returns {"alternates": [...], "method", "level", "iterations", "converged", "ships_per_day"}.
@@ -218,7 +245,7 @@ def plan_routes(disrupted_port_id, severity, vessels_affected=0, duration_hours=
     if not alternates:
         raise NoAlternatesError(f"No usable alternate port for {disrupted['name']}")
 
-    flows, ships, info = allocate(alternates, vessels_affected, duration_hours, method)
+    flows, ships, info = allocate(alternates, vessels_affected, duration_hours, method, rho_max)
     apply_allocation(alternates, flows, ships)
     for a in alternates:
         a["sailing_time_days"] = round(a["sailing_time_days"], 3)
@@ -238,17 +265,20 @@ def plan_routes(disrupted_port_id, severity, vessels_affected=0, duration_hours=
             "ships_per_day": ships_per_day(vessels_affected, duration_hours), **info}
 
 
-def get_alternate_ports(disrupted_port_id, severity, vessels_affected=0, duration_hours=24, method=MAIN_ALLOCATION):
-    return plan_routes(disrupted_port_id, severity, vessels_affected, duration_hours, method)["alternates"]
+def get_alternate_ports(disrupted_port_id, severity, vessels_affected=0, duration_hours=24, method=MAIN_ALLOCATION,
+                        rho_max=None):
+    return plan_routes(disrupted_port_id, severity, vessels_affected, duration_hours, method, rho_max)["alternates"]
 
 
 # ── Agent ────────────────────────────────────────────────────────────────────
 ROUTE_MAX_TOKENS = 400  # BUILD_PLAN section 2.
 
 SYSTEM_PROMPT = """You are the Route Optimization Agent in SupplyPulse.
-The ships have ALREADY been allocated by deterministic code (a Wardrop user equilibrium):
-each port that receives ships has the same travel time (sailing + port time), and no
-unused port would be faster. Do not change the allocation or choose another port.
+The ships have ALREADY been allocated by deterministic code (a capacity-constrained Wardrop
+user equilibrium): no port is filled above its utilisation ceiling; ports below the ceiling
+share the same travel time (sailing + port time); a port at its ceiling may be faster; and no
+unused port would be faster. Ships that do not fit are reported as waiting (excess demand).
+Do not change the allocation or choose another port.
 Explain it in plain language. Use only the numbers given. Do not invent numbers.
 Do not give a confidence percentage. The risk/delay/cost score is for comparison only;
 it was NOT used to allocate ships."""
@@ -264,10 +294,13 @@ def build_user_prompt(disrupted_port_name, severity, affected_routes, alternates
         "score_comparison_only": a["score"],
     } for a in alternates]
     level = plan.get("level")
+    ceiling = plan.get("rho_max")
     return f"""Port disruption: {disrupted_port_name} (severity {severity.upper()})
-Affected routes: {', '.join(affected_routes) or 'none'}
-Allocation method: Wardrop user equilibrium. Common travel time of the ports used: {round(level, 3) if level is not None else 'n/a'} days.
+Affected routes (routes that call at this port): {', '.join(affected_routes) or 'none'}
+Allocation method: capacity-constrained Wardrop user equilibrium, utilisation ceiling {ceiling if ceiling else 'none'}.
+Common travel time of the ports below the ceiling: {round(level, 3) if level is not None else 'n/a'} days.
 Port receiving the most ships: {alternates[0]['name']}
+Ships that do not fit under the ceiling (waiting, not assigned): {plan.get('excess_ships', 0)}
 
 Alternates (computed by code):
 {json.dumps(table, indent=2)}
@@ -279,7 +312,7 @@ Write:
 
 
 def _print_table(alternates):
-    table = Table(title="Alternate Port Allocation (Wardrop user equilibrium)", box=box.ROUNDED,
+    table = Table(title="Alternate Port Allocation (capacity-constrained Wardrop user equilibrium)", box=box.ROUNDED,
                   border_style="cyan", header_style="bold cyan")
     for col in ["Port", "Ships", "Ships/day", "Load/Cap", "Sailing", "Port time", "Travel time", "Score*"]:
         table.add_column(col)
@@ -327,6 +360,10 @@ def route_optimization_agent(state):
         "equilibrium_time_days": round(plan["level"], 4) if plan["level"] is not None else None,
         "solver_iterations": plan["iterations"],
         "solver_converged": plan["converged"],
+        "rho_max": plan["rho_max"],
+        "excess_ships": plan["excess_ships"],
+        "excess_demand_ships_per_day": round(plan["excess_demand_per_day"], 3),
+        "saturated": plan["saturated"],
         "port_free_flow_days": PORT_FREE_FLOW_DAYS,
         "canal_free_flow_days": CANAL_FREE_FLOW_DAYS,
         "vessels_affected": vessels_affected,

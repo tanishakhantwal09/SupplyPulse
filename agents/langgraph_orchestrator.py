@@ -171,12 +171,16 @@ def final_decision_node(state):
         "travel_time_days": rec["travel_time_days"],   # total travel time (sailing + port) at the recommended port
         "allocation_method": route["allocation_method"],
         "equilibrium_time_days": route["equilibrium_time_days"],
+        "rho_max": route["rho_max"],
+        "excess_ships": route["excess_ships"],
+        "excess_demand_ships_per_day": route["excess_demand_ships_per_day"],
         "plan_weighted_delay_days": fin["delay_days"],
         "ship_allocation": [{"port": a["name"], "vessels": a["vessels_diverted_here"],
                              "vessels_per_day": a["vessels_per_day_here"], "volume_ratio": a["volume_ratio"],
                              "sailing_time_days": a["sailing_time_days"],
                              "port_time_days": a["port_time_days"],
                              "travel_time_days": a["travel_time_days"],
+                             "utilisation": a["utilisation"],
                              "link_type": a["link_type"]} for a in route["alternate_ports_analyzed"]],
         "rerouting_cost_usd": fin["rerouting_cost"],
         "cost_breakdown_usd": {k: fin[k] for k in ("rerouting_cost", "delay_cost", "freight_rate_increase",
@@ -215,7 +219,11 @@ def final_decision_node(state):
         },
         "signal_gate": state["gate"],
         "route_decision": {
-            "allocation": "Wardrop (1952) user equilibrium: equal travel time t_i = s_i + p_i*(1 + 0.15*((L_i + x_i)/C_i)^4) at every port used",
+            "allocation": ("Capacity-constrained Wardrop (1952) user equilibrium: t_i = s_i + p_i*(1 + 0.15*((L_i + x_i)/C_i)^4) "
+                           "equal at every port below the ceiling L_i + x_i <= rho_max*C_i; ports at the ceiling may be faster; "
+                           "ships that do not fit are excess demand (waiting)"),
+            "rho_max": route["rho_max"],
+            "excess_ships": route["excess_ships"],
             "scoring_formula": "0.40*risk + 0.35*time/max + 0.25*cost/max: comparison only, not used for allocation",
             "bpr_formula": (f"port time = p_i * (1 + {BPR_ALPHA} * (V/C)^{BPR_BETA}); "
                             "U.S. Bureau of Public Roads (1964), Traffic Assignment Manual"),

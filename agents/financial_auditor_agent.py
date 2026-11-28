@@ -103,6 +103,10 @@ def calculate_financial_impact(state, route_output, inventory_output):
         "vessels_affected": vessels,
         "duration_hours": duration_hours,
         "per_port": per_port,
+        # A2: ships that did not fit under the utilisation ceiling are waiting; they are not
+        # rerouted and NOT priced here (their waiting cost has no sourced model yet, BUILD_PLAN 5).
+        "excess_ships_waiting": route_output.get("excess_ships", 0),
+        "excess_ships_priced": False,
         "carbon_details": {
             "total_co2_tonnes": round(total_co2, 2),
             "carbon_cost_usd": round(carbon_cost, 2),
@@ -184,9 +188,10 @@ def build_user_prompt(state, fin, alert, threshold, pareto):
         for o in pareto)
     return f"""Port disruption: {state['nearest_port_name']} (severity {state['severity'].upper()}), {vessels} ships affected
 
-{SPLIT_HEADING} (this is the recommendation: ships shared across ports by a Wardrop user equilibrium):
+{SPLIT_HEADING} (this is the recommendation: ships shared across ports by a capacity-constrained Wardrop user equilibrium):
 {split}
 - Ship-weighted travel time (sailing + port) of the split plan: {fin['delay_days']} days
+- Ships waiting because no port has room under the utilisation ceiling (excess demand, not rerouted, not priced): {fin['excess_ships_waiting']}
 
 {SPLIT_HEADING} COST, six parts (USD):
 - Rerouting: {fin['rerouting_cost']:,.0f}

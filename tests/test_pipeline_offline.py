@@ -14,11 +14,12 @@ COMPONENTS = ("rerouting_cost", "delay_cost", "freight_rate_increase",
 def test_shanghai_completes_with_a_code_selected_port():
     r = run_supplypulse(SHANGHAI_CRITICAL)
     assert r["status"] == "completed"
-    assert r["recommended_alternate_port"] == "Port of Busan"
+    assert r["recommended_alternate_port"] == "Port of Shenzhen"    # most ships under the 95% ceiling
     assert r["decision"] == "REROUTE"
     assert "confidence" not in r                       # no fixed 91/82/71%
     assert r["signal_gate"]["action"] == "PROCEED"
-    assert sum(a["vessels"] for a in r["ship_allocation"]) == 350
+    assert sum(a["vessels"] for a in r["ship_allocation"]) + r["excess_ships"] == 350
+    assert r["excess_ships"] == 55 and r["rho_max"] == 0.95
 
 
 def test_total_is_the_sum_of_the_six_parts():
@@ -26,13 +27,26 @@ def test_total_is_the_sum_of_the_six_parts():
     assert r["total_financial_impact_usd"] == pytest.approx(sum(r["cost_breakdown_usd"][k] for k in COMPONENTS))
 
 
-def test_shanghai_travel_time_is_plausible_and_at_equilibrium():
+def test_shanghai_travel_time_is_plausible_and_under_the_ceiling():
     r = run_supplypulse(SHANGHAI_CRITICAL)
-    assert r["allocation_method"] == "user_equilibrium"
-    assert r["travel_time_days"] < 4                 # was 74 days with alpha=1.5 and no spreading
-    used = [a for a in r["ship_allocation"] if a["vessels"] > 0]
-    assert max(a["travel_time_days"] for a in used) - min(a["travel_time_days"] for a in used) < 1e-3
-    assert r["plan_weighted_delay_days"] == pytest.approx(r["equilibrium_time_days"], abs=0.01)
+    assert r["allocation_method"] == "capped_user_equilibrium"
+    assert r["travel_time_days"] < 7                 # was 74 days with alpha=1.5 and no spreading
+    assert all(a["utilisation"] is None or a["utilisation"] <= 0.95 + 1e-3 for a in r["ship_allocation"])
+
+
+def test_small_event_fits_and_ports_below_the_ceiling_share_one_time():
+    small = {**SHANGHAI_CRITICAL, "severity": "low", "vessels_affected": 25, "duration_hours": 12}
+    r = run_supplypulse(small)
+    assert r["excess_ships"] == 0
+    below = [a for a in r["ship_allocation"] if a["vessels"] > 0 and a["utilisation"] < 0.95 - 1e-3]
+    assert below
+    assert max(a["travel_time_days"] for a in below) - min(a["travel_time_days"] for a in below) < 1e-2
+
+
+def test_bypass_route_takes_the_overflow_so_nothing_waits():
+    r = run_supplypulse(SUEZ_CRITICAL)
+    assert r["excess_ships"] == 0
+    assert any(a["link_type"] == "open_ocean_bypass" and a["vessels"] > 0 for a in r["ship_allocation"])
 
 
 def test_no_eu_ets_cost_for_asia_only_voyages():

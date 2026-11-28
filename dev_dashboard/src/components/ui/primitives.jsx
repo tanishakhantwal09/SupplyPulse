@@ -276,6 +276,9 @@ export function RunStatusBanner() {
       // Gate policy: manual scenarios always run; the score is shown, not enforced.
       msgs.push([AMBER, `${g.label}. Signal gate score ${g.score} (${g.action}) is shown for information only and was not enforced.`]);
     }
+    if (r.excess_ships > 0) {
+      msgs.push([AMBER, `Excess demand: ${r.excess_ships} ships (${r.excess_demand_ships_per_day} ships/day) do not fit under the ${Math.round((r.rho_max || 0) * 100)}% utilisation ceiling and are waiting. They are not assigned to any port and not priced.`]);
+    }
     if (r.llm_enabled === false) {
       msgs.push([SKY, 'LLM disabled for this run (SUPPLYPULSE_NO_LLM): numbers are real, explanation text is not generated.']);
     }
