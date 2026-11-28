@@ -17,7 +17,7 @@ from agents.reference_data import ROOT
 from experiments import common
 
 VALUES_FILE = ROOT / "experiments" / "published_values.json"
-PAPERS_DIR = ROOT / "Research papers"
+PAPERS_DIR = ROOT / "30 RESEARCH PAPERS"  # local only, git-ignored (publisher PDFs)
 TO_FILL = "TO FILL FROM PDF"
 
 

@@ -85,3 +85,6 @@ agents/pipeline_attribution.json
 
 # Old virtual environment (broke when the folder moved from Downloads)
 venv_old/
+
+# Publisher PDFs (copyrighted): never commit
+30 RESEARCH PAPERS/
