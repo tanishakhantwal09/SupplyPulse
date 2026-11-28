@@ -33,6 +33,10 @@ def missing_fields(values):
         if TO_FILL in s.get("citation", ""):
             missing.append(f"{s['id']} citation")
         for i, m in enumerate(s["metrics"], 1):
+            if m.get("not_in_paper"):
+                if not m.get("note"):
+                    missing.append(f"{s['id']} metric {i}: say why it is not in the paper")
+                continue                                   # checked in the PDF: the paper does not give it
             if m.get("value") is None:
                 missing.append(f"{s['id']} metric {i}: value")
             if TO_FILL in str(m.get("page", "")) or not m.get("page"):
@@ -45,8 +49,10 @@ def missing_fields(values):
 def build(values):
     missing = missing_fields(values)
     table = [{"id": s["id"], "system": s["system"], "supplypulse_counterpart": s["supplypulse_counterpart"],
+              "comparable": s.get("comparable"),
               "metrics": [{"name": m["name"], "published_value": m["value"], "unit": m["unit"],
-                           "page": m["page"], "table_or_figure": m.get("table_or_figure")}
+                           "page": m["page"], "table_or_figure": m.get("table_or_figure"),
+                           "not_in_paper": bool(m.get("not_in_paper")), "note": m.get("note")}
                           for m in s["metrics"]]}
              for s in values["systems"]]
     return {"status": "COMPLETE" if not missing else "INCOMPLETE", "missing": missing, "table": table}

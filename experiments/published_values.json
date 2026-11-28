@@ -1,56 +1,105 @@
 {
   "_instructions": [
     "Values for the comparison with published systems (BUILD_PLAN 4a, Stages 2-3).",
-    "Fill every field ONLY from the PDF: copy the number exactly, give the page and table/figure.",
-    "Never type a number from memory. Leave value null until it is copied from the PDF.",
-    "Also confirm the metric name and unit from the PDF; the names below are placeholders.",
-    "Peer-reviewed versions only (journal / proceedings), not preprints."
+    "Every value is copied exactly from the PDF in '30 RESEARCH PAPERS/' (git-ignored), with its page and table/figure.",
+    "page = the page number printed on the paper (for Jannelli, printed page = PDF page - 1).",
+    "If a value is not in the paper: value null, not_in_paper true, and say so in note. Never fill from memory.",
+    "Peer-reviewed versions only. Filled 28 Nov 2026 from text extracted with pypdf; check against the PDF before publication."
   ],
   "systems": [
     {
-      "id": "C1",
-      "system": "Wen / Rauca",
-      "citation": "TO FILL FROM PDF: full reference (authors, year, title, journal, volume, pages, DOI)",
-      "pdf_in_repo_folder": false,
-      "supplypulse_counterpart": "gap_ablation: over-capacity share and M/G/1 waiting time",
+      "id": "C1a",
+      "system": "Rauca et al. (2025)",
+      "citation": "Rauca, L.; Popa, C.; Atodiresei, D.; Nedelcu, A.T. Port Performance and Its Influence on Vessel Operating Costs and Emissions. Logistics 2025, 9, 122. https://doi.org/10.3390/logistics9030122",
+      "pdf": "Maritime, congestion, routing/[13]Rauca et al., Logistics 9, 2025.pdf",
+      "scope": "Single bulk-cargo pier, Port of Constanta, 2021-2023; M/G/1/inf/FIFO/inf queue (formulas 1-6, p. 6)",
+      "supplypulse_counterpart": "gap_ablation M/G/1 waiting time; RHO_MAX; service-time spread (SCV)",
+      "comparable": "partly: same queue model, but one bulk pier, not container ports",
       "metrics": [
-        {"name": "TO CONFIRM FROM PDF (port congestion / waiting-time metric)", "value": null, "unit": null,
-         "page": "TO FILL FROM PDF, page X", "table_or_figure": null},
-        {"name": "TO CONFIRM FROM PDF (M/G/1 service-time variance or SCV used)", "value": null, "unit": null,
-         "page": "TO FILL FROM PDF, page X", "table_or_figure": null}
+        {"name": "System utilisation rho, 2021 / 2022 / 2023", "value": [0.524, 0.854, 0.900], "unit": "-", "page": "11", "table_or_figure": "Table 2"},
+        {"name": "Average waiting time in queue tq (anchorage only), 2021 / 2022 / 2023", "value": [87.321, 532.171, 788.400], "unit": "h", "page": "11", "table_or_figure": "Table 2"},
+        {"name": "Average time in system t, 2021 / 2022 / 2023", "value": [245.721, 714.571, 963.600], "unit": "h", "page": "11", "table_or_figure": "Table 2"},
+        {"name": "Average operational (service) time per vessel, 2021 / 2022 / 2023", "value": [158.4, 182.4, 175.2], "unit": "h", "page": "11", "table_or_figure": "Table 2"},
+        {"name": "Service-time coefficient of variation Cs (Monte Carlo assumption, stated in text)", "value": 0.2, "unit": "-", "page": "16", "table_or_figure": "Section 4.5.1 text",
+         "note": "INCONSISTENT in the paper: the code in Table 4 (p. 17) computes Cs = service_time_std / service_time_mean = 20 / 175.2 h (about 0.114), not 0.2."},
+        {"name": "Service-time variation coefficient (vs) used in the Table 2 results", "value": null, "unit": "-", "page": "11", "table_or_figure": "Table 2",
+         "not_in_paper": true, "note": "Table 2 does not state vs; it is not derived here because that would be our estimate, not the paper's value."},
+        {"name": "Monte Carlo 2023: median waiting time tq (2.5% / 97.5%: 155.3 / 101,024 h)", "value": 859.1, "unit": "h", "page": "17", "table_or_figure": "Table 5"},
+        {"name": "Monte Carlo 2023: median utilisation rho", "value": 0.90, "unit": "-", "page": "17", "table_or_figure": "Table 5"}
+      ]
+    },
+    {
+      "id": "C1b",
+      "system": "Wen et al. (2024)",
+      "citation": "Wen, X.; Chen, Q.; Yin, Y.-Q.; Lau, Y.-y.; Dulebenets, M.A. Multi-Objective Optimization for Ship Scheduling with Port Congestion and Environmental Considerations. J. Mar. Sci. Eng. 2024, 12, 114. https://doi.org/10.3390/jmse12010114",
+      "pdf": "Maritime, congestion, routing/[14]Wen et al., JMSE 12, 2024.pdf",
+      "scope": "Liner-ship scheduling (10 voyages, 10,000-TEU ships) with M/M/1 and M/M/c port queues; multi-objective (cost, CO2, service unreliability)",
+      "supplypulse_counterpart": "none directly (Wen optimises a schedule, SupplyPulse allocates diverted ships); inputs useful for calibration",
+      "comparable": "no: different problem; headline values recorded for context only",
+      "metrics": [
+        {"name": "Best Pareto solution, MOGWO: total cost", "value": 113825165, "unit": "USD", "page": "18", "table_or_figure": "Table 7"},
+        {"name": "Best Pareto solution, MOGWO: CO2", "value": 352096, "unit": "t", "page": "18", "table_or_figure": "Table 7"},
+        {"name": "Best Pareto solution, MOGWO: service unreliability", "value": 0, "unit": "%", "page": "18", "table_or_figure": "Table 7"},
+        {"name": "Minimum / maximum sailing speed used (from Song et al. 2015)", "value": [14.1, 26], "unit": "knots", "page": "14", "table_or_figure": "Table 3"},
+        {"name": "Over-capacity share or waiting time comparable to the SupplyPulse ablation", "value": null, "unit": null, "page": "-", "table_or_figure": null,
+         "not_in_paper": true, "note": "Wen limits queue capacity when rho > 1 (p. 8) but reports no comparable congestion metric."}
       ]
     },
     {
       "id": "C2",
       "system": "Vaca-Cabrero et al. (2024)",
-      "citation": "TO FILL FROM PDF: full reference (MDPI)",
-      "pdf_in_repo_folder": false,
-      "supplypulse_counterpart": "agents/carbon.py: EU ETS cost per voyage",
+      "citation": "Vaca-Cabrero, J.; González-Cancelas, N.; Camarero-Orive, A.; Corral, M.M.E.-I.; Ricci, S. Economic Impact of the Application of the ETS to European Ports: Analysis of Different Scenarios. Sustainability 2024, 16, 10433. https://doi.org/10.3390/su162310433",
+      "pdf": "Carbon, cost, regulation/[27]Vaca-Cabrero et al., Sustainability 16, 2024.pdf",
+      "scope": "EU ETS cost per voyage for three routes, Formula (1) p. 9: sum of distance x leg factor (0 non-EU, 0.5 transparent, 1 EU departure) x MRV emissions (kg CO2/nm) / 1000 x allowance price",
+      "supplypulse_counterpart": "agents/carbon.py EU ETS cost per voyage",
+      "comparable": "yes for the ETS cost formula, with care: their leg factor is set by the DEPARTURE port, ours by the leg's two ports",
       "metrics": [
-        {"name": "TO CONFIRM FROM PDF (EU ETS cost per voyage or per tonne CO2)", "value": null, "unit": null,
-         "page": "TO FILL FROM PDF, page X", "table_or_figure": null}
+        {"name": "ETS allowance price used", "value": 69.38, "unit": "EUR/t CO2", "page": "10", "table_or_figure": "Tables 2-4",
+         "note": "No date for this price is given in the paper, so it cannot serve as a DATED EUA source."},
+        {"name": "CO2 emission factor of the Scenario 1 ship (MRV)", "value": 597, "unit": "kg CO2/nm", "page": "10", "table_or_figure": "Table 2",
+         "note": "SupplyPulse assumes 0.0191 t fuel/nm x 3.114 = about 59.5 kg CO2/nm (ASSUMPTION): 10x lower."},
+        {"name": "CO2 emission factor of the Scenario 2 and 3 ship (MRV)", "value": 1027, "unit": "kg CO2/nm", "page": "10", "table_or_figure": "Tables 3-4"},
+        {"name": "Scenario 1.1 Houston-Algeciras-Dubai: ETS cost", "value": 211841.87, "unit": "EUR", "page": "10", "table_or_figure": "Table 2"},
+        {"name": "Scenario 2.1 Montreal-Le Havre: ETS cost", "value": 110549.43, "unit": "EUR", "page": "10", "table_or_figure": "Table 3"},
+        {"name": "Scenario 3.1 Singapore-Algeciras-Rotterdam: ETS cost (CO2 4,927.71 t)", "value": 341884.54, "unit": "EUR", "page": "10", "table_or_figure": "Table 4",
+         "note": "The Table 4 caption says 'scenario 2'; the table is scenario 3 (typo in the paper)."}
       ]
     },
     {
       "id": "C3",
-      "system": "Sun et al. (2026)",
-      "citation": "TO FILL FROM PDF: full reference",
-      "pdf_in_repo_folder": false,
-      "supplypulse_counterpart": "TO DECIDE after reading Table 10",
+      "system": "Sun R. et al. (2026)",
+      "citation": "Sun, R.; Abouarghoub, W.; Demir, E.; Potter, A. Geopolitical disruptions and maritime transitions: Environmental and economic costs of rerouting. Transportation Research Part A 203 (2026) 104737",
+      "pdf": "Maritime, congestion, routing/[2]Sun R. et al., Transp. Res. A 203, 2026.pdf",
+      "scope": "AIS data, 542 Asia-Europe/Mediterranean container round trips (mean 18,875 TEU, Table 9), Suez Canal vs Cape of Good Hope (Red Sea crisis)",
+      "supplypulse_counterpart": "Suez disruption -> Cape of Good Hope bypass (SupplyPulse routes all Suez ships via the Cape)",
+      "comparable": "yes for time and CO2 of the Cape rerouting; their dollar 'environmental cost' uses a social cost of carbon (Table 8: 45 USD/t CO2), not an EU ETS price",
       "metrics": [
-        {"name": "TO CONFIRM FROM PDF (Table 10 values)", "value": null, "unit": null,
-         "page": "TO FILL FROM PDF, page X", "table_or_figure": "Table 10"}
+        {"name": "Round trip time, total average, via Cape of Good Hope (n = 239)", "value": 114.02, "unit": "days", "page": "13", "table_or_figure": "Table 10"},
+        {"name": "Round trip time, total average, via Suez Canal (n = 268)", "value": 91.28, "unit": "days", "page": "13", "table_or_figure": "Table 10"},
+        {"name": "GHG per round trip, total average, via Cape of Good Hope", "value": 42886, "unit": "t CO2e", "page": "13", "table_or_figure": "Table 10"},
+        {"name": "GHG per round trip, total average, via Suez Canal", "value": 28038, "unit": "t CO2e", "page": "13", "table_or_figure": "Table 10"},
+        {"name": "Environmental cost per round trip, total average, via Cape / via Suez", "value": [1929972, 1261758], "unit": "USD", "page": "13", "table_or_figure": "Table 10"},
+        {"name": "Average open-water speed, total average, via Cape / via Suez", "value": [16.20, 15.28], "unit": "knots", "page": "13", "table_or_figure": "Table 10"},
+        {"name": "Environmental cost of carbon for CO2 (average; range 9-145)", "value": 45, "unit": "USD/t", "page": "10", "table_or_figure": "Table 8"}
       ]
     },
     {
       "id": "C4",
-      "system": "Jannelli et al. (journal version)",
-      "citation": "TO FILL FROM PDF: full reference (journal version)",
-      "pdf_in_repo_folder": false,
-      "supplypulse_counterpart": "llm_vs_code_decision (Stage 2b)",
+      "system": "Jannelli et al. (2025), journal version",
+      "citation": "Jannelli, V.; Schöpf, S.; Bickel, M.; Netland, T.; Brintrup, A. Agentic LLMs in the supply chain: towards autonomous multi-agent consensus-seeking. International Journal of Production Research (published online 21 Dec 2025). https://doi.org/10.1080/00207543.2025.2604311",
+      "pdf": "LLM and multi-agent/[5]Jannelli et al., IJPR 2025.pdf",
+      "scope": "Beer-game style 3-echelon supply chain; LLM agents (Gemini 1.5 Pro / Flash) vs rule and tool baselines; cumulative global cost and bullwhip effect",
+      "supplypulse_counterpart": "llm_vs_code_decision (Stage 2b): LLM decides vs code decides",
+      "comparable": "as evidence for the design choice (code decides, LLM explains), not as a numeric benchmark",
       "metrics": [
-        {"name": "TO CONFIRM FROM PDF (LLM-decides vs code-decides metric)", "value": null, "unit": null,
-         "page": "TO FILL FROM PDF, page X", "table_or_figure": null}
+        {"name": "Cumulative global cost: soft baseline (S,s) = (100,60), no LLM", "value": 159094, "unit": "cost units", "page": "29", "table_or_figure": "Appendix 4, Table 1"},
+        {"name": "Cumulative global cost: hard baseline with demand-prediction tool, no LLM", "value": 16645, "unit": "cost units", "page": "29", "table_or_figure": "Appendix 4, Table 1"},
+        {"name": "Cumulative global cost: solo LLM agent (gemini-1.5-pro / flash)", "value": [172624, 221532], "unit": "cost units", "page": "29", "table_or_figure": "Appendix 4, Table 1"},
+        {"name": "Cumulative global cost: solo LLM agent with tool (pro / flash)", "value": [16645, 15967], "unit": "cost units", "page": "29", "table_or_figure": "Appendix 4, Table 1"},
+        {"name": "Cumulative global cost: agent negotiation with tool (pro / flash)", "value": [15393, 12790], "unit": "cost units", "page": "29", "table_or_figure": "Appendix 4, Table 1"},
+        {"name": "Global bullwhip (coefficient of variation): EOQ tool baseline, no LLM", "value": 0.79, "unit": "-", "page": "16", "table_or_figure": "Table 2"},
+        {"name": "Global bullwhip: solo LLM agent (pro / flash)", "value": [4.54223, 0.36899], "unit": "-", "page": "16", "table_or_figure": "Table 2"},
+        {"name": "Global bullwhip: agent negotiation with tool (pro / flash)", "value": [0.25827, 0.50744], "unit": "-", "page": "16", "table_or_figure": "Table 2"}
       ]
     }
   ]

@@ -69,13 +69,24 @@ def test_real_label_sheet_is_still_empty_and_main_loads_no_held_out(monkeypatch)
     assert lk.main([]) is None
 
 
-def test_published_values_are_empty_until_copied_from_pdf():
+def test_every_published_value_has_a_page_and_a_table():
     values = pc.load_values()
     for s in values["systems"]:
+        assert "TO FILL" not in s["citation"]
         for m in s["metrics"]:
-            assert m["value"] is None, f"{s['id']}: a value was filled without a PDF check"
-    r = pc.build(values)
-    assert r["status"] == "INCOMPLETE" and len(r["missing"]) > 0
+            if m.get("not_in_paper"):
+                assert m["value"] is None and m.get("note")         # empty, with the reason
+            else:
+                assert m["value"] is not None and m["page"] not in (None, "", "-")
+                assert m.get("table_or_figure")
+    assert pc.build(values)["status"] == "COMPLETE"
+
+
+def test_not_in_paper_needs_a_reason():
+    values = copy.deepcopy(pc.load_values())
+    m = values["systems"][0]["metrics"][0]
+    m.update(value=None, not_in_paper=True, note=None)
+    assert pc.build(values)["status"] == "INCOMPLETE"
 
 
 def test_published_comparison_complete_only_when_everything_filled():

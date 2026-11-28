@@ -24,7 +24,7 @@ Rules for every experiment (BUILD_PLAN sections 2 and 6):
 | `experiments/common.py` | Loaders, held-out guard, seeded sampling, gate filter, result writer | — | built, tested |
 | `experiments/gap_ablation.py` | Gap 1 ablation: eight strategies (nearest, score without BPR, free-capacity split, user equilibrium = SupplyPulse, system optimal, BPR without split). Over-capacity share, travel time, port time, system total time, M/G/1 wait, CO2 / EU ETS, gate split | development | built, tested; not yet run at full size |
 | `experiments/labelling_kit.py` | Cohen's kappa between the two reviewers; gate precision / recall / F1 against agreed labels; severity baseline | 100 held-out events (final evaluation) | built, tested; waiting for labels |
-| `experiments/published_comparison.py` | C1-C4 comparison from `published_values.json` | PDFs | built; all values empty until copied from PDFs |
+| `experiments/published_comparison.py` | C1-C4 comparison from `published_values.json` | PDFs | values filled from the PDFs with page and table (28 Nov 2026); status COMPLETE; values not given by a paper are marked `not_in_paper` |
 | `experiments/llm_number_check.py` | Every number in an LLM text must come from that agent's prompt and be described as the right thing (split plan vs single-port option) | run output | built, tested |
 
 ### Ship allocation model (since 28 Nov 2026)
