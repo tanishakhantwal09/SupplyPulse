@@ -8,6 +8,7 @@ The FastAPI backend replaces this server in Stage 4.
 """
 import http.server
 import json
+import math
 import os
 import socketserver
 import sys
@@ -28,6 +29,40 @@ DEV_SET = DATA_DIR / "training_set.parquet"  # development set (BUILD_PLAN secti
 EVENTS_SHOWN = 30
 LIVE_HOURS_BACK = 2  # ASSUMPTION: scan the last 2 hours (8 GDELT files) so a request stays short.
 RESULTS_DIR = os.path.join(PARENT_DIR, "experiments", "results")
+
+
+def to_strict_json(obj):
+    """Make obj valid strict JSON: NaN / Infinity / pandas NA / NaT become None (null).
+
+    Browsers reject NaN and Infinity (they are not JSON), e.g. the dataset's empty
+    decision_alternate_route values. numpy scalars become plain Python numbers.
+    """
+    if obj is None or isinstance(obj, (bool, str)):
+        return obj
+    if isinstance(obj, dict):
+        return {str(k): to_strict_json(v) for k, v in obj.items()}
+    if isinstance(obj, (list, tuple, set)):
+        return [to_strict_json(v) for v in obj]
+    if hasattr(obj, "item") and not isinstance(obj, (int, float)):  # numpy scalar
+        try:
+            obj = obj.item()
+        except (ValueError, TypeError):
+            pass
+    if isinstance(obj, float):
+        return obj if math.isfinite(obj) else None
+    if isinstance(obj, int):
+        return obj
+    try:
+        if pd.isna(obj):
+            return None
+    except (TypeError, ValueError):
+        pass
+    return str(obj)  # timestamps, paths, ...
+
+
+def strict_dumps(obj):
+    """json.dumps that can never emit NaN/Infinity (allow_nan=False raises instead)."""
+    return json.dumps(to_strict_json(obj), allow_nan=False)
 
 
 def load_dev_events(n=EVENTS_SHOWN):
@@ -84,11 +119,16 @@ class SupplyPulseAPIHandler(http.server.BaseHTTPRequestHandler):
         self.end_headers()
 
     def _respond_json(self, data, code=200):
+        # Serialise first, so a bad value becomes a clear 500 error instead of broken JSON.
+        try:
+            body = strict_dumps(data)
+        except (TypeError, ValueError) as e:
+            code, body = 500, strict_dumps({"success": False, "error": f"Response was not valid JSON: {e}"})
         self.send_response(code)
         self._send_cors_headers()
         self.send_header("Content-Type", "application/json")
         self.end_headers()
-        self.wfile.write(json.dumps(data, default=str).encode("utf-8"))
+        self.wfile.write(body.encode("utf-8"))
 
     def _reference(self, name):
         with open(REFERENCE_DIR / name, encoding="utf-8") as f:

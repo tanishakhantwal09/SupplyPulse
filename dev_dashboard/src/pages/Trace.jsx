@@ -119,8 +119,8 @@ export default function Trace() {
 
                   <div className="flex w-36 shrink-0 items-center justify-end gap-3">
                     <span className="mono text-xs text-neutral-300 font-semibold">{step.latency}</span>
-                    <span className="mono text-[10px] font-bold text-emerald-400">
-                      DONE
+                    <span className={`mono text-[10px] font-bold ${step.status === 'completed' ? 'text-emerald-400' : 'text-neutral-500'}`}>
+                      {step.status === 'completed' ? 'DONE' : 'NOT RUN'}
                     </span>
                   </div>
                 </button>

@@ -62,7 +62,9 @@ function toSelectedEvent(item) {
 const SYNTHETIC = (sampleScenarios || []).map(fromSynthetic);
 
 export function SupplyPulseProvider({ children }) {
-  const [serverStatus, setServerStatus] = useState('offline');
+  const [serverStatus, setServerStatus] = useState('checking');
+  const [eventsStatus, setEventsStatus] = useState('idle');
+  const [eventsError, setEventsError] = useState(null);
   const [isPipelineRunning, setIsPipelineRunning] = useState(false);
   const [scenariosList, setScenariosList] = useState(SYNTHETIC);
   const [selectedScenarioIndex, setSelectedScenarioIndex] = useState(0);
@@ -81,32 +83,52 @@ export function SupplyPulseProvider({ children }) {
 
   const selectedEvent = toSelectedEvent(scenariosList[selectedScenarioIndex]);
 
-  // Connect to the API; when online, list real development-set events.
-  useEffect(() => {
-    fetch(`${API_BASE}/api/status`)
-      .then(res => res.json())
-      .then(data => {
-        if (data.status !== 'online') return;
-        setServerStatus('online');
-        addLog(`[INFO] Connected to the SupplyPulse API (${data.llm_model}).`);
-        return fetch(`${API_BASE}/api/events`).then(r => r.json()).then(d => {
-          if (d.events?.length) {
-            setScenariosList(d.events.map(fromDevEvent));
-            setSelectedScenarioIndex(0);
-            addLog(`[INFO] Loaded ${d.events.length} events from the ${d.source}.`);
-          }
-        });
-      })
-      .catch(() => {
-        setServerStatus('offline');
-        addLog('[INFO] API server offline: showing SYNTHETIC scenarios only. Runs are disabled.');
-      });
+  // ONE shared status check used by every page. Two separate questions:
+  //   serverStatus: is the API reachable?            'checking' | 'online' | 'offline'
+  //   eventsStatus: did the event list load?          'idle' | 'loaded' | 'empty' | 'failed'
+  // A failed event list never marks the server offline (bug of 27 Nov 2026).
+  const checkServer = useCallback(async () => {
+    setServerStatus('checking');
+    setEventsError(null);
+    try {
+      const res = await fetch(`${API_BASE}/api/status`);
+      const data = await res.json();
+      if (!res.ok || data.status !== 'online') throw new Error(`status endpoint returned HTTP ${res.status}`);
+      setServerStatus('online');
+      addLog(`[INFO] Connected to the SupplyPulse API (${data.llm_model}).`);
+    } catch (err) {
+      setServerStatus('offline');
+      setEventsStatus('idle');
+      addLog(`[INFO] API server offline (${err.message}): showing SYNTHETIC scenarios only. Runs are disabled.`);
+      return;
+    }
+    try {
+      const res = await fetch(`${API_BASE}/api/events`);
+      const d = JSON.parse(await res.text()); // strict JSON, same as the browser's res.json()
+      if (!res.ok) throw new Error(d.error || `HTTP ${res.status}`);
+      if (d.events?.length) {
+        setScenariosList(d.events.map(fromDevEvent));
+        setSelectedScenarioIndex(0);
+        setEventsStatus('loaded');
+        addLog(`[INFO] Loaded ${d.events.length} events from the ${d.source}.`);
+      } else {
+        setEventsStatus('empty');
+        addLog('[ERROR] Server reachable but the event list is empty (is the development Parquet file present?).');
+      }
+    } catch (err) {
+      setEventsStatus('failed');
+      setEventsError(err.message);
+      addLog(`[ERROR] Server reachable but event list failed: ${err.message}`);
+    }
   }, []);
+
+  useEffect(() => { checkServer(); }, [checkServer]);
 
   const runPipeline = useCallback(async () => {
     setLastError(null);
     if (serverStatus !== 'online') {
-      const msg = 'API server is offline: no run was made.';
+      const msg = serverStatus === 'checking' ? 'Still checking the API server: no run was made.'
+        : 'API server is offline: no run was made.';
       setLastError(msg);
       addLog(`[ERROR] ${msg}`);
       return null;
@@ -157,6 +179,9 @@ export function SupplyPulseProvider({ children }) {
   return (
     <SupplyPulseContext.Provider value={{
       serverStatus,
+      eventsStatus,
+      eventsError,
+      checkServer,
       isPipelineRunning,
       selectedEvent,
       pipelineResult,

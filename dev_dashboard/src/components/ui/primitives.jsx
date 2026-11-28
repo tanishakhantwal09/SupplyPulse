@@ -249,14 +249,22 @@ export function StaggerGrid({ children, className = '' }) {
 // Shown on every page that displays run results, so a missing run is never
 // replaced by made-up numbers.
 export function RunStatusBanner() {
-  const { pipelineResult: r, lastError, serverStatus, selectedEvent } = useSupplyPulse();
+  const { pipelineResult: r, lastError, serverStatus, eventsStatus, eventsError, selectedEvent } = useSupplyPulse();
   const NEUTRAL = 'border-neutral-700 bg-neutral-900/60 text-neutral-300';
   const AMBER = 'border-amber-500/50 bg-amber-500/10 text-amber-300';
   const SKY = 'border-sky-500/40 bg-sky-500/10 text-sky-300';
   const msgs = [];
   const g = r?.signal_gate;
+  const ROSE = 'border-rose-500/50 bg-rose-500/10 text-rose-300';
+  if (serverStatus === 'online' && eventsStatus === 'failed') {
+    msgs.push([ROSE, `Server reachable but event list failed: ${eventsError}. Only synthetic scenarios are shown.`]);
+  } else if (serverStatus === 'online' && eventsStatus === 'empty') {
+    msgs.push([ROSE, 'Server reachable but the event list is empty (is the development Parquet file present?).']);
+  }
   if (lastError) {
-    msgs.push(['border-rose-500/50 bg-rose-500/10 text-rose-300', `Run failed: ${lastError}`]);
+    msgs.push([ROSE, `Run failed: ${lastError}`]);
+  } else if (!r && serverStatus === 'checking') {
+    msgs.push([NEUTRAL, 'Checking the API server…']);
   } else if (!r && serverStatus !== 'online') {
     msgs.push([NEUTRAL, 'API server offline. No run yet: start python3 dev_dashboard/server.py. Synthetic scenarios are shown for browsing only.']);
   } else if (!r) {
@@ -279,5 +287,19 @@ export function RunStatusBanner() {
         <div key={text} className={`border px-4 py-3 text-xs sm:text-sm ${tone}`}>{text}</div>
       ))}
     </div>
+  );
+}
+
+/* ── Server status badge: the same shared check on every page ────────────── */
+export function ServerStatusBadge() {
+  const { serverStatus, eventsStatus } = useSupplyPulse();
+  const eventsBad = serverStatus === 'online' && (eventsStatus === 'failed' || eventsStatus === 'empty');
+  const [text, tone] =
+    serverStatus === 'checking' ? ['CHECKING', 'border-neutral-700 bg-neutral-900 text-neutral-400']
+      : serverStatus !== 'online' ? ['OFFLINE', 'border-neutral-700 bg-neutral-900 text-neutral-400']
+        : eventsBad ? ['ONLINE · EVENT LIST FAILED', 'border-amber-500/40 bg-amber-500/10 text-amber-400']
+          : ['ONLINE', 'border-emerald-500/40 bg-emerald-500/10 text-emerald-400'];
+  return (
+    <span className={`mono text-[10px] font-bold px-2 py-0.5 tracking-wider uppercase border ${tone}`}>{text}</span>
   );
 }

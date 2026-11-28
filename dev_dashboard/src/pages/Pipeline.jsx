@@ -224,8 +224,11 @@ export default function PipelinePage() {
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
           {nodes.map((node, idx) => {
             const isSelected = activeNode === node.id;
+            // While running, the step highlight is cosmetic. DONE only after a real run that ran this node.
             const executing = isPipelineRunning && runStep === idx;
-            const done = !isPipelineRunning || runStep > idx;
+            const ranKey = node.id === 'final_decision' ? 'supervisor_final' : node.id;
+            const done = !isPipelineRunning && !!r &&
+              (node.id === 'telemetry' || (r.agents_activated || []).includes(ranKey));
             const Icon = node.icon;
 
             return (
@@ -252,7 +255,7 @@ export default function PipelinePage() {
                   <span className={`mono text-[10px] font-bold ${
                     executing ? 'text-rose-400' : done ? 'text-emerald-400' : 'text-neutral-500'
                   }`}>
-                    {executing ? 'RUN' : done ? 'DONE' : node.index}
+                    {executing ? 'RUNNING' : done ? 'DONE' : 'NOT RUN'}
                   </span>
                 </div>
 

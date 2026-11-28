@@ -82,3 +82,6 @@ agents/pipeline_attribution.json
 
 # Local Claude Code settings
 .claude/
+
+# Old virtual environment (broke when the folder moved from Downloads)
+venv_old/

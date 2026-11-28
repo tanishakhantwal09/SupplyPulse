@@ -32,7 +32,7 @@ The reference data (50 ports, 10 routes, 8 commodities) is in `dataset/reference
 ### 3. Run the tests (no Groq key or dataset needed)
 
 ```bash
-python3 -m pytest
+./venv/bin/python -m pytest
 ```
 
 ### 4. Run the pipeline on one event

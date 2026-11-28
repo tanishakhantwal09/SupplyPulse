@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Check, Copy } from 'lucide-react';
 import PageShell from '../components/layout/PageShell';
 import { useSupplyPulse } from '../context/SupplyPulseContext';
-import { CredCard } from '../components/ui/primitives';
+import { CredCard, ServerStatusBadge } from '../components/ui/primitives';
 
 const LOG_COLOR = (log) => {
   if (log.includes('[ERROR')) return 'text-rose-400 font-semibold';
@@ -16,8 +16,7 @@ const LOG_COLOR = (log) => {
 };
 
 export default function Logs() {
-  const { terminalLogs, serverStatus } = useSupplyPulse();
-  const isOnline = serverStatus === 'online';
+  const { terminalLogs } = useSupplyPulse();
   const [copied, setCopied] = useState(false);
   const endRef = useRef(null);
 
@@ -64,13 +63,7 @@ export default function Logs() {
               <span className="mono text-xs font-semibold text-neutral-300">
                 supplypulse@langgraph — session_stream.log
               </span>
-              <span className={`mono text-[10px] font-bold px-2 py-0.5 tracking-wider uppercase border ${
-                isOnline
-                  ? 'border-emerald-500/40 bg-emerald-500/10 text-emerald-400'
-                  : 'border-neutral-700 bg-neutral-900 text-neutral-400'
-              }`}>
-                {isOnline ? 'ONLINE' : 'OFFLINE'}
-              </span>
+              <ServerStatusBadge />
             </div>
             <span className="mono text-xs text-neutral-500 font-medium">
               {terminalLogs.length} events logged

@@ -2,7 +2,7 @@ import React from 'react';
 import PageShell from '../components/layout/PageShell';
 import { useSupplyPulse } from '../context/SupplyPulseContext';
 import { NA, fmtUsd, hasPlan } from '../lib/format';
-import { CredCard } from '../components/ui/primitives';
+import { CredCard, ServerStatusBadge } from '../components/ui/primitives';
 
 const AGENT_ROWS = [
   ['supervisor', 'Supervisor Agent', 'Assessment & delegation'],
@@ -14,8 +14,7 @@ const AGENT_ROWS = [
 
 // Every value comes from the last real run (measured), or shows "—".
 export default function Telemetry() {
-  const { pipelineResult: r, serverStatus } = useSupplyPulse();
-  const isOnline = serverStatus === 'online';
+  const { pipelineResult: r } = useSupplyPulse();
   const model = r?.llm_model || 'openai/gpt-oss-20b';
   const usage = r?.llm_usage;
   const timings = r?.agent_timings_seconds || {};
@@ -45,13 +44,7 @@ export default function Telemetry() {
           <span className="mono text-[11px] font-semibold text-neutral-400 uppercase tracking-wider">
             API Backend
           </span>
-          <span className={`mono text-[10px] font-bold px-2 py-0.5 tracking-wider uppercase border ${
-            isOnline
-              ? 'border-emerald-500/40 bg-emerald-500/10 text-emerald-400'
-              : 'border-neutral-700 bg-neutral-900 text-neutral-400'
-          }`}>
-            {isOnline ? 'ONLINE' : 'OFFLINE'}
-          </span>
+          <ServerStatusBadge />
         </div>
       }
     >
