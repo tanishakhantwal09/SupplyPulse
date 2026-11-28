@@ -95,3 +95,10 @@ def test_usage_and_timings_are_recorded():
     assert set(r["agent_timings_seconds"]) >= {"supervisor", "route_optimization", "inventory", "financial_auditor"}
     assert r["llm_usage"]["calls"] == 4
     assert r["llm_model"] == "openai/gpt-oss-20b"
+
+
+def test_manual_run_reason_says_agents_ran():
+    r = run_supplypulse(WEAK_SIGNAL)
+    assert r["status"] == "completed" and "agents ran anyway" in r["signal_gate"]["reason"]
+    forced = run_supplypulse(WEAK_SIGNAL, enforce_gate=True)
+    assert forced["status"] == "gated" and "agents not activated" in forced["signal_gate"]["reason"]

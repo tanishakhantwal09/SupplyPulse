@@ -46,12 +46,13 @@ def score_signal(num_mentions, goldstein, avg_tone):
         "tone": min(abs(t) / TONE_SATURATION, 1.0),
     }
     score = round(sum(WEIGHTS[k] * v for k, v in factors.items()), 3)
+    # The signal verdict only; what happened to the agents is added by outcome_reason().
     if score < REJECT_BELOW:
-        action, reason = REJECT, f"Score {score} < {REJECT_BELOW}: weak signal, agents not activated"
+        action, reason = REJECT, f"Score {score} < {REJECT_BELOW}: weak signal"
     elif score < PROCEED_FROM:
-        action, reason = MONITOR, f"Score {score} in [{REJECT_BELOW}, {PROCEED_FROM}): logged, agents not activated"
+        action, reason = MONITOR, f"Score {score} in [{REJECT_BELOW}, {PROCEED_FROM}): uncertain signal"
     else:
-        action, reason = PROCEED, f"Score {score} >= {PROCEED_FROM}: agents activated"
+        action, reason = PROCEED, f"Score {score} >= {PROCEED_FROM}: strong signal"
     return {"score": score, "action": action, "reason": reason,
             "factors": {k: round(v, 3) for k, v in factors.items()},
             "weights": WEIGHTS, "thresholds": {"reject_below": REJECT_BELOW, "proceed_from": PROCEED_FROM}}
@@ -70,6 +71,18 @@ def is_live(event):
     return str(event.get("data_source", "")).upper() in LIVE_SOURCES
 
 
+def outcome_reason(gate):
+    """Reason text that matches what actually happened (enforced gate vs manual scenario)."""
+    verdict = gate.get("signal_reason") or gate["reason"]
+    if not gate.get("enforced"):
+        return f"{verdict}. Gate not enforced ({gate.get('label', MANUAL_LABEL)}): the agents ran anyway."
+    if gate["action"] == PROCEED:
+        return f"{verdict}. Gate enforced: agents activated."
+    if gate["action"] == MONITOR:
+        return f"{verdict}. Gate enforced: logged for monitoring, agents not activated."
+    return f"{verdict}. Gate enforced: agents not activated."
+
+
 def gate_event(event):
     """Score the event's news signal and say whether the gate is enforced for it."""
     result = score_signal(event.get("num_mentions"), event.get("goldstein_scale"), event.get("avg_tone"))
@@ -78,5 +91,7 @@ def gate_event(event):
         "mode": "live" if live else "manual",
         "enforced": live,
         "label": LIVE_LABEL if live else MANUAL_LABEL,
+        "signal_reason": result["reason"],
     })
+    result["reason"] = outcome_reason(result)
     return result

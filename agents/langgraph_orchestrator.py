@@ -17,7 +17,7 @@ from rich.panel import Panel
 from rich.table import Table
 
 from agents import llm_utils
-from agents.confidence import PROCEED, gate_event
+from agents.confidence import PROCEED, gate_event, outcome_reason
 from agents.financial_auditor_agent import financial_auditor_agent
 from agents.inventory_agent import inventory_agent
 from agents.llm_utils import console
@@ -59,6 +59,7 @@ def gate_node(state):
     if state["enforce_gate"] is not None:
         g["enforced"] = bool(state["enforce_gate"])
         g["policy_override"] = True
+        g["reason"] = outcome_reason(g)
     state["gate"] = g
     console.print(f"  Signal gate: {g['action']} (score {g['score']}), "
                   f"{'enforced' if g['enforced'] else 'not enforced'}: {g['label']}")

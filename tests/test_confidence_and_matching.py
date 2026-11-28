@@ -88,3 +88,18 @@ def test_name_match_beats_subcategory_match():
 def test_unmatched_terms_are_reported():
     _, unmatched = _names(["electronics", "furniture", "all"])
     assert unmatched == ["furniture", "all"]
+
+
+@pytest.mark.parametrize("source,signal,expected", [
+    ("USER_SIMULATION", (25, -5.0, -5.0), "Gate not enforced"),        # MONITOR signal, manual: agents ran
+    ("GDELT_real", (3, -1.0, -2.5), "Gate not enforced"),               # REJECT signal, manual: agents ran
+    ("GDELT_LIVE_API", (25, -5.0, -5.0), "logged for monitoring, agents not activated"),
+    ("GDELT_LIVE_API", (3, -1.0, -2.5), "Gate enforced: agents not activated"),
+    ("GDELT_LIVE_API", (60, -8.0, -9.0), "Gate enforced: agents activated"),
+])
+def test_reason_text_matches_what_happened(source, signal, expected):
+    m, g, t = signal
+    gate = confidence.gate_event({"data_source": source, "num_mentions": m, "goldstein_scale": g, "avg_tone": t})
+    assert expected in gate["reason"]
+    if not gate["enforced"]:
+        assert "not activated" not in gate["reason"]

@@ -72,7 +72,7 @@ def test_http_status_reports_real_model(running_server):
     with urllib.request.urlopen(f"{running_server}/api/status") as resp:
         body = json.loads(resp.read())
     assert body["llm_model"] == "openai/gpt-oss-20b"
-    assert "120" not in json.dumps(body)
+    assert "120b" not in json.dumps(body).lower()  # not the old "gpt-oss-120b" claim (timestamps may contain 120)
 
 
 def test_retired_results_are_labelled(running_server):
