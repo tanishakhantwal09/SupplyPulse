@@ -10,6 +10,8 @@ os.makedirs("dataset/reference", exist_ok=True)
 # ASSUMPTION: annual_teu_millions: the source and year of these TEU figures were not
 #   recorded when this database was built; they must be checked against a dated
 #   published source before any capacity-based result is reported (BUILD_PLAN 5).
+# ASSUMPTION: each port's 'commodities' tags were typed by hand, with no source. They decide
+#   which ports can take reallocated cargo (agents/inventory_agent.py, port_handles).
 
 ports = [
     # EAST ASIA
