@@ -162,6 +162,8 @@ Each gap is tied to a cited paper and a measurable before/after.
    - **Free-flow port time p_i = 1.0 day** (ports and canals) is an ASSUMPTION with no source; results are sensitive to it (see docs/EXPERIMENTS.md).
 3. **Cost per analysis** is now measured from token counts (USAGE). The old $0.0009 figure is not measured and must not be used.
 4. **Older dashboard pages** may still contain hard-coded demo values. The audit must find and remove them. *Done in Stage 1 (26 Nov 2026).*
+   - **Irrelevant news in the development set** (logged 28 Nov 2026): development events include irrelevant news tagged critical (e.g. a Multan crime story → USD 3.98 B). The enrichment rules (enrich_gdelt.py: tone/mention filter, nearest port within 800 nm, rule-based severity) need fixing; plan an experiment (e.g. measure the share of off-topic events on a development-set sample, then test a relevance filter) before results are reported. Never tune it on the held-out set.
+   - **Inventory reallocation ports ignore the disruption location** (logged 28 Nov 2026): agents/inventory_agent.py uses the first 2 primary_import_ports of each commodity from commodities.json, which are the same for every event (a Mundra event sends chemicals to Los Angeles / New York). A location-aware rule is proposed; waiting for Tanisha's decision.
 5. **No results have been produced on the real dataset yet** (all experiments are pending).
 
 ## 6. Audit checklist (next chat, step 2)
