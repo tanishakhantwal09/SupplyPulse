@@ -295,10 +295,17 @@ def build_user_prompt(disrupted_port_name, severity, affected_routes, alternates
     } for a in alternates]
     level = plan.get("level")
     ceiling = plan.get("rho_max")
+    if plan.get("saturated"):
+        # Every capped port is full: there is no common travel time (bug found in the 28 Nov 2026 Groq run).
+        time_line = ("Every receiving port is filled to the utilisation ceiling, so there is NO common travel "
+                     "time; each port keeps its own travel time (see the table).")
+    else:
+        time_line = (f"Common travel time of the ports below the ceiling: "
+                     f"{round(level, 3) if level is not None else 'n/a'} days.")
     return f"""Port disruption: {disrupted_port_name} (severity {severity.upper()})
 Affected routes (routes that call at this port): {', '.join(affected_routes) or 'none'}
 Allocation method: capacity-constrained Wardrop user equilibrium, utilisation ceiling {ceiling if ceiling else 'none'}.
-Common travel time of the ports below the ceiling: {round(level, 3) if level is not None else 'n/a'} days.
+{time_line}
 Port receiving the most ships: {alternates[0]['name']}
 Ships that do not fit under the ceiling (waiting, not assigned): {plan.get('excess_ships', 0)}
 
@@ -306,7 +313,8 @@ Alternates (computed by code):
 {json.dumps(table, indent=2)}
 
 Write:
-1. WHY THIS ALLOCATION: 2 sentences on why ships go to the ports they go to, using the travel times above.
+1. WHY THIS ALLOCATION: 2 sentences on why ships go to the ports they go to, using the travel times above,
+   and say how many ships wait because they do not fit.
 2. ROUTE ADJUSTMENT: 1 sentence naming the receiving ports (distance is from the disrupted port, not added distance).
 3. RISK FACTORS: 2 bullet points, based only on the figures above."""
 

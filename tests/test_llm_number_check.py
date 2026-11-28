@@ -45,3 +45,15 @@ def test_split_figure_described_as_single_port_is_flagged():
 def test_list_markers_are_ignored():
     r = check_text(PROMPT, "1. The split plan total is $9,117,711,732.\n2. Done.")
     assert r["ok"] and r["numbers"] == 1
+
+
+def test_unicode_hyphen_and_narrow_space_are_understood():
+    # The 28 Nov 2026 Groq run wrote "single‑port" (non-breaking hyphen) and "9,353 t".
+    text = "The single‑port option to Busan costs $12,737,550 with a 2.46 days delay."
+    r = check_text(PROMPT, text)
+    assert r["mislabelled"] == [] and r["not_from_code"] == []
+
+
+def test_derived_percentage_is_flagged():
+    r = check_text(PROMPT, "These two parts are more than 90 % of the split plan total $9,117,711,732.")
+    assert [x["number"] for x in r["not_from_code"]] == ["90 %"]

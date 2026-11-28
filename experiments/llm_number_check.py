@@ -25,6 +25,13 @@ NUM = re.compile(r"(?<![\w.])\$?(-?\d[\d,]*(?:\.\d+)?)\s*(%|k|thousand|mn|millio
                  re.IGNORECASE)
 HEADING = re.compile(r"^\s*([A-Z][A-Z0-9\-]+(?: [A-Z0-9\-]+)*)\b")
 SINGLE_WORDS = re.compile(r"single[\s\-]port|all \d[\d,]* ships|all ships|what[\s\-]if", re.IGNORECASE)
+# LLMs often write Unicode hyphens and spaces ("single\u2011port", "90\u202f%"); normalise them first.
+_UNICODE_HYPHENS = dict.fromkeys(map(ord, "\u2010\u2011\u2012\u2013\u2014\u2212"), "-")
+_UNICODE_SPACES = dict.fromkeys(map(ord, "\u00a0\u2007\u202f\u2009"), " ")
+
+
+def normalise(text):
+    return str(text).translate(_UNICODE_HYPHENS).translate(_UNICODE_SPACES)
 SPLIT_WORDS = re.compile(r"split|shared|\bplan\b", re.IGNORECASE)
 
 
@@ -77,6 +84,7 @@ def _is_list_marker(text, shown, pos):
 
 
 def check_text(prompt, text):
+    prompt, text = normalise(prompt), normalise(text)
     refs = prompt_references(prompt)
     report = {"numbers": 0, "not_from_code": [], "mislabelled": []}
     for shown, value, is_pct, pos in find_numbers(text):
