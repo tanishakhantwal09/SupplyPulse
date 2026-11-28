@@ -1,0 +1,6 @@
+# Preserve every file's line endings exactly as committed. Some files use CRLF
+# (Windows) and others LF; git must never convert between them.
+# Note: this stops GIT from converting. An editor or script can still change a file
+# on disk, so tests/test_line_endings.py fails if a tracked file's line-ending
+# style differs from the last commit.
+* -text
