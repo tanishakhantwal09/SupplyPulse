@@ -29,7 +29,7 @@ def test_total_is_the_sum_of_the_six_parts():
 def test_shanghai_travel_time_is_plausible_and_at_equilibrium():
     r = run_supplypulse(SHANGHAI_CRITICAL)
     assert r["allocation_method"] == "user_equilibrium"
-    assert r["additional_transit_days"] < 4                 # was 74 days with alpha=1.5 and no spreading
+    assert r["travel_time_days"] < 4                 # was 74 days with alpha=1.5 and no spreading
     used = [a for a in r["ship_allocation"] if a["vessels"] > 0]
     assert max(a["travel_time_days"] for a in used) - min(a["travel_time_days"] for a in used) < 1e-3
     assert r["plan_weighted_delay_days"] == pytest.approx(r["equilibrium_time_days"], abs=0.01)

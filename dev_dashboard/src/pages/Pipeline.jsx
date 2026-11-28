@@ -191,7 +191,7 @@ export default function PipelinePage() {
                   {plan ? `${r.disrupted_port} ➔ ${r.recommended_alternate_port}` : (selectedEvent?.nearest_port_name ?? NA)}
                 </div>
                 <div className="mono text-xs text-neutral-400 mt-1 flex items-center gap-3">
-                  <span>{plan ? `${r.additional_transit_days} d travel time` : NA}</span>
+                  <span>{plan ? `${r.travel_time_days} d travel time` : NA}</span>
                   <span>·</span>
                   <span>{plan ? `${fmtUsd(r.rerouting_cost_usd)} rerouting` : NA}</span>
                   <span>·</span>

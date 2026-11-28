@@ -147,7 +147,7 @@ def final_decision_node(state):
         "recommended_alternate_port": rec["name"],
         "alternate_port_country": rec["country"],
         "distance_nm": rec["distance_nm"],
-        "additional_transit_days": rec["travel_time_days"],   # travel time (sailing + port) at that port
+        "travel_time_days": rec["travel_time_days"],   # total travel time (sailing + port) at the recommended port
         "allocation_method": route["allocation_method"],
         "equilibrium_time_days": route["equilibrium_time_days"],
         "plan_weighted_delay_days": fin["delay_days"],
@@ -238,7 +238,7 @@ def _print(r):
                  ("Severity", r["severity"]),
                  ("Signal gate", f"{r['signal_gate']['action']} (score {r['signal_gate']['score']})"),
                  ("Recommended port", r["recommended_alternate_port"]),
-                 ("BPR delay at that port", f"{r['additional_transit_days']} days"),
+                 ("Travel time at that port", f"{r['travel_time_days']} days (sailing + port)"),
                  ("Total impact (estimate)", f"${r['total_financial_impact_usd']:,.0f}"),
                  ("Response time", f"{r['total_response_time_seconds']} s"),
                  ("LLM tokens (in / out)", f"{r['llm_usage']['input_tokens']} / {r['llm_usage']['output_tokens']}")]:

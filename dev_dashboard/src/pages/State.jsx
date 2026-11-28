@@ -38,7 +38,7 @@ export default function StatePage() {
       recommended_alternate_port: plan ? r.recommended_alternate_port : NA,
       alternate_port_country: plan ? r.alternate_port_country : NA,
       distance_nm: plan ? r.distance_nm : NA,
-      travel_time_days: plan ? r.additional_transit_days : NA,
+      travel_time_days: plan ? r.travel_time_days : NA,
       equilibrium_time_days: plan ? r.equilibrium_time_days : NA,
       allocation_method: plan ? r.allocation_method : NA,
       ship_allocation: plan ? r.ship_allocation : NA,

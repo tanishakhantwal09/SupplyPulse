@@ -19,7 +19,7 @@ export default function Overview() {
   const model = r?.llm_model?.replace('openai/', '') || 'gpt-oss-20b';
   const alternatePort = plan ? r.recommended_alternate_port : NA;
   const targetPort = selectedEvent?.nearest_port_name ?? NA;
-  const additionalDays = plan ? r.additional_transit_days : null;
+  const travelDays = plan ? r.travel_time_days : null;
 
   const agents = [
     { step: '01', name: 'Supervisor Agent', role: 'Assessment and delegation',
@@ -129,7 +129,7 @@ export default function Overview() {
               <div className="grid grid-cols-2 gap-6 pt-4 border-t border-[rgba(225,29,72,0.25)]">
                 <div>
                   <span className="cred-label block mb-1 text-neutral-500">Travel time at that port (sailing + port)</span>
-                  <span className="mono text-lg font-bold text-white">{additionalDays != null ? `${additionalDays} days` : NA}</span>
+                  <span className="mono text-lg font-bold text-white">{travelDays != null ? `${travelDays} days` : NA}</span>
                 </div>
                 <div>
                   <span className="cred-label block mb-1 text-neutral-500">Rerouting cost (all ports)</span>
@@ -208,7 +208,7 @@ export default function Overview() {
             <span className="cred-label block mb-1.5 text-neutral-500">Code-selected alternate</span>
             <div className="text-lg font-bold text-emerald-400">{alternatePort}</div>
             <span className="text-xs text-neutral-500 mt-1 block">
-              {additionalDays != null ? `${additionalDays} days travel time (sailing + port); port with the most ships` : NA}
+              {travelDays != null ? `${travelDays} days travel time (sailing + port); port with the most ships` : NA}
             </span>
           </div>
           <div className="flex md:justify-end">
