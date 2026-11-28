@@ -6,7 +6,7 @@ import { CredCard, ServerStatusBadge } from '../components/ui/primitives';
 
 const AGENT_ROWS = [
   ['supervisor', 'Supervisor Agent', 'Assessment & delegation'],
-  ['route_optimization', 'Route Optimization Agent', 'Port scoring (BPR)'],
+  ['route_optimization', 'Route Optimization Agent', 'Wardrop ship allocation'],
   ['inventory', 'Inventory Agent', 'Commodity exposure'],
   ['financial_auditor', 'Financial Auditor Agent', 'Six-part cost incl. EU ETS'],
   ['final_decision', 'Final Decision', 'Result assembly (no LLM)'],

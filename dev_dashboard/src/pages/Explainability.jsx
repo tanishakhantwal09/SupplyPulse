@@ -17,16 +17,17 @@ export default function Explainability() {
   const pillars = [
     {
       icon: Compass,
-      tag: 'HAVERSINE + BPR',
-      title: 'Route Optimization Math',
+      tag: 'WARDROP EQUILIBRIUM',
+      title: 'Ship Allocation Math',
       rows: [
         { label: 'Disrupted Seaport', value: r?.disrupted_port ?? selectedEvent?.nearest_port_name ?? NA },
-        { label: 'Code-selected Alternate', value: v(`${r?.recommended_alternate_port} (${r?.alternate_port_country})`) },
+        { label: 'Port with Most Ships', value: v(`${r?.recommended_alternate_port} (${r?.alternate_port_country})`) },
         { label: 'Great-circle Distance', value: v(`${r?.distance_nm} nm`) },
-        { label: 'BPR-adjusted Sailing Time', value: v(`${r?.additional_transit_days} days`) }
+        { label: 'Equilibrium Travel Time T', value: v(`${r?.equilibrium_time_days} days`) },
+        { label: 'Ports Receiving Ships', value: v((r?.ship_allocation || []).filter(a => a.vessels > 0).map(a => `${a.port} (${a.vessels})`).join(', ')) }
       ],
-      formula: 'd = 2R·arcsin(√(sin²(Δφ/2) + cos φ1·cos φ2·sin²(Δλ/2))), R = 3440.065 nm;  t = t0·(1 + 0.15·(V/C)^4)',
-      note: 'BPR function: U.S. Bureau of Public Roads (1964). Capacity split motivated by Wardrop (1952) user equilibrium (a heuristic, not the equilibrium itself). V/C = (current daily load + diverted ships per day) / daily capacity. Score = 0.40 risk + 0.35 delay + 0.25 cost (weights are assumptions).'
+      formula: 't_i = s_i + p_i·(1 + 0.15·((L_i + x_i)/C_i)^4) = T at every port used;  s_i = d_i / 400 nm/day,  d = 2R·arcsin(√(sin²(Δφ/2) + cos φ1·cos φ2·sin²(Δλ/2))), R = 3440.065 nm',
+      note: 'Ships are allocated by a Wardrop (1952) user equilibrium: every port used has the same travel time T, and no unused port is faster. Port time uses the BPR function, U.S. Bureau of Public Roads (1964). s_i = sailing time, p_i = free-flow port time (1.0 day, ASSUMPTION), L_i = ships already at the port per day, C_i = daily capacity (ASSUMPTION, not yet calibrated), x_i = diverted ships per day. Open-ocean bypass routes have no port time. The 0.40 risk + 0.35 time + 0.25 cost score is shown for comparison only and is not used for allocation.'
     },
     {
       icon: Package,

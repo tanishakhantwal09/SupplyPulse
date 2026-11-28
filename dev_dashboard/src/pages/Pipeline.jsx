@@ -77,8 +77,8 @@ export default function PipelinePage() {
       type: 'Port Scoring',
       agentName: 'agents/route_optimization_agent.py',
       icon: Compass,
-      summary: plan ? `Code-selected port: ${r.recommended_alternate_port} (BPR delay ${r.additional_transit_days} d)` : 'No plan',
-      systemPrompt: 'Code splits ships per day across alternate ports by free capacity, applies BPR congestion (alpha 0.15, beta 4; U.S. Bureau of Public Roads 1964) and scores 0.40 risk + 0.35 delay + 0.25 cost. The LLM only explains the chosen port.',
+      summary: plan ? `Most ships to ${r.recommended_alternate_port}; equilibrium travel time ${r.equilibrium_time_days} d` : 'No plan',
+      systemPrompt: 'Code allocates ships per day by a Wardrop (1952) user equilibrium: travel time = sailing + BPR port time (alpha 0.15, beta 4; U.S. Bureau of Public Roads 1964), equal at every port used. The 0.40 risk + 0.35 time + 0.25 cost score is for comparison only. The LLM only explains.',
       userPayload: { disrupted_port: selectedEvent?.nearest_port_name ?? NA, vessels_affected: selectedEvent?.vessels_affected ?? NA, duration_hours: selectedEvent?.duration_hours ?? NA },
       llmParams: llmParams('route_optimization', 400),
       output: plan ? { recommended_port: r.recommended_alternate_port, ship_allocation: r.ship_allocation, explanation: r.agent_assessments?.route } : {}
@@ -104,7 +104,7 @@ export default function PipelinePage() {
       agentName: 'agents/financial_auditor_agent.py',
       icon: DollarSign,
       summary: plan ? `Total: ${fmtUsd(r.total_financial_impact_usd)} (alert ${r.financial_alert ? 'TRIGGERED' : 'not triggered'}, threshold ${fmtUsd(r.alert_threshold_usd)})` : 'No plan',
-      systemPrompt: 'Code prices each receiving port: rerouting + ship-weighted BPR delay + freight + inventory at risk + operating cost + EU ETS carbon (Directive (EU) 2023/959). Several constants are assumptions. The LLM only explains.',
+      systemPrompt: 'Code prices each receiving port: rerouting + ship-weighted travel time + freight + inventory at risk + operating cost + EU ETS carbon (Directive (EU) 2023/959). Several constants are assumptions. The LLM only explains.',
       userPayload: plan ? { ship_allocation: r.ship_allocation } : {},
       llmParams: llmParams('financial_auditor', 400),
       output: plan ? { cost_breakdown_usd: r.cost_breakdown_usd, cost_per_port: r.cost_per_port, carbon: r.carbon_details, single_port_options: r.single_port_options, explanation: r.agent_assessments?.financial } : {}
@@ -191,7 +191,7 @@ export default function PipelinePage() {
                   {plan ? `${r.disrupted_port} ➔ ${r.recommended_alternate_port}` : (selectedEvent?.nearest_port_name ?? NA)}
                 </div>
                 <div className="mono text-xs text-neutral-400 mt-1 flex items-center gap-3">
-                  <span>{plan ? `${r.additional_transit_days} d BPR delay` : NA}</span>
+                  <span>{plan ? `${r.additional_transit_days} d travel time` : NA}</span>
                   <span>·</span>
                   <span>{plan ? `${fmtUsd(r.rerouting_cost_usd)} rerouting` : NA}</span>
                   <span>·</span>

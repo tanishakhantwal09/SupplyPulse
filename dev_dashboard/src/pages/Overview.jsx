@@ -24,7 +24,7 @@ export default function Overview() {
   const agents = [
     { step: '01', name: 'Supervisor Agent', role: 'Assessment and delegation',
       status: plan ? 'Assessment written' : NA, detail: r?.agent_assessments?.supervisor },
-    { step: '02', name: 'Route Optimization', role: 'Port scoring with BPR congestion',
+    { step: '02', name: 'Route Optimization', role: 'Wardrop equilibrium ship allocation',
       status: plan ? `Alternate: ${alternatePort}` : NA, detail: r?.agent_assessments?.route },
     { step: '03', name: 'Inventory Agent', role: 'Commodity exposure',
       status: plan ? r.top_priority_commodity : NA, detail: r?.agent_assessments?.inventory },
@@ -38,7 +38,7 @@ export default function Overview() {
       eyebrow="operations overview"
       title="Disruption Resolution &"
       accent="Telemetry."
-      sub="Multi-agent assessment, BPR congestion-aware port choice and a six-part cost estimate. All figures come from the last pipeline run."
+      sub="Multi-agent assessment, ship allocation by Wardrop user equilibrium (BPR port congestion) and a six-part cost estimate. All figures come from the last pipeline run."
       right={
         <div className="flex items-center gap-3">
           <button onClick={() => navigate('/events')} className="cred-btn-secondary text-xs">Change Event</button>
@@ -128,7 +128,7 @@ export default function Overview() {
               </div>
               <div className="grid grid-cols-2 gap-6 pt-4 border-t border-[rgba(225,29,72,0.25)]">
                 <div>
-                  <span className="cred-label block mb-1 text-neutral-500">BPR delay at chosen port</span>
+                  <span className="cred-label block mb-1 text-neutral-500">Travel time at that port (sailing + port)</span>
                   <span className="mono text-lg font-bold text-white">{additionalDays != null ? `${additionalDays} days` : NA}</span>
                 </div>
                 <div>
@@ -208,7 +208,7 @@ export default function Overview() {
             <span className="cred-label block mb-1.5 text-neutral-500">Code-selected alternate</span>
             <div className="text-lg font-bold text-emerald-400">{alternatePort}</div>
             <span className="text-xs text-neutral-500 mt-1 block">
-              {additionalDays != null ? `${additionalDays} days BPR-adjusted sailing time` : NA}
+              {additionalDays != null ? `${additionalDays} days travel time (sailing + port); port with the most ships` : NA}
             </span>
           </div>
           <div className="flex md:justify-end">
