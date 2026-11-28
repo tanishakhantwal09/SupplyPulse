@@ -78,6 +78,27 @@ def _sentence(text, pos):
     return text[start:min(ends) if ends else len(text)]
 
 
+REFERS_BACK = re.compile(r"^\W*(?:(?:however|also|but|and|still|yet)\W+)?(it|this|that|these|those|its)\b",
+                         re.IGNORECASE)
+
+
+def _context(text, pos):
+    """The sentence holding the number, plus the previous sentence when this one starts by
+    referring back ("It also offers...", "This option exceeds..."), so the label carries over."""
+    sentence = _sentence(text, pos).strip()
+    current, cursor = sentence, pos
+    for _ in range(3):                    # follow a chain of referring sentences, at most 3 back
+        if not REFERS_BACK.match(current):
+            break
+        start = max(text.rfind(". ", 0, cursor), text.rfind("\n", 0, cursor))
+        if start <= 0:
+            break
+        current = _sentence(text, start - 1).strip()
+        sentence = current + ". " + sentence
+        cursor = start - 1
+    return sentence
+
+
 def _is_list_marker(text, shown, pos):
     line_start = text.rfind("\n", 0, pos) + 1
     return text[line_start:pos].strip() in ("", "*", "-", "**") and re.fullmatch(r"\d\.?", shown) is not None
@@ -93,7 +114,7 @@ def check_text(prompt, text):
         report["numbers"] += 1
         candidates = [value] + ([value / 100] if is_pct else [])
         kinds = {k for v, k in refs for c in candidates if _close(c, v)}
-        sentence = _sentence(text, pos).strip()
+        sentence = _context(text, pos)
         if not kinds:
             report["not_from_code"].append({"number": shown, "sentence": sentence})
             continue

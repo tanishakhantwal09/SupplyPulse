@@ -57,3 +57,26 @@ def test_unicode_hyphen_and_narrow_space_are_understood():
 def test_derived_percentage_is_flagged():
     r = check_text(PROMPT, "These two parts are more than 90 % of the split plan total $9,117,711,732.")
     assert [x["number"] for x in r["not_from_code"]] == ["90 %"]
+
+
+def test_a_sentence_referring_back_inherits_the_label():
+    # Pattern from the 28 Nov 2026 Groq run: the option is named once, then "It also offers ...".
+    text = ("The single-port option to Busan has a rerouting cost of $12,737,550. "
+            "It also offers a delay of 2.46 days.")
+    assert check_text(PROMPT, text)["ok"]
+
+
+def test_referring_back_does_not_hide_a_real_mislabel():
+    text = "The split plan totals $9,117,711,732. It also has a delay of 2.46 days."   # 2.46 is single-port
+    assert [x["number"] for x in check_text(PROMPT, text)["mislabelled"]] == ["2.46"]
+
+
+def test_connective_before_the_reference_is_allowed():
+    text = "The single-port option to Busan costs $12,737,550. However, this option has a 2.46-day delay."
+    assert check_text(PROMPT, text)["ok"]
+
+
+def test_chain_of_referring_sentences():
+    text = ("The single-port option to Busan costs $12,737,550. It also has a 2.46-day delay. "
+            "However, this option emits 9,353 t.")
+    assert check_text(PROMPT, text)["ok"]
