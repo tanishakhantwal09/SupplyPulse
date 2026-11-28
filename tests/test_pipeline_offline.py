@@ -143,3 +143,29 @@ def test_timing_condition_cold_and_warm():
     assert timing_condition(live)["portwatch"] == "cold"
     assert timing_condition(cached)["portwatch"] == "warm"
     assert timing_condition(None)["portwatch"] == "static"
+
+
+def test_sample_event_routes_follow_the_dataset_rule():
+    from agents.reference_data import routes_calling_at
+    assert SHANGHAI_CRITICAL["affected_routes"] == ["R001", "R002", "R003", "R004", "R005", "R006", "R010"]
+    assert routes_calling_at("P001") == SHANGHAI_CRITICAL["affected_routes"]
+
+
+def test_single_port_options_carry_a_safety_label():
+    r = run_supplypulse(SHANGHAI_CRITICAL)
+    assert r["single_port_options"]
+    for o in r["single_port_options"]:
+        assert o["safety_label"] in ("what-if", "what-if, exceeds safe capacity")
+        assert o["exceeds_safe_capacity"] == (o["volume_ratio"] is not None and o["volume_ratio"] > 0.95 + 1e-9)
+
+
+def test_financial_prompt_gives_shares_and_forbids_new_numbers():
+    from agents import financial_auditor_agent as fa
+    from agents.route_optimization_agent import route_optimization_agent
+    route = route_optimization_agent(SHANGHAI_CRITICAL)
+    fin = fa.calculate_financial_impact(SHANGHAI_CRITICAL, route, {"total_exposure_value_usd": 1e9})
+    assert sum(fin["cost_shares_pct"].values()) == pytest.approx(100, abs=0.5)
+    opts = fa.calculate_pareto_options(SHANGHAI_CRITICAL, route["alternate_ports_analyzed"], 2026)
+    prompt = fa.build_user_prompt(SHANGHAI_CRITICAL, fin, True, 1e8, opts)
+    assert "% of total" in prompt and "Use only numbers given above" in prompt
+    assert "exceeds safe capacity" in prompt                    # all-to-one-port options overload the port

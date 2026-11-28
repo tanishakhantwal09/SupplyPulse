@@ -1,7 +1,12 @@
 """Hand-built test events (not from the dataset, so no Parquet file is needed).
 
+affected_routes use the dataset rule (enrich_gdelt.find_affected_routes, mirrored in
+agents.reference_data.routes_calling_at): every route whose key ports include the port.
+
 The news-signal values are chosen so the gate says PROCEED, except where noted.
 """
+
+from agents.reference_data import routes_calling_at  # noqa: E402
 
 STRONG_SIGNAL = {"num_mentions": 60, "goldstein_scale": -8.0, "avg_tone": -9.0}  # gate score 0.905
 
@@ -16,7 +21,7 @@ SHANGHAI_CRITICAL = {
     "vessels_affected": 350,        # enrich_gdelt.py rule for a critical mega_hub
     "duration_hours": 144,          # enrich_gdelt.py DURATION_MAP['critical']
     "freight_impact_pct": 48.0,
-    "affected_routes": ["R001"],
+    "affected_routes": routes_calling_at("P001"),   # 7 routes (R001-R006, R010)
     "affected_commodities": ["electronics", "textiles", "machinery"],
     **STRONG_SIGNAL,
 }

@@ -158,7 +158,8 @@ Terms with no commodity record (not priced): {', '.join(unmatched) or 'none'}
 Write:
 1. TOP PRIORITY: which commodity comes first and why, using the priority and exposure above (2 sentences).
 2. REALLOCATION: which listed reallocation ports could take the top 2 commodities (1-2 sentences).
-3. CAVEAT: one sentence noting that containers per vessel is an assumption."""
+3. CAVEAT: one sentence noting that containers per vessel is an assumption.
+Use only numbers given above. Do not calculate new numbers (no sums, differences or percentages)."""
     explanation = invoke_with_retry([SystemMessage(content=SYSTEM_PROMPT), HumanMessage(content=user_prompt)],
                                     INVENTORY_MAX_TOKENS, agent="inventory")
     console.print(Panel(explanation, border_style="green", title="Inventory Agent: explanation"))

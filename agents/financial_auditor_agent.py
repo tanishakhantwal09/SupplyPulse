@@ -14,7 +14,11 @@ from rich.table import Table
 from agents.carbon import calculate_carbon
 from agents.llm_utils import console, invoke_with_retry
 from agents.reference_data import port_by_id
-from agents.route_optimization_agent import link_times, ships_per_day
+from agents.route_optimization_agent import RHO_MAX, link_times, ships_per_day
+
+# A single-port option that pushes the port above the utilisation ceiling RHO_MAX is not a safe plan.
+SAFETY_LABEL_OVER = "what-if, exceeds safe capacity"
+SAFETY_LABEL_OK = "what-if"
 
 # ── Constants (BUILD_PLAN 5.2: each still needs a source) ───────────────────
 DAILY_TRADE_VALUE_USD = {  # ASSUMPTION: value of trade delayed per day, by severity; no source yet.
@@ -97,6 +101,11 @@ def calculate_financial_impact(state, route_output, inventory_output):
     total_co2 = sum(r["co2_tonnes"] for r in per_port)
 
     total = rerouting_cost + delay_cost + freight_increase + inventory_at_risk + operational + carbon_cost
+    parts = {"rerouting_cost": rerouting_cost, "delay_cost": delay_cost, "freight_rate_increase": freight_increase,
+             "inventory_at_risk": inventory_at_risk, "operational_cost": operational, "carbon_penalty": carbon_cost}
+    # Each part's share of the total, computed by code so the LLM never calculates percentages.
+    shares = {k: (round(100 * v / total, 1) if total else 0.0) for k, v in parts.items()}
+    top_two = sorted(parts, key=parts.get, reverse=True)[:2]
     return {
         "rerouting_cost": rerouting_cost,
         "delay_cost": delay_cost,
@@ -105,6 +114,9 @@ def calculate_financial_impact(state, route_output, inventory_output):
         "operational_cost": operational,
         "carbon_penalty": carbon_cost,
         "total_impact": total,
+        "cost_shares_pct": shares,
+        "largest_two_parts": top_two,
+        "largest_two_parts_share_pct": (round(100 * sum(parts[k] for k in top_two) / total, 1) if total else 0.0),
         "delay_days": round(weighted_delay, 2),
         "delay_basis": "travel time (sailing + BPR port time), weighted by ships sent to each port",
         "freight_impact_pct": freight_pct,
@@ -144,8 +156,11 @@ def calculate_pareto_options(state, alternates, year):
         delay, vc = round(t["travel_time_days"], 3), t["volume_ratio"]
         carbon = calculate_carbon(a["distance_nm"], vessels, origin_cc, a.get("country_code"), year)
         cost = a["estimated_cost_usd"] * vessels
+        over = vc is not None and vc > RHO_MAX + 1e-9
         options.append({
             "port": a["name"], "country": a["country"], "cost_usd": cost,
+            "exceeds_safe_capacity": over,
+            "safety_label": SAFETY_LABEL_OVER if over else SAFETY_LABEL_OK,
             "delay_days": delay, "volume_ratio": vc, "sailing_time_days": a["sailing_time_days"],
             "distance_nm": a["distance_nm"], "carbon_usd": carbon["carbon_cost_usd"],
             "co2_tonnes": carbon["total_co2_tonnes"], "risk": a["risk_level"],
@@ -182,8 +197,13 @@ SPLIT_HEADING = "SPLIT PLAN"
 SINGLE_HEADING = "SINGLE-PORT OPTIONS"
 
 
+PART_NAMES = {"rerouting_cost": "rerouting", "delay_cost": "trade delay", "freight_rate_increase": "freight increase",
+              "inventory_at_risk": "inventory at risk", "operational_cost": "operational", "carbon_penalty": "EU ETS carbon"}
+
+
 def build_user_prompt(state, fin, alert, threshold, pareto):
     vessels = int(state["vessels_affected"])
+    sh = fin["cost_shares_pct"]
     split = "\n".join(f"- {r['port']}: {r['vessels']} ships, travel time {r['travel_time_days']} d, "
                       f"rerouting ${r['rerouting_cost_usd']:,.0f}" for r in fin["per_port"])
     # Compare like with like: single-port REROUTING cost vs split-plan REROUTING cost.
@@ -192,7 +212,8 @@ def build_user_prompt(state, fin, alert, threshold, pareto):
         return "lower than" if a < b else "higher than" if a > b else "equal to"
     split_co2 = fin["carbon_details"]["total_co2_tonnes"]
     opts = "\n".join(
-        f"- {o['option']}: {o['port']}: rerouting cost ${o['cost_usd']:,.0f} "
+        f"- {o['option']}: {o['port']} [{o['safety_label']}; port at {round(o['volume_ratio'] * 100) if o['volume_ratio'] is not None else 'n/a'}% "
+        f"of capacity, safe limit {round(RHO_MAX * 100)}%]: rerouting cost ${o['cost_usd']:,.0f} "
         f"({cmp(o['cost_usd'], fin['rerouting_cost'])} the split plan rerouting cost ${fin['rerouting_cost']:,.0f}); "
         f"delay {o['delay_days']} d ({cmp(o['delay_days'], fin['delay_days'])} the split plan {fin['delay_days']} d); "
         f"CO2 {o['co2_tonnes']:,.0f} t ({cmp(o['co2_tonnes'], split_co2)} the split plan {split_co2:,.0f} t)"
@@ -204,21 +225,23 @@ def build_user_prompt(state, fin, alert, threshold, pareto):
 - Average travel time of ALL ships (sailing + port + any waiting) of the split plan: {fin['delay_days']} days
 - Ships that wait at anchorage because no port has room under the utilisation ceiling: {fin['excess_ships_waiting']}; average wait of a waiting ship {round(fin['avg_wait_of_waiting_days'], 3)} days (included in the travel time above)
 
-{SPLIT_HEADING} COST, six parts (USD):
-- Rerouting: {fin['rerouting_cost']:,.0f}
-- Trade delay ({fin['delay_days']} days): {fin['delay_cost']:,.0f}
-- Freight increase: {fin['freight_rate_increase']:,.0f}
-- Inventory at risk: {fin['inventory_at_risk']:,.0f}
-- Operational: {fin['operational_cost']:,.0f}
-- EU ETS carbon: {fin['carbon_penalty']:,.0f} ({fin['carbon_details']['total_co2_tonnes']:,.0f} t CO2)
+{SPLIT_HEADING} COST, six parts (USD, share of the total computed by code):
+- Rerouting: {fin['rerouting_cost']:,.0f} ({sh['rerouting_cost']}% of total)
+- Trade delay ({fin['delay_days']} days): {fin['delay_cost']:,.0f} ({sh['delay_cost']}% of total)
+- Freight increase: {fin['freight_rate_increase']:,.0f} ({sh['freight_rate_increase']}% of total)
+- Inventory at risk: {fin['inventory_at_risk']:,.0f} ({sh['inventory_at_risk']}% of total)
+- Operational: {fin['operational_cost']:,.0f} ({sh['operational_cost']}% of total)
+- EU ETS carbon: {fin['carbon_penalty']:,.0f} ({fin['carbon_details']['total_co2_tonnes']:,.0f} t CO2) ({sh['carbon_penalty']}% of total)
 - TOTAL: {fin['total_impact']:,.0f}
+- The two largest parts ({' and '.join(PART_NAMES[k] for k in fin['largest_two_parts'])}) together: {fin['largest_two_parts_share_pct']}% of total
 Alert: {'TRIGGERED' if alert else 'not triggered'} (threshold {threshold:,.0f})
 
 {SINGLE_HEADING} (what-if only, NOT the plan: ALL {vessels} ships sent to ONE port):
 {opts}
 
 Rules: every time you give a number, say whether it belongs to the "split plan" or to a
-"single-port option". Never describe a single-port option figure as the plan.
+"single-port option". Never describe a single-port option figure as the plan. If an option is
+marked "exceeds safe capacity", say so. Use only numbers given above. Do not calculate new numbers (no sums, differences or percentages).
 
 Write:
 1. COST ASSESSMENT: which parts of the split plan cost dominate the total (2 sentences).

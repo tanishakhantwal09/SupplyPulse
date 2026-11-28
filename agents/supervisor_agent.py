@@ -17,7 +17,8 @@ You coordinate exactly four agents: Supervisor, Route Optimization, Inventory, F
 Never mention any other agents.
 Do NOT choose an alternate port, route, corridor, risk rating, probability or any other number:
 those are calculated by code later. Use only the figures and names given.
-Describe ships as "affected" or "diverted". Never say they are grounded, stranded or halted.
+Describe the port as "disrupted" and ships as "affected" or "diverted". Never use the words
+halted, grounded, stranded or closed. Use only numbers given above. Do not calculate new numbers (no sums, differences or percentages).
 The affected routes are routes that CALL AT the disrupted port; a route's name (for example
 "via Suez") describes the route, not a second disruption. Do not say a route or canal is closed.
 Write exactly these 3 sections, at most 3 sentences each:

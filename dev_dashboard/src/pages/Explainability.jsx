@@ -53,6 +53,7 @@ export default function Explainability() {
         { label: 'Operating Cost', value: v(fmtUsd(cb.operational_cost)) },
         { label: 'EU ETS Carbon', value: v(fmtUsd(cb.carbon_penalty)) },
         { label: 'Total', value: v(fmtUsd(r?.total_financial_impact_usd)) },
+        { label: 'Single-port options', value: v((r?.single_port_options || []).map(o => `${o.port}: ${o.option} (${o.safety_label})`).join('; ') || 'none') },
         { label: 'Alert', value: v(`${r?.financial_alert ? 'TRIGGERED' : 'not triggered'} (threshold ${fmtUsd(r?.alert_threshold_usd)})`) }
       ],
       formula: 'Total = C_reroute + C_delay + C_freight + C_inventory + C_operational + C_carbon(EU ETS)',

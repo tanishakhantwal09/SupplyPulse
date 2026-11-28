@@ -376,7 +376,8 @@ Write:
 1. WHY THIS ALLOCATION: 2 sentences on why ships go to the ports they go to, using the travel times above,
    and say how many ships wait because they do not fit.
 2. ROUTE ADJUSTMENT: 1 sentence naming the receiving ports (distance is from the disrupted port, not added distance).
-3. RISK FACTORS: 2 bullet points, based only on the figures above."""
+3. RISK FACTORS: 2 bullet points, based only on the figures above.
+Use only numbers given above. Do not calculate new numbers (no sums, differences or percentages)."""
 
 
 def _print_table(alternates):

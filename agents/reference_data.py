@@ -34,5 +34,11 @@ def port_by_id(port_id):
     return next((p for p in ports() if p["port_id"] == port_id), None)
 
 
+def routes_calling_at(port_id):
+    """Route ids whose key_ports include the port: the same rule as
+    enrich_gdelt.find_affected_routes(), which builds the dataset's affected_routes column."""
+    return [r["route_id"] for r in routes() if port_id in r.get("key_ports", [])]
+
+
 def port_by_name(name):
     return next((p for p in ports() if p["name"] == name), None)
