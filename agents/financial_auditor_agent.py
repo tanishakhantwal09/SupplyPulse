@@ -14,7 +14,7 @@ from rich.table import Table
 from agents.carbon import calculate_carbon
 from agents.llm_utils import console, invoke_with_retry
 from agents.reference_data import port_by_id
-from agents.route_optimization_agent import bpr_congestion_penalty, ships_per_day
+from agents.route_optimization_agent import link_times, ships_per_day
 
 # ── Constants (BUILD_PLAN 5.2: each still needs a source) ───────────────────
 DAILY_TRADE_VALUE_USD = {  # ASSUMPTION: value of trade delayed per day, by severity; no source yet.
@@ -57,7 +57,8 @@ def price_split(state, alternates, year):
         rows.append({
             "port": a["name"], "country": a["country"], "vessels": n,
             "rerouting_cost_usd": a["estimated_cost_usd"] * n,
-            "bpr_delay_days": a["bpr_adjusted_delay"],
+            "travel_time_days": a["travel_time_days"],   # sailing + BPR port time
+            "port_time_days": a["port_time_days"],
             "co2_tonnes": carbon["total_co2_tonnes"],
             "ets_coverage_share": carbon["ets_coverage_share"],
             "carbon_cost_usd": carbon["carbon_cost_usd"],
@@ -77,7 +78,8 @@ def calculate_financial_impact(state, route_output, inventory_output):
     shipped = sum(r["vessels"] for r in per_port)
 
     rerouting_cost = sum(r["rerouting_cost_usd"] for r in per_port)
-    weighted_delay = (sum(r["bpr_delay_days"] * r["vessels"] for r in per_port) / shipped) if shipped else 0.0
+    # Delay is priced as the ship-weighted TRAVEL TIME (sailing + port), BUILD_PLAN 5 (28 Nov 2026).
+    weighted_delay = (sum(r["travel_time_days"] * r["vessels"] for r in per_port) / shipped) if shipped else 0.0
     delay_cost = DAILY_TRADE_VALUE_USD[severity] * weighted_delay
     freight_increase = freight_pct / 100 * rerouting_cost
     inventory_exposure = (inventory_output or {}).get("total_exposure_value_usd", 0)
@@ -96,7 +98,7 @@ def calculate_financial_impact(state, route_output, inventory_output):
         "carbon_penalty": carbon_cost,
         "total_impact": total,
         "delay_days": round(weighted_delay, 2),
-        "delay_basis": "BPR-adjusted delay, weighted by ships sent to each port",
+        "delay_basis": "travel time (sailing + BPR port time), weighted by ships sent to each port",
         "freight_impact_pct": freight_pct,
         "vessels_affected": vessels,
         "duration_hours": duration_hours,
@@ -123,13 +125,13 @@ def calculate_pareto_options(state, alternates, year):
     origin_cc = _origin_country(state)
     options = []
     for a in alternates:
-        delay, _, vc, _ = bpr_congestion_penalty(a["estimated_delay_days"], per_day,
-                                                 a["port_capacity"], a["port_utilization"])
+        t = link_times(a, per_day)
+        delay, vc = round(t["travel_time_days"], 3), t["volume_ratio"]
         carbon = calculate_carbon(a["distance_nm"], vessels, origin_cc, a.get("country_code"), year)
         cost = a["estimated_cost_usd"] * vessels
         options.append({
             "port": a["name"], "country": a["country"], "cost_usd": cost,
-            "delay_days": delay, "volume_ratio": vc, "raw_delay_days": a["estimated_delay_days"],
+            "delay_days": delay, "volume_ratio": vc, "sailing_time_days": a["sailing_time_days"],
             "distance_nm": a["distance_nm"], "carbon_usd": carbon["carbon_cost_usd"],
             "co2_tonnes": carbon["total_co2_tonnes"], "risk": a["risk_level"],
             "total_cost_usd": cost + carbon["carbon_cost_usd"],
@@ -142,7 +144,7 @@ def calculate_pareto_options(state, alternates, year):
         {**min(options, key=lambda x: (x["co2_tonnes"], x["cost_usd"], x["delay_days"])),
          "option": "Min Carbon", "best_for": "Lowest CO2", "kind": "single-port option"},
         {**min(options, key=lambda x: (x["delay_days"], x["cost_usd"], x["co2_tonnes"])),
-         "option": "Min Time", "best_for": "Time-priority (BPR delay, all ships to one port)",
+         "option": "Min Time", "best_for": "Time-priority (travel time, all ships to one port)",
          "kind": "single-port option"},
     ]
 
@@ -161,7 +163,7 @@ SINGLE_HEADING = "SINGLE-PORT OPTIONS"
 
 def build_user_prompt(state, fin, alert, threshold, pareto):
     vessels = int(state["vessels_affected"])
-    split = "\n".join(f"- {r['port']}: {r['vessels']} ships, BPR delay {r['bpr_delay_days']} d, "
+    split = "\n".join(f"- {r['port']}: {r['vessels']} ships, travel time {r['travel_time_days']} d, "
                       f"rerouting ${r['rerouting_cost_usd']:,.0f}" for r in fin["per_port"])
     # Compare like with like: single-port REROUTING cost vs split-plan REROUTING cost.
     # "lower"/"higher" is decided by code, so the LLM does not have to compare numbers.
@@ -176,9 +178,9 @@ def build_user_prompt(state, fin, alert, threshold, pareto):
         for o in pareto)
     return f"""Port disruption: {state['nearest_port_name']} (severity {state['severity'].upper()}), {vessels} ships affected
 
-{SPLIT_HEADING} (this is the recommendation: ships are shared across several ports):
+{SPLIT_HEADING} (this is the recommendation: ships shared across ports by a Wardrop user equilibrium):
 {split}
-- Ship-weighted BPR delay of the split plan: {fin['delay_days']} days
+- Ship-weighted travel time (sailing + port) of the split plan: {fin['delay_days']} days
 
 {SPLIT_HEADING} COST, six parts (USD):
 - Rerouting: {fin['rerouting_cost']:,.0f}

@@ -30,19 +30,25 @@ def test_mg1_scv_is_labelled_assumption():
 
 def test_shanghai_case_strategies():
     out = ga.evaluate_case("P001", "critical", 350, 144, 2026)
+    assert set(out) == set(ga.STRATEGIES)
     assert out["nearest"]["ports"] == {"Port of Busan": 350}         # nearest by distance
     assert out["nearest"]["over_capacity_share"] == 1.0              # all 350 into Busan: V/C 1.69
-    assert out["supplypulse"]["over_capacity_share"] == 0.0          # split: every port at V/C ~0.99
-    assert out["supplypulse"]["ports_used"] == 3
-    assert sum(out["supplypulse"]["ports"].values()) == 350
+    assert out["free_capacity_split"]["over_capacity_share"] == 0.0  # every port at V/C ~0.99
+    assert out["free_capacity_split"]["ports_used"] == 3
+    assert "Port of Singapore" not in out["user_equilibrium"]["ports"]
     for s in ga.STRATEGIES:
+        assert sum(out[s]["ports"].values()) == 350
         assert out[s]["ets_cost_usd"] == 0                           # no EU port involved
+    # Wardrop's second principle: the system optimum has the lowest total time of all strategies
+    so = out["system_optimal"]["system_total_time"]
+    assert all(so <= out[s]["system_total_time"] + 1e-9 for s in ga.STRATEGIES)
 
 
 def test_allocations_always_place_every_ship():
     alts = route.get_alternate_ports("P021", "high", 90, 72)
-    for ships in ga.allocations(alts, 90, 72).values():
-        assert sum(ships) == 90
+    per_day = route.ships_per_day(90, 72)
+    for flows in ga.allocations(alts, 90, 72).values():
+        assert sum(flows) == pytest.approx(per_day)
 
 
 def _events():

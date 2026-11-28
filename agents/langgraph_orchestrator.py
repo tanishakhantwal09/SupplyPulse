@@ -146,11 +146,16 @@ def final_decision_node(state):
         "recommended_alternate_port": rec["name"],
         "alternate_port_country": rec["country"],
         "distance_nm": rec["distance_nm"],
-        "additional_transit_days": rec["bpr_adjusted_delay"],
+        "additional_transit_days": rec["travel_time_days"],   # travel time (sailing + port) at that port
+        "allocation_method": route["allocation_method"],
+        "equilibrium_time_days": route["equilibrium_time_days"],
         "plan_weighted_delay_days": fin["delay_days"],
         "ship_allocation": [{"port": a["name"], "vessels": a["vessels_diverted_here"],
                              "vessels_per_day": a["vessels_per_day_here"], "volume_ratio": a["volume_ratio"],
-                             "bpr_delay_days": a["bpr_adjusted_delay"]} for a in route["alternate_ports_analyzed"]],
+                             "sailing_time_days": a["sailing_time_days"],
+                             "port_time_days": a["port_time_days"],
+                             "travel_time_days": a["travel_time_days"],
+                             "link_type": a["link_type"]} for a in route["alternate_ports_analyzed"]],
         "rerouting_cost_usd": fin["rerouting_cost"],
         "cost_breakdown_usd": {k: fin[k] for k in ("rerouting_cost", "delay_cost", "freight_rate_increase",
                                                     "inventory_at_risk", "operational_cost", "carbon_penalty")},
@@ -188,9 +193,11 @@ def final_decision_node(state):
         },
         "signal_gate": state["gate"],
         "route_decision": {
-            "scoring_formula": "0.40*risk(0/0.5/1) + 0.35*BPR_delay/max + 0.25*cost/max; lowest wins",
-            "bpr_formula": (f"t = t0 * (1 + {BPR_ALPHA} * (V/C)^{BPR_BETA}); "
+            "allocation": "Wardrop (1952) user equilibrium: equal travel time t_i = s_i + p_i*(1 + 0.15*((L_i + x_i)/C_i)^4) at every port used",
+            "scoring_formula": "0.40*risk + 0.35*time/max + 0.25*cost/max: comparison only, not used for allocation",
+            "bpr_formula": (f"port time = p_i * (1 + {BPR_ALPHA} * (V/C)^{BPR_BETA}); "
                             "U.S. Bureau of Public Roads (1964), Traffic Assignment Manual"),
+            "equilibrium_time_days": route["equilibrium_time_days"],
             "ships_per_day": route["ships_per_day"],
             "ports_evaluated": route["alternate_ports_analyzed"],
             "winning_port": rec["name"],

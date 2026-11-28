@@ -1,17 +1,20 @@
 """Gap 1 ablation (no LLM, development set only).
 
-Strategies compared for every event:
-  A  nearest      : all ships to the nearest usable alternate port (Haversine distance)
-  B  score_no_bpr : all ships to the best-scoring port, scored with RAW sailing delay (no congestion)
-  C  supplypulse  : SupplyPulse: ships split by free capacity, BPR-adjusted delays (the real pipeline maths)
-  D  bpr_no_split : extra ablation: all ships to the best-scoring port, scored with BPR delay
-                    for all ships (shows what the split itself adds)
+Strategies compared for every event (ships per day = vessels / max(duration_days, 1)):
+  nearest             : all ships to the nearest usable alternate (Haversine distance)
+  score_no_bpr        : all ships to the best port by the 0.40/0.35/0.25 score, using sailing time only
+  free_capacity_split : the old split, in proportion to free daily capacity (ignores distance)
+  user_equilibrium    : SupplyPulse: Wardrop (1952) user equilibrium (agents/wardrop.py)
+  system_optimal      : Wardrop system optimum (minimum total time of all ships at the ports)
+  bpr_no_split        : all ships to the best port by the score, using travel time with all ships there
 
-Judged by:
-  - over-capacity share : share of ships sent to a port whose daily load exceeds its capacity (V/C > 1)
-  - BPR delay           : ship-weighted BPR-adjusted sailing time (days)
-  - M/G/1 waiting time  : Pollaczek-Khinchine mean wait in queue at the receiving port, per ship
-                          (application to ports: Rauca et al. 2025, see BUILD_PLAN section 4a)
+Same metric definitions for every strategy, weighted by diverted ships:
+  - over-capacity share : share of ships sent to a congested link with V/C > 1
+  - travel time         : sailing time + BPR port time (days)
+  - port time           : BPR port time p_i * (1 + 0.15 * (V/C)^4) (days); 0 on open-ocean bypasses
+  - system total time   : ship-days per day of ALL ships at the receiving links (diverted + existing)
+  - M/G/1 waiting time  : Pollaczek-Khinchine mean wait at congested links (application to ports:
+                          Rauca et al. 2025); unstable-queue share; open-ocean bypasses have no queue
   - CO2 and EU ETS cost : agents/carbon.py
 Plus the signal-gate outcome counts by severity.
 
@@ -24,7 +27,7 @@ import argparse
 import math
 import os
 
-from agents import carbon, confidence
+from agents import carbon, confidence, wardrop
 from agents import route_optimization_agent as route
 from agents.reference_data import port_by_id
 from experiments import common
@@ -36,11 +39,15 @@ SERVICE_TIME_SCV = 1.0  # ASSUMPTION: squared coefficient of variation of servic
                         # i.e. the M/M/1 special case). To be replaced from Rauca et al. (2025) once the PDF is in.
 # ASSUMPTION: each receiving port is modelled as ONE server whose service rate equals its daily
 # vessel_capacity from ports.json; arrivals = current daily load + diverted ships per day.
-# ASSUMPTION: canals/straits/bypass routes (port_type chokepoint / alternate_route) are treated the same way.
+# ASSUMPTION: canals and straits (port_type chokepoint) are treated the same way; open-ocean
+# bypass routes (port_type alternate_route) are uncongested and have no queue.
 
 COLUMNS = ["event_id", "event_date", "severity", "nearest_port_id", "vessels_affected", "duration_hours",
            "num_mentions", "goldstein_scale", "avg_tone"]
-STRATEGIES = ["nearest", "score_no_bpr", "supplypulse", "bpr_no_split"]
+STRATEGIES = ["nearest", "score_no_bpr", "free_capacity_split", "user_equilibrium", "system_optimal",
+              "bpr_no_split"]
+METRICS = ["over_capacity_share", "travel_time_days", "port_time_days", "system_total_time",
+           "unstable_queue_share", "mg1_wait_days_stable_ports", "co2_tonnes", "ets_cost_usd", "ports_used"]
 
 
 def mg1_wait_days(arrivals_per_day, capacity_per_day, scv=SERVICE_TIME_SCV):
@@ -55,65 +62,70 @@ def mg1_wait_days(arrivals_per_day, capacity_per_day, scv=SERVICE_TIME_SCV):
     return arrivals_per_day * es2 / (2 * (1 - rho))
 
 
-def _single_port_allocation(alts, idx, vessels):
-    return [vessels if i == idx else 0 for i in range(len(alts))]
+def _single(alts, idx, per_day):
+    return [per_day if i == idx else 0.0 for i in range(len(alts))]
 
 
 def allocations(alts, vessels, duration_hours):
-    """Ships per alternate (same order as alts) for each strategy."""
+    """Ships PER DAY per alternate (same order as alts) for each strategy."""
     per_day = route.ships_per_day(vessels, duration_hours)
     max_cost = max(a["estimated_cost_usd"] for a in alts) or 1
 
-    def score(a, delay, max_delay):
+    def score(a, t, max_t):
         return (route.SCORE_WEIGHTS["risk"] * a["risk_score"]
-                + route.SCORE_WEIGHTS["delay"] * delay / (max_delay or 1)
+                + route.SCORE_WEIGHTS["delay"] * t / (max_t or 1)
                 + route.SCORE_WEIGHTS["cost"] * a["estimated_cost_usd"] / max_cost)
 
-    raw = [a["estimated_delay_days"] for a in alts]
-    bpr_all = [route.bpr_congestion_penalty(a["estimated_delay_days"], per_day, a["port_capacity"],
-                                            a["port_utilization"])[0] for a in alts]
-    nearest = min(range(len(alts)), key=lambda i: alts[i]["distance_nm"])
-    best_raw = min(range(len(alts)), key=lambda i: score(alts[i], raw[i], max(raw)))
-    best_bpr = min(range(len(alts)), key=lambda i: score(alts[i], bpr_all[i], max(bpr_all)))
+    sail = [a["sailing_time_days"] for a in alts]
+    t_all = [route.link_times(a, per_day)["travel_time_days"] for a in alts]
+    links = [route.to_link(a) for a in alts]
     return {
-        "nearest": _single_port_allocation(alts, nearest, vessels),
-        "score_no_bpr": _single_port_allocation(alts, best_raw, vessels),
-        "supplypulse": [a["vessels_diverted_here"] for a in alts],
-        "bpr_no_split": _single_port_allocation(alts, best_bpr, vessels),
+        "nearest": _single(alts, min(range(len(alts)), key=lambda i: alts[i]["distance_nm"]), per_day),
+        "score_no_bpr": _single(alts, min(range(len(alts)), key=lambda i: score(alts[i], sail[i], max(sail))), per_day),
+        "free_capacity_split": route.free_capacity_flows(alts, per_day),
+        "user_equilibrium": wardrop.solve(links, per_day, wardrop.UE)["flows"],
+        "system_optimal": wardrop.solve(links, per_day, wardrop.SO)["flows"],
+        "bpr_no_split": _single(alts, min(range(len(alts)), key=lambda i: score(alts[i], t_all[i], max(t_all))), per_day),
     }
 
 
-def evaluate_allocation(alts, ships, vessels, duration_hours, origin_cc, year):
-    """Metrics for one allocation of ships over the alternates."""
-    days = max(float(duration_hours) / 24.0, route.MIN_EVENT_DAYS)
-    total = sum(ships) or 1
-    over, delay_w, wait_w, unstable, co2, ets = 0, 0.0, 0.0, 0, 0.0, 0.0
-    finite_wait_ships = 0
-    for a, n in zip(alts, ships):
-        if n <= 0:
+def evaluate_allocation(alts, flows, vessels, origin_cc, year):
+    """Metrics for one allocation (flows = diverted ships per day per alternate)."""
+    total = sum(flows) or 1.0
+    ships = route.split_vessels(vessels, flows)
+    over = travel = port = wait_w = unstable = finite = 0.0
+    co2 = ets = 0.0
+    for a, x, n in zip(alts, flows, ships):
+        if x <= 0:
             continue
-        per_day = n / days
-        delay, load, vc, _ = route.bpr_congestion_penalty(a["estimated_delay_days"], per_day,
-                                                          a["port_capacity"], a["port_utilization"])
-        wq = mg1_wait_days(load + per_day, a["port_capacity"])
-        over += n if vc > 1 else 0
-        delay_w += delay * n
-        if math.isinf(wq):
-            unstable += n
+        t = route.link_times(a, x)
+        travel += t["travel_time_days"] * x
+        port += t["port_time_days"] * x
+        if a["congested"]:
+            over += x if t["volume_ratio"] > 1 else 0
+            load = a["port_capacity"] * a["port_utilization"]
+            wq = mg1_wait_days(load + x, a["port_capacity"])
         else:
-            wait_w += wq * n
-            finite_wait_ships += n
+            wq = 0.0  # open-ocean bypass: no queue
+        if math.isinf(wq):
+            unstable += x
+        else:
+            wait_w += wq * x
+            finite += x
         c = carbon.calculate_carbon(a["distance_nm"], n, origin_cc, a.get("country_code"), year)
         co2 += c["total_co2_tonnes"]
         ets += c["carbon_cost_usd"]
     return {
         "over_capacity_share": over / total,
-        "bpr_delay_days": delay_w / total,
+        "travel_time_days": travel / total,
+        "port_time_days": port / total,
+        "system_total_time": wardrop.system_total_time([route.to_link(a) for a in alts], flows),
         "unstable_queue_share": unstable / total,
-        "mg1_wait_days_stable_ports": (wait_w / finite_wait_ships) if finite_wait_ships else None,
+        "mg1_wait_days_stable_ports": (wait_w / finite) if finite else None,
         "co2_tonnes": co2,
         "ets_cost_usd": ets,
         "ports_used": sum(1 for n in ships if n > 0),
+        "ports": {a["name"]: n for a, n in zip(alts, ships) if n > 0},
     }
 
 
@@ -121,9 +133,8 @@ def evaluate_case(port_id, severity, vessels, duration_hours, year):
     alts = route.get_alternate_ports(port_id, severity, int(vessels), float(duration_hours))
     origin_cc = (port_by_id(port_id) or {}).get("country_code")
     out = {}
-    for name, ships in allocations(alts, int(vessels), duration_hours).items():
-        out[name] = evaluate_allocation(alts, ships, int(vessels), duration_hours, origin_cc, year)
-        out[name]["ports"] = {a["name"]: n for a, n in zip(alts, ships) if n > 0}
+    for name, flows in allocations(alts, int(vessels), duration_hours).items():
+        out[name] = evaluate_allocation(alts, flows, int(vessels), origin_cc, year)
     return out
 
 
@@ -136,9 +147,7 @@ def _weighted_mean(rows, strategy, key):
 def summarise(rows):
     summary = {}
     for s in STRATEGIES:
-        summary[s] = {k: _weighted_mean(rows, s, k) for k in
-                      ["over_capacity_share", "bpr_delay_days", "unstable_queue_share",
-                       "mg1_wait_days_stable_ports", "co2_tonnes", "ets_cost_usd", "ports_used"]}
+        summary[s] = {k: _weighted_mean(rows, s, k) for k in METRICS}
     return summary
 
 
@@ -194,15 +203,19 @@ def main(argv=None):
         "enforce_gate": enforce, "dataset_split": "development", "seed": args.seed,
         "sample_size": args.sample, "utilisation": "static (ports.json)",
         "mg1_service_time_scv": SERVICE_TIME_SCV, "mg1_scv_status": "ASSUMPTION until Rauca et al. (2025) PDF",
-        "strategies": STRATEGIES,
+        "strategies": STRATEGIES, "supplypulse_strategy": "user_equilibrium",
+        "port_free_flow_days": route.PORT_FREE_FLOW_DAYS, "canal_free_flow_days": route.CANAL_FREE_FLOW_DAYS,
+        "free_flow_status": "ASSUMPTION (no source yet)",
+        "capacities_status": "ASSUMPTION: vessel_capacity, current_utilization and chokepoint values in "
+                             "ports.json are not yet calibrated (build_reference_databases.py, BUILD_PLAN 5)",
     }, out_dir=args.out_dir)
     print(f"events in {results['events_in']:,}, evaluated {results['events_evaluated']:,}, "
           f"skipped {results['events_skipped']:,}, distinct cases {results['distinct_cases']}")
     for s, m in results["summary_event_weighted"].items():
         wait = m["mg1_wait_days_stable_ports"]
-        print(f"  {s:<13} over-capacity {m['over_capacity_share']:.3f}  BPR delay {m['bpr_delay_days']:.2f} d  "
-              f"unstable {m['unstable_queue_share']:.3f}  M/G/1 wait {('%.3f d' % wait) if wait is not None else 'n/a'}  "
-              f"CO2 {m['co2_tonnes']:,.0f} t  ETS ${m['ets_cost_usd']:,.0f}")
+        print(f"  {s:<20} over-capacity {m['over_capacity_share']:.3f}  travel {m['travel_time_days']:.2f} d  "
+              f"port {m['port_time_days']:.2f} d  unstable {m['unstable_queue_share']:.3f}  "
+              f"M/G/1 wait {('%.3f d' % wait) if wait is not None else 'n/a'}  CO2 {m['co2_tonnes']:,.0f} t")
     print(f"written: {path}")
     return results
 

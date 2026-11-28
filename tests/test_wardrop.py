@@ -103,3 +103,16 @@ def test_bypass_with_system_optimum():
     links = [w.Link("port", 1.0, 1.0, 20, 15), w.Link("ocean bypass", 3.0, congested=False)]
     so = w.solve(links, 200, w.SO)
     assert sum(so["flows"]) == pytest.approx(200) and so["level"] == 3.0
+
+
+def test_shanghai_system_optimum_not_worse_than_all_to_busan():
+    """Guaranteed by Wardrop's second principle (system total, incl. ships already at the ports)."""
+    from agents import route_optimization_agent as ra
+    alts = ra.get_alternate_ports("P001", "critical", 350, 144)
+    links = [ra.to_link(a) for a in alts]
+    per_day = ra.ships_per_day(350, 144)
+    so = w.solve(links, per_day, w.SO)["flows"]
+    ue = w.solve(links, per_day, w.UE)["flows"]
+    busan = [per_day if a["name"] == "Port of Busan" else 0.0 for a in alts]
+    assert w.system_total_time(links, so) <= w.system_total_time(links, busan)
+    assert w.system_total_time(links, so) <= w.system_total_time(links, ue)
