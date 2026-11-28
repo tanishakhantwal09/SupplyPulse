@@ -14,12 +14,12 @@ COMPONENTS = ("rerouting_cost", "delay_cost", "freight_rate_increase",
 def test_shanghai_completes_with_a_code_selected_port():
     r = run_supplypulse(SHANGHAI_CRITICAL)
     assert r["status"] == "completed"
-    assert r["recommended_alternate_port"] == "Port of Shenzhen"    # most ships under the 95% ceiling
+    assert r["recommended_alternate_port"] == "Port of Ningbo-Zhoushan"    # most ships (1,500 nm candidates)
     assert r["decision"] == "REROUTE"
     assert "confidence" not in r                       # no fixed 91/82/71%
     assert r["signal_gate"]["action"] == "PROCEED"
-    assert sum(a["vessels"] for a in r["ship_allocation"]) + r["excess_ships"] == 350
-    assert r["excess_ships"] == 55 and r["rho_max"] == 0.95
+    assert sum(a["vessels"] + a["vessels_waiting"] for a in r["ship_allocation"]) == 350
+    assert r["excess_ships"] == 0 and r["waiting_ships"] == 0 and r["rho_max"] == 0.95
 
 
 def test_total_is_the_sum_of_the_six_parts():

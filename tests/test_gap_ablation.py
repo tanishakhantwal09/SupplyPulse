@@ -31,27 +31,37 @@ def test_mg1_scv_is_labelled_assumption():
 def test_shanghai_case_strategies():
     out = ga.evaluate_case("P001", "critical", 350, 144, 2026)
     assert set(out) == set(ga.STRATEGIES)
-    assert out["nearest"]["ports"] == {"Port of Busan": 350}         # nearest by distance
-    assert out["nearest"]["over_capacity_share"] == 1.0              # all 350 into Busan: V/C 1.69
-    assert out["free_capacity_split"]["over_capacity_share"] == 0.0  # every port at V/C ~0.99
-    assert out["free_capacity_split"]["ports_used"] == 3
-    assert "Port of Singapore" not in out["user_equilibrium"]["ports"]
+    assert out["nearest"]["ports"] == {"Port of Ningbo-Zhoushan": 350}   # nearest by distance (82 nm)
+    assert out["nearest"]["over_capacity_share"] == 1.0
     for s in ga.STRATEGIES:
-        assert sum(out[s]["ports"].values()) + out[s]["excess_ships"] == 350
-        assert out[s]["ets_cost_usd"] == 0                           # no EU port involved
-    # A2: capped strategies never exceed the ceiling and report the overflow as excess demand
+        assert sum(out[s]["ports_all_ships"].values()) == 350               # every ship placed or waiting
+        assert out[s]["ets_cost_usd"] == 0                                   # no EU port involved
     for s in ("capped_user_equilibrium", "capped_system_optimal"):
         assert out[s]["max_utilisation"] <= 0.95 + 1e-6
-        assert out[s]["unstable_queue_share"] == 0                   # M/G/1 stays stable
-        assert out[s]["excess_ships"] == 55 and out[s]["excess_demand_share"] > 0
-    for s in ("nearest", "free_capacity_split", "user_equilibrium", "system_optimal"):
-        assert out[s]["excess_demand_share"] == 0                    # uncapped: every ship forced in
-    assert out["user_equilibrium"]["max_utilisation"] > 1             # why the cap is needed
-    # Wardrop's second principle: the uncapped system optimum has the lowest total time among the
-    # strategies that assign every ship (capped ones assign fewer ships, so they are not comparable)
+        assert out[s]["unstable_queue_share"] == 0                           # M/G/1 stays stable
     so = out["system_optimal"]["system_total_time"]
-    full = [s for s in ga.STRATEGIES if out[s]["excess_ships"] == 0]
+    full = [s for s in ga.STRATEGIES if out[s]["waiting_ships"] == 0]
     assert all(so <= out[s]["system_total_time"] + 1e-9 for s in full)
+
+
+def test_waiting_ships_are_included_in_every_average():
+    out = ga.evaluate_case("P001", "critical", 350, 144, 2026, radius_nm=500)
+    m = out["capped_user_equilibrium"]
+    assert m["waiting_ships"] > 0 and m["avg_wait_of_waiting_days"] > 0
+    assert m["travel_time_days"] > m["travel_time_placed_days"]             # waiting raises the all-ship mean
+    assert m["total_waiting_ship_days"] == pytest.approx(m["waiting_ships"] * m["avg_wait_of_waiting_days"])
+    for s in ("nearest", "user_equilibrium", "system_optimal", "free_capacity_split"):
+        assert out[s]["waiting_ships"] == 0                                  # uncapped: nobody waits
+
+
+def test_service_time_spread_changes_only_queue_waits():
+    a = ga.evaluate_case("P001", "critical", 350, 144, 2026, scv=1.0)
+    b = ga.evaluate_case("P001", "critical", 350, 144, 2026, scv=0.04)     # Rauca et al. Cs = 0.2
+    for s in ga.STRATEGIES:
+        for k in ("over_capacity_share", "unstable_queue_share", "travel_time_days", "waiting_ships", "co2_tonnes"):
+            assert a[s][k] == b[s][k]
+        if a[s]["mg1_wait_days_stable_ports"]:
+            assert b[s]["mg1_wait_days_stable_ports"] < a[s]["mg1_wait_days_stable_ports"]
 
 
 def test_allocations_always_place_every_ship():

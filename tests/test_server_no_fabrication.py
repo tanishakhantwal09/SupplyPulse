@@ -22,7 +22,7 @@ def test_failed_run_returns_error_not_ningbo():
 def test_good_run_returns_the_real_result():
     code, body = server.run_pipeline(SHANGHAI_CRITICAL)
     assert code == 200 and body["success"] is True
-    assert body["result"]["recommended_alternate_port"] == "Port of Shenzhen"   # capped plan: most ships
+    assert body["result"]["recommended_alternate_port"] == "Port of Ningbo-Zhoushan"   # most ships (82 nm)
 
 
 def test_no_live_event_means_no_live_data(monkeypatch):

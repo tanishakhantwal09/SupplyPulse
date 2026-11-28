@@ -72,8 +72,41 @@ def test_shanghai_capped_user_equilibrium_is_the_main_plan():
     alts = plan["alternates"]
     assert plan["method"] == ra.CAPPED_USER_EQUILIBRIUM and plan["rho_max"] == 0.95
     assert all(a["utilisation"] <= 0.95 + 1e-3 for a in alts)                # never above the ceiling
-    assert plan["saturated"] and plan["excess_ships"] == 55                  # 58.33 ships/day vs 49.22 capped room
-    assert sum(a["vessels_diverted_here"] for a in alts) + plan["excess_ships"] == 350
+    assert plan["excess_ships"] == 0                                         # 1,500 nm candidates: room 101/day
+    assert sum(a["vessels_diverted_here"] for a in alts) == 350
+    assert alts[0]["name"] == "Port of Ningbo-Zhoushan"                      # 82 nm, the most ships
+
+
+def test_shanghai_candidates_within_1500_nm():
+    names = [a["name"] for a in ra.plan_routes("P001", "critical", 350, 144)["alternates"]]
+    assert set(names) == {"Port of Ningbo-Zhoushan", "Port of Busan", "Port of Guangzhou", "Port of Shenzhen",
+                          "Port of Osaka-Kobe", "Port of Tokyo-Yokohama", "Port of Ho Chi Minh"}
+    assert "Port of Singapore" not in names and "Port of Shanghai" not in names    # 2,057 nm; disrupted port
+
+
+def test_fallback_gives_at_least_three_candidates():
+    for pid in ("P036", "P041"):                  # Santos, Lagos: no cargo port within 1,500 nm
+        alts = ra.plan_routes(pid, "critical", 50, 144)["alternates"]
+        assert len(alts) == ra.MIN_CANDIDATES
+        assert all("nearest cargo port" in a["candidate_basis"] for a in alts)
+
+
+def test_canal_keeps_its_listed_alternatives():
+    alts = ra.plan_routes("P045", "critical", 500, 144)["alternates"]
+    assert {a["name"] for a in alts} == {"Cape of Good Hope Route", "Port of Durban", "Port of Cape Town"}
+
+
+def test_waiting_ships_get_a_newell_waiting_time():
+    # 500 nm radius -> Ningbo, Busan + fallback Guangzhou: 49.5 ships/day of room for 58.33/day
+    plan = ra.plan_routes("P001", "critical", 350, 144, radius_nm=500)
+    lam, mu, D = 350 / 6, sum(a["vessels_per_day_here"] for a in plan["alternates"]), 6
+    assert plan["excess_ships"] > 0
+    assert plan["waiting_ships_exact"] == pytest.approx((lam - mu) * D, abs=0.1)
+    assert plan["avg_wait_of_waiting_days"] == pytest.approx(lam * D / (2 * mu), rel=1e-3)
+    assert plan["total_waiting_ship_days"] == pytest.approx(plan["waiting_ships_exact"] * plan["avg_wait_of_waiting_days"])
+    assert plan["all_ships_avg_travel_time_days"] > plan["placed_avg_travel_time_days"]
+    alts = plan["alternates"]
+    assert sum(a["vessels_diverted_here"] + a["vessels_waiting_for_here"] for a in alts) == 350
 
 
 def test_shanghai_uncapped_user_equilibrium_ablation():
@@ -84,15 +117,14 @@ def test_shanghai_uncapped_user_equilibrium_ablation():
     assert max(a["travel_time_days"] for a in used) - min(a["travel_time_days"] for a in used) < 1e-3
     unused = [a for a in alts if a["vessels_diverted_here"] == 0]
     assert all(a["travel_time_days"] >= plan["level"] - 1e-3 for a in unused)
-    assert alts[0]["name"] == "Port of Busan"                      # most ships
-    assert next(a for a in alts if a["name"] == "Port of Singapore")["vessels_diverted_here"] == 0
+    assert alts[0]["name"] == "Port of Ningbo-Zhoushan"            # most ships
     assert all(a["score_note"] == ra.SCORE_NOTE for a in alts)
 
 
 def test_free_capacity_split_is_kept_as_ablation():
     alts = ra.get_alternate_ports("P001", "critical", 350, 144, method=ra.FREE_CAPACITY_SPLIT)
-    ships = {a["name"]: a["vessels_diverted_here"] for a in alts}
-    assert ships == {"Port of Busan": 109, "Port of Shenzhen": 121, "Port of Singapore": 120}
+    assert sum(a["vessels_diverted_here"] for a in alts) == 350
+    assert all(a["vessels_diverted_here"] > 0 for a in alts)       # every candidate gets a share of free room
 
 
 def test_suez_uses_the_uncongested_cape_route():

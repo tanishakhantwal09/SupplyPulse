@@ -18,9 +18,10 @@ from rich.panel import Panel
 from rich.table import Table
 
 from agents import wardrop
+from agents.queueing import fluid_queue
 from agents.llm_utils import console, invoke_with_retry
 from agents.portwatch_client import get_port_utilization
-from agents.reference_data import port_by_id
+from agents.reference_data import port_by_id, ports
 from agents.wardrop import BPR_ALPHA, BPR_BETA  # noqa: F401  (re-exported; sources in agents/wardrop.py)
 
 # ── Constants ────────────────────────────────────────────────────────────────
@@ -55,6 +56,15 @@ CANAL_FREE_FLOW_DAYS = 1.0  # ASSUMPTION: canal / strait transit plus normal que
 #   any other type    (cargo ports)                                -> congested, p_i = PORT_FREE_FLOW_DAYS
 UNCONGESTED_PORT_TYPES = {"alternate_route"}
 CANAL_PORT_TYPES = {"chokepoint"}
+NON_CARGO_PORT_TYPES = UNCONGESTED_PORT_TYPES | CANAL_PORT_TYPES
+
+# Candidate ports (28 Nov 2026). The old hand-made 3-port 'alternate_ports' lists left out
+# obvious ports (e.g. Ningbo-Zhoushan, 82 nm from Shanghai).
+CANDIDATE_RADIUS_NM = 1500  # ASSUMPTION: about 3.75 days of sailing at 400 nm/day; no source.
+MIN_CANDIDATES = 3          # ASSUMPTION: if fewer cargo ports are inside the radius, add the nearest ones.
+# For a disrupted canal/strait or bypass route the alternative is a different ROUTE, not a nearby
+# port, so its hand-made 'alternate_ports' list (bypass routes + ports) is kept. ASSUMPTION: that
+# list has no source (build_reference_databases.py).
 
 # A2 (28 Nov 2026): utilisation ceiling for the capacity-constrained equilibrium.
 RHO_MAX = 0.95  # ASSUMPTION: keeps the M/G/1 queue stable (rho < 1); no source yet (BUILD_PLAN 5).
@@ -176,12 +186,45 @@ def allocate(alternates, vessels_affected, duration_hours, method=MAIN_ALLOCATIO
                     rho_max=(rho_max if rho_max is not None else RHO_MAX) if capped else None)
     assigned = (round(vessels_affected * sum(flows) / per_day) if per_day > 0 else 0)
     info["excess_ships"] = vessels_affected - assigned
+    info.update(waiting_summary(alternates, flows, vessels_affected, duration_hours))
     return flows, split_vessels(assigned, flows), info
 
 
-def apply_allocation(alternates, flows, ships):
-    """Write ships, V/C, port time and travel time onto each alternate."""
-    for alt, x, n in zip(alternates, flows, ships):
+def waiting_summary(alternates, flows, vessels_affected, duration_hours):
+    """Times over ALL diverted ships, including those that wait (Newell 1982 fluid queue).
+
+    Placed ships: travel time t_i at their port. Waiting ships (E): wait W at anchorage, then
+    sail to the same ports in proportion to the placed flow, so their total time is
+    W + flow-weighted travel time of those ports (ASSUMPTION, agents/queueing.py).
+    """
+    days = max(float(duration_hours or 0) / 24.0, MIN_EVENT_DAYS)
+    lam = ships_per_day(vessels_affected, duration_hours)
+    mu = sum(flows)
+    q = fluid_queue(lam, mu, days)
+    placed_time = sum(link_times(a, x)["travel_time_days"] * x for a, x in zip(alternates, flows) if x > 0)
+    mean_t = placed_time / mu if mu > 0 else 0.0
+    out = {"waiting_ships_exact": q["waiting_ships"], "avg_wait_of_waiting_days": q["avg_wait_of_waiting_days"],
+           "total_waiting_ship_days": q["total_waiting_ship_days"], "waiting_placeable": q["placeable"],
+           "placed_avg_travel_time_days": mean_t}
+    if lam <= 0:
+        out["all_ships_avg_travel_time_days"] = 0.0
+    elif not q["placeable"]:
+        out["all_ships_avg_travel_time_days"] = math.inf
+    else:
+        total = placed_time * days + q["waiting_ships"] * (q["avg_wait_of_waiting_days"] + mean_t)
+        out["all_ships_avg_travel_time_days"] = total / (lam * days)
+    return out
+
+
+def apply_allocation(alternates, flows, ships, waiting_ships=0):
+    """Write ships, V/C, port time and travel time onto each alternate.
+
+    vessels_diverted_here = ships placed immediately; vessels_waiting_for_here = ships that wait at
+    anchorage and are served later by this port (in proportion to its placed flow).
+    """
+    later = split_vessels(int(waiting_ships), flows) if waiting_ships > 0 else [0] * len(flows)
+    for alt, x, n, w in zip(alternates, flows, ships, later):
+        alt["vessels_waiting_for_here"] = w
         t = link_times(alt, x)
         vc = t["volume_ratio"]
         alt.update({
@@ -197,8 +240,26 @@ def apply_allocation(alternates, flows, ships):
         })
 
 
+def candidate_ports(disrupted, radius_nm=None):
+    """[(port record, basis)] of candidate receiving links for a disrupted port or link."""
+    if disrupted.get("port_type") in NON_CARGO_PORT_TYPES:
+        return [(port_by_id(a), "listed alternative for a canal/strait/bypass (hand-made list, ASSUMPTION)")
+                for a in disrupted.get("alternate_ports", []) if port_by_id(a)]
+    radius = CANDIDATE_RADIUS_NM if radius_nm is None else radius_nm
+    cargo = [p for p in ports() if p["port_id"] != disrupted["port_id"]
+             and p.get("port_type") not in NON_CARGO_PORT_TYPES]
+    cargo.sort(key=lambda p: haversine_nm(disrupted["lat"], disrupted["lon"], p["lat"], p["lon"]))
+    inside = [p for p in cargo if haversine_nm(disrupted["lat"], disrupted["lon"], p["lat"], p["lon"]) <= radius]
+    chosen = [(p, f"cargo port within {radius:,} nm") for p in inside]
+    for p in cargo[len(inside):]:
+        if len(chosen) >= MIN_CANDIDATES:
+            break
+        chosen.append((p, f"nearest cargo port (fewer than {MIN_CANDIDATES} within {radius:,} nm)"))
+    return chosen
+
+
 def plan_routes(disrupted_port_id, severity, vessels_affected=0, duration_hours=24, method=MAIN_ALLOCATION,
-                rho_max=None):
+                rho_max=None, radius_nm=None):
     """Allocate the diverted ships over the usable alternates.
 
     Returns {"alternates": [...], "method", "level", "iterations", "converged", "ships_per_day"}.
@@ -209,10 +270,7 @@ def plan_routes(disrupted_port_id, severity, vessels_affected=0, duration_hours=
         raise UnknownPortError(f"Unknown port id: {disrupted_port_id!r}")
 
     alternates = []
-    for alt_id in disrupted.get("alternate_ports", []):
-        alt = port_by_id(alt_id)
-        if not alt:
-            continue
+    for alt, basis in candidate_ports(disrupted, radius_nm):
         kind = link_type(alt)
         congested = kind != "open_ocean_bypass"
         capacity = alt.get("vessel_capacity", 0) or 0
@@ -227,6 +285,7 @@ def plan_routes(disrupted_port_id, severity, vessels_affected=0, duration_hours=
             "country": alt["country"],
             "country_code": alt.get("country_code"),
             "link_type": kind,
+            "candidate_basis": basis,
             "congested": congested,
             "distance_nm": distance,
             # s_i: Haversine great-circle distance (ASSUMPTION: real sea routes are longer) / speed.
@@ -246,7 +305,7 @@ def plan_routes(disrupted_port_id, severity, vessels_affected=0, duration_hours=
         raise NoAlternatesError(f"No usable alternate port for {disrupted['name']}")
 
     flows, ships, info = allocate(alternates, vessels_affected, duration_hours, method, rho_max)
-    apply_allocation(alternates, flows, ships)
+    apply_allocation(alternates, flows, ships, info["excess_ships"])
     for a in alternates:
         a["sailing_time_days"] = round(a["sailing_time_days"], 3)
 
@@ -266,8 +325,9 @@ def plan_routes(disrupted_port_id, severity, vessels_affected=0, duration_hours=
 
 
 def get_alternate_ports(disrupted_port_id, severity, vessels_affected=0, duration_hours=24, method=MAIN_ALLOCATION,
-                        rho_max=None):
-    return plan_routes(disrupted_port_id, severity, vessels_affected, duration_hours, method, rho_max)["alternates"]
+                        rho_max=None, radius_nm=None):
+    return plan_routes(disrupted_port_id, severity, vessels_affected, duration_hours, method, rho_max,
+                       radius_nm)["alternates"]
 
 
 # ── Agent ────────────────────────────────────────────────────────────────────
@@ -372,6 +432,11 @@ def route_optimization_agent(state):
         "excess_ships": plan["excess_ships"],
         "excess_demand_ships_per_day": round(plan["excess_demand_per_day"], 3),
         "saturated": plan["saturated"],
+        "candidate_radius_nm": CANDIDATE_RADIUS_NM,
+        "waiting_ships": plan["excess_ships"],
+        "avg_wait_of_waiting_days": plan["avg_wait_of_waiting_days"],
+        "total_waiting_ship_days": plan["total_waiting_ship_days"],
+        "all_ships_avg_travel_time_days": plan["all_ships_avg_travel_time_days"],
         "port_free_flow_days": PORT_FREE_FLOW_DAYS,
         "canal_free_flow_days": CANAL_FREE_FLOW_DAYS,
         "vessels_affected": vessels_affected,

@@ -46,16 +46,20 @@ def _origin_country(state):
 
 
 def price_split(state, alternates, year):
-    """Cost and carbon for each port that receives ships in the split plan."""
+    """Cost and carbon for each port in the split plan, counting ships placed immediately AND
+    ships that wait at anchorage and are served by that port later (A3)."""
     origin_cc = _origin_country(state)
     rows = []
     for a in alternates:
-        n = a.get("vessels_diverted_here", 0)
+        placed = a.get("vessels_diverted_here", 0)
+        waiting = a.get("vessels_waiting_for_here", 0)
+        n = placed + waiting
         if n <= 0:
             continue
         carbon = calculate_carbon(a["distance_nm"], n, origin_cc, a.get("country_code"), year)
         rows.append({
             "port": a["name"], "country": a["country"], "vessels": n,
+            "vessels_placed": placed, "vessels_waiting": waiting,
             "rerouting_cost_usd": a["estimated_cost_usd"] * n,
             "travel_time_days": a["travel_time_days"],   # sailing + BPR port time
             "port_time_days": a["port_time_days"],
@@ -80,6 +84,10 @@ def calculate_financial_impact(state, route_output, inventory_output):
     rerouting_cost = sum(r["rerouting_cost_usd"] for r in per_port)
     # Delay is priced as the ship-weighted TRAVEL TIME (sailing + port), BUILD_PLAN 5 (28 Nov 2026).
     weighted_delay = (sum(r["travel_time_days"] * r["vessels"] for r in per_port) / shipped) if shipped else 0.0
+    # A3: when ships wait, the delay is the average over ALL ships, waiting time included (Newell 1982).
+    all_ships = route_output.get("all_ships_avg_travel_time_days")
+    if all_ships is not None and route_output.get("waiting_ships", 0) > 0:
+        weighted_delay = all_ships
     delay_cost = DAILY_TRADE_VALUE_USD[severity] * weighted_delay
     freight_increase = freight_pct / 100 * rerouting_cost
     inventory_exposure = (inventory_output or {}).get("total_exposure_value_usd", 0)
@@ -106,7 +114,10 @@ def calculate_financial_impact(state, route_output, inventory_output):
         # A2: ships that did not fit under the utilisation ceiling are waiting; they are not
         # rerouted and NOT priced here (their waiting cost has no sourced model yet, BUILD_PLAN 5).
         "excess_ships_waiting": route_output.get("excess_ships", 0),
-        "excess_ships_priced": False,
+        "avg_wait_of_waiting_days": route_output.get("avg_wait_of_waiting_days", 0.0),
+        # Waiting ships are priced through the all-ship delay (their wait is included) and their
+        # eventual rerouting and CO2 at the ports that serve them later.
+        "excess_ships_priced": True,
         "carbon_details": {
             "total_co2_tonnes": round(total_co2, 2),
             "carbon_cost_usd": round(carbon_cost, 2),
@@ -190,8 +201,8 @@ def build_user_prompt(state, fin, alert, threshold, pareto):
 
 {SPLIT_HEADING} (this is the recommendation: ships shared across ports by a capacity-constrained Wardrop user equilibrium):
 {split}
-- Ship-weighted travel time (sailing + port) of the split plan: {fin['delay_days']} days
-- Ships waiting because no port has room under the utilisation ceiling (excess demand, not rerouted, not priced): {fin['excess_ships_waiting']}
+- Average travel time of ALL ships (sailing + port + any waiting) of the split plan: {fin['delay_days']} days
+- Ships that wait at anchorage because no port has room under the utilisation ceiling: {fin['excess_ships_waiting']}; average wait of a waiting ship {round(fin['avg_wait_of_waiting_days'], 3)} days (included in the travel time above)
 
 {SPLIT_HEADING} COST, six parts (USD):
 - Rerouting: {fin['rerouting_cost']:,.0f}
