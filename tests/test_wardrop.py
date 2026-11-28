@@ -49,7 +49,9 @@ def test_zero_demand_gives_all_zeros():
     assert r["flows"] == [0, 0, 0] and r["level"] is None
 
 
-def test_very_large_demand_still_converges():
+def test_very_large_demand_still_converges_uncapped():
+    """UNCAPPED links (ablation only) take every ship. With a ceiling, ships that do not fit
+    are reported as excess demand instead (tests/test_wardrop_capped.py, A2)."""
     links = ports()
     r = w.solve(links, 1e7)                          # far above total capacity (223 ships/day)
     assert r["converged"] and sum(r["flows"]) == pytest.approx(1e7, rel=1e-9)

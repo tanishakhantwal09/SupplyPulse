@@ -18,6 +18,14 @@ Travel time of a diverted ship at link i, with x_i diverted ships per day:
 Open-ocean bypass routes (port_type 'alternate_route') are uncongested: t_i = s_i,
 with no capacity limit. If one is used, T = its s_i.
 
+Capacity-constrained equilibrium (A2, 28 Nov 2026): with a utilisation ceiling
+rho_max, a congested link takes at most L_i + x_i <= rho_max * C_i, so
+    x_i(T) = min(uncapped x_i(T), rho_max * C_i - L_i)   (0 if already at/above the ceiling).
+A link at its cap may have t_i < T; unused links still have t_i(0) >= T. If demand is
+larger than the total capped capacity and there is no bypass route, the ships that fit
+are assigned and the rest is returned as excess demand (ships per day waiting); they are
+never forced over the cap.
+
 System objective (all ships at each port, diverted + existing):
     Z = sum_i [ x_i * s_i + (L_i + x_i) * p_i * (1 + alpha * v_i ** beta) ],  v_i = (L_i + x_i) / C_i
     dZ/dx_i = s_i + p_i * (1 + alpha * (beta + 1) * v_i ** beta)     (alpha*(beta+1) = 0.75)
@@ -46,10 +54,18 @@ class Link:
     capacity: float = 0.0        # C_i, ships per day
     current_load: float = 0.0    # L_i, ships per day
     congested: bool = True
+    rho_max: float = None        # utilisation ceiling; None = uncapped (classic Wardrop)
 
     @property
     def usable(self):
         return (not self.congested) or self.capacity > 0
+
+    @property
+    def cap_flow(self):
+        """Most diverted ships per day this link can take (inf if uncapped or a bypass)."""
+        if not self.congested or self.rho_max is None:
+            return float("inf")
+        return max(self.rho_max * self.capacity - self.current_load, 0.0)
 
 
 def volume_ratio(link, x):
@@ -98,15 +114,17 @@ def _flow_at(link, T, k):
     r = (T - link.sailing_days) / link.free_flow_days - 1
     if r <= 0:
         return 0.0
-    return max(link.capacity * (r / k) ** (1 / BPR_BETA) - link.current_load, 0.0)
+    return min(max(link.capacity * (r / k) ** (1 / BPR_BETA) - link.current_load, 0.0), link.cap_flow)
 
 
 def solve(links, demand, method=UE):
     """Assign `demand` ships per day over `links` by Wardrop UE or SO.
 
     Returns dict: flows (ships/day, same order as links; 0 for unusable links),
-    level (common time T for UE, common marginal time for SO), iterations, converged.
-    Every ship is assigned, even above total capacity (BPR has no hard cap).
+    level (common time T for UE, common marginal time for SO), iterations, converged,
+    excess_demand (ships/day that do not fit under the caps; 0 when uncapped or a
+    bypass is available) and saturated (every capped link full).
+    Uncapped links take every ship (BPR has no hard limit); capped links never exceed rho_max.
     """
     k = BPR_ALPHA if method == UE else SO_FACTOR if method == SO else None
     if k is None:
@@ -116,7 +134,8 @@ def solve(links, demand, method=UE):
         raise ValueError("no usable link (all have zero or no capacity)")
     flows = [0.0] * len(links)
     if demand <= 0:
-        return {"flows": flows, "level": None, "iterations": 0, "converged": True, "method": method}
+        return {"flows": flows, "level": None, "iterations": 0, "converged": True, "method": method,
+                "excess_demand": 0.0, "saturated": False}
 
     congested = [i for i in usable if links[i].congested]
     free = [i for i in usable if not links[i].congested]
@@ -132,7 +151,17 @@ def solve(links, demand, method=UE):
             for i in congested:
                 flows[i] = _flow_at(links[i], T_free, k)
             flows[best_free] = demand - sum(flows)
-            return {"flows": flows, "level": T_free, "iterations": 0, "converged": True, "method": method}
+            return {"flows": flows, "level": T_free, "iterations": 0, "converged": True, "method": method,
+                    "excess_demand": 0.0, "saturated": False}
+    else:
+        # No bypass: if the capped links cannot take everything, fill them and report the rest.
+        total_cap = sum(links[i].cap_flow for i in congested)
+        if total_cap <= demand:
+            for i in congested:
+                flows[i] = links[i].cap_flow
+            level = max((travel_time(links[i], flows[i]) for i in congested if flows[i] > 0), default=None)
+            return {"flows": flows, "level": level, "iterations": 0, "converged": True, "method": method,
+                    "excess_demand": demand - total_cap, "saturated": True}
 
     lo = min(_cost_at_zero(links[i], k) for i in congested)
     hi = lo + 1.0
@@ -158,19 +187,39 @@ def solve(links, demand, method=UE):
         iterations += 1
 
     raw = [_flow_at(links[i], hi, k) for i in congested]
-    scale = demand / sum(raw) if sum(raw) > 0 else 0.0  # removes the tiny overshoot of the bracket
-    for i, x in zip(congested, raw):
-        flows[i] = x * scale
+    # Remove the tiny overshoot of the bracket from the links BELOW their cap only;
+    # links at their cap stay exactly at it.
+    at_cap = [x >= links[i].cap_flow - 1e-12 for i, x in zip(congested, raw)]
+    free_sum = sum(x for x, c in zip(raw, at_cap) if not c)
+    fixed_sum = sum(x for x, c in zip(raw, at_cap) if c)
+    scale = (demand - fixed_sum) / free_sum if free_sum > 0 else 0.0
+    for i, x, c in zip(congested, raw, at_cap):
+        flows[i] = x if c else x * scale
     return {"flows": flows, "level": hi, "iterations": iterations,
-            "converged": hi - lo <= tol(), "method": method}
+            "converged": hi - lo <= tol(), "method": method, "excess_demand": 0.0, "saturated": False}
 
 
 def is_equilibrium(links, flows, tol=1e-6):
-    """Check Wardrop's first principle: used links share one time; unused links are not faster."""
-    used = [travel_time(l, x) for l, x in zip(links, flows) if l.usable and x > 1e-12]
-    if not used:
+    """Check Wardrop's first principle, with capacity caps where the links have them.
+
+    - used links below their cap share one time T;
+    - links at their cap may be faster than T (t_i <= T), never slower;
+    - unused links are not faster than T (t_i(0) >= T).
+    """
+    def at_cap(l, x):
+        return x >= l.cap_flow - 1e-9
+
+    free_times = [travel_time(l, x) for l, x in zip(links, flows) if l.usable and x > 1e-12 and not at_cap(l, x)]
+    capped_times = [travel_time(l, x) for l, x in zip(links, flows) if l.usable and x > 1e-12 and at_cap(l, x)]
+    if not free_times and not capped_times:
         return True
-    T = max(used)
-    if min(used) < T - tol:
-        return False
-    return all(travel_time(l, 0) >= T - tol for l, x in zip(links, flows) if l.usable and x <= 1e-12)
+    if free_times:
+        T = max(free_times)
+        if min(free_times) < T - tol:
+            return False
+        if any(t > T + tol for t in capped_times):
+            return False
+    else:
+        T = max(capped_times)  # every used link is full (saturated): no common time to compare
+    return all(travel_time(l, 0) >= T - tol for l, x in zip(links, flows)
+               if l.usable and x <= 1e-12 and l.cap_flow > 0)
