@@ -42,7 +42,7 @@ Last updated 26 Nov 2026. A new chat must read this whole file before doing anyt
 
 ### Research gaps
 Each gap is tied to a cited paper and a measurable before/after.
-- **Gap 1:** BPR congestion function (U.S. Bureau of Public Roads 1964), plus a capacity split across receiving ports (Wardrop 1952, user equilibrium; the current split is a heuristic motivated by it, not the equilibrium itself).
+- **Gap 1:** BPR congestion function (U.S. Bureau of Public Roads 1964) on port time, and ships allocated across receiving ports by a Wardrop (1952) user equilibrium (agents/wardrop.py; since 28 Nov 2026). The old free-capacity split is kept only as an ablation strategy.
 - **Gap 2:** three-factor confidence gate with weights 0.40/0.35/0.25 and thresholds 0.35 and 0.60. Inspired by Angelopoulos and Bates 2023; it is NOT a conformal method.
   - **Gate policy (decided 26 Nov 2026):** thresholds stay 0.35/0.60. The gate is enforced for **live GDELT events only**. Manual scenarios (a user triggers a run from the dashboard, API or a script, including dataset events) always run; the gate score is still computed and shown, labelled "manual scenario – user-confirmed disruption".
   - All labelled events in experiments/labeling/ (random 100, targeted 50, maritime 40; no overlap) are from the **held-out** set: use them for evaluation only, never for designing rules.
@@ -129,6 +129,7 @@ Each gap is tied to a cited paper and a measurable before/after.
 
 **Stages 2 and 3: experiments** (documented in docs/EXPERIMENTS.md)
 - *Status 26 Nov 2026:* Item 0 (LLM reasoning effort 'low', truncation flagged and not retried, port names for Inventory, split-plan vs single-port labels, number-and-wording check) **done**. **Stage 2a built and tested, not yet run at full size:** experiments/common.py, gap_ablation.py (with M/G/1; service-time SCV is an ASSUMPTION until the Rauca PDF), labelling_kit.py (waiting for the two reviewers' labels), published_comparison.py (all values empty, 'TO FILL FROM PDF'). Stage 2b (LLM) not started.
+- *Status 28 Nov 2026 (Part A, Wardrop):* **done.** agents/wardrop.py solves the user equilibrium and the system optimum (bisection, bypass routes uncongested); SupplyPulse's plan is the user equilibrium; recommended port = most ships; the score is comparison only; delay priced as ship-weighted travel time; the free-capacity split is an ablation; gap_ablation has six strategies. Capacity inputs labelled ASSUMPTION. Part B (Groq check run, full ablation runs) waits for Tanisha's yes.
 - **agents/architectures.py:** sequential, parallel (Route and Inventory together) and hierarchical (the supervisor picks agents by severity).
 - **experiments/gap_ablation.py:** no LLM. Compares nearest-port vs score-without-BPR vs SupplyPulse, judged by over-capacity share and an M/G/1 queue (Rauca et al. 2025); also the carbon trade-off and the gate split.
 - **experiments/labelling_kit.py:** 100 events, two reviewers, kappa, gate P/R/F1, severity check.
