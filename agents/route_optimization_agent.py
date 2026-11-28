@@ -200,6 +200,8 @@ def waiting_summary(alternates, flows, vessels_affected, duration_hours):
     days = max(float(duration_hours or 0) / 24.0, MIN_EVENT_DAYS)
     lam = ships_per_day(vessels_affected, duration_hours)
     mu = sum(flows)
+    if lam - mu <= 1e-9 * max(lam, 1.0):  # everything placed, up to floating-point noise
+        mu = max(mu, lam)
     q = fluid_queue(lam, mu, days)
     placed_time = sum(link_times(a, x)["travel_time_days"] * x for a, x in zip(alternates, flows) if x > 0)
     mean_t = placed_time / mu if mu > 0 else 0.0

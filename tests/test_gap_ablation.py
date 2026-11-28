@@ -110,3 +110,9 @@ def test_run_requires_explicit_gate_setting():
 def test_cli_requires_gate_flag():
     with pytest.raises(SystemExit):
         ga.main([])
+
+
+def test_floating_point_noise_is_not_counted_as_waiting():
+    out = ga.evaluate_case("P021", "high", 90, 72, 2025)
+    for s in ("free_capacity_split", "user_equilibrium", "system_optimal", "nearest"):
+        assert out[s]["waiting_ships"] == 0 and out[s]["avg_wait_of_waiting_days"] == 0

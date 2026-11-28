@@ -150,7 +150,9 @@ def evaluate_allocation(alts, flows, vessels, origin_cc, year, demand_per_day=No
         c = carbon.calculate_carbon(a["distance_nm"], n, origin_cc, a.get("country_code"), year)
         co2 += c["total_co2_tonnes"]
         ets += c["carbon_cost_usd"]
-    q = fluid_queue(demand, sum(flows), days)
+    # Placed flow equal to demand up to floating-point noise counts as "everything placed".
+    placed = demand if _excess(demand, flows) == 0 else sum(flows)
+    q = fluid_queue(demand, placed, days)
     E, W = q["waiting_ships"], q["avg_wait_of_waiting_days"]
     placed_travel, placed_port = travel / total, port / total
     if not q["placeable"]:
