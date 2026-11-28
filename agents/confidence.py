@@ -18,6 +18,10 @@ MENTION_SATURATION = 50.0  # ASSUMPTION: 50 mentions counts as a fully reported 
 GOLDSTEIN_MAX = 10.0       # Goldstein, J.S. (1992), J. Conflict Resolution 36(2): scale is -10..+10.
 TONE_SATURATION = 10.0     # ASSUMPTION: GDELT AvgTone is usually within -10..+10.
 REJECT_BELOW = 0.35        # ASSUMPTION: BUILD_PLAN section 2 threshold; not tuned.
+# Numerical setting (not a data value): a score within 1e-9 of a threshold counts as reaching it, so
+# exact decimal scores like 0.35 + 0.25 = 0.600 (stored as 0.59999999999999998) are not lost to
+# floating-point error, while a true 0.5995 is still below 0.60.
+THRESHOLD_TOLERANCE = 1e-9
 PROCEED_FROM = 0.60        # ASSUMPTION: BUILD_PLAN section 2 threshold; not tuned.
 
 PROCEED = "PROCEED"
@@ -38,7 +42,7 @@ def score_signal(num_mentions, goldstein, avg_tone):
     """Return the gate result for one event's news signal."""
     m, g, t = _num(num_mentions), _num(goldstein), _num(avg_tone)
     if m is None or g is None or t is None:
-        return {"score": 0.0, "action": REJECT, "factors": None,
+        return {"score": 0.0, "score_unrounded": 0.0, "action": REJECT, "factors": None,
                 "reason": "Missing news-signal values (mentions, Goldstein or tone)"}
     factors = {
         "mention_volume": min(max(m, 0) / MENTION_SATURATION, 1.0),
@@ -50,9 +54,9 @@ def score_signal(num_mentions, goldstein, avg_tone):
     # Otherwise a true score of 0.5995 would round to 0.600 and pass the 0.60 threshold.
     score = round(raw, 3)
     # The signal verdict only; what happened to the agents is added by outcome_reason().
-    if raw < REJECT_BELOW:
+    if raw < REJECT_BELOW - THRESHOLD_TOLERANCE:
         action, reason = REJECT, f"Score {score} < {REJECT_BELOW}: weak signal"
-    elif raw < PROCEED_FROM:
+    elif raw < PROCEED_FROM - THRESHOLD_TOLERANCE:
         action, reason = MONITOR, f"Score {score} in [{REJECT_BELOW}, {PROCEED_FROM}): uncertain signal"
     else:
         action, reason = PROCEED, f"Score {score} >= {PROCEED_FROM}: strong signal"

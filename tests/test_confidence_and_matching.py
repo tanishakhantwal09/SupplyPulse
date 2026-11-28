@@ -116,5 +116,7 @@ def test_threshold_uses_the_unrounded_score():
 def test_exactly_at_threshold_proceeds():
     g = confidence.score_signal(50, -10.0, -4.0)        # 0.40 + 0.35 + 0.25*0.4 = 0.85
     assert g["action"] == confidence.PROCEED
-    g = confidence.score_signal(0, -10.0, -10.0)        # 0.35 + 0.25 = 0.60 exactly (in floating point)
-    assert (g["action"] == confidence.PROCEED) == (g["score_unrounded"] >= 0.60)
+    # 0.40*8/50 + 0.35*0.87 + 0.25*0.926 = 0.600 exactly in decimal, stored as 0.5999999999999999
+    g = confidence.score_signal(8, -8.7, -9.26)
+    assert g["score_unrounded"] < 0.60                  # floating-point error ...
+    assert g["action"] == confidence.PROCEED            # ... must not turn an exact 0.600 into MONITOR
