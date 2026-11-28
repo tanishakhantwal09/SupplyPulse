@@ -98,6 +98,26 @@ def financial_node(state):
     return state
 
 
+def timing_condition(route_output):
+    """Cold / warm conditions of this run, so response times are never mixed (BUILD_PLAN 5).
+
+    portwatch: 'cold'   = at least one utilisation fetched live from IMF PortWatch in this run
+               'warm'   = all PortWatch values came from the local cache
+               'static' = PortWatch not used (SUPPLYPULSE_STATIC_UTIL or no PortWatch entry)
+    llm_client: 'new' (Groq client created in this run), 'reused', or 'disabled'.
+    """
+    sources = {}
+    for a in (route_output or {}).get("alternate_ports_analyzed", []):
+        sources[a.get("utilization_source", "unknown")] = sources.get(a.get("utilization_source", "unknown"), 0) + 1
+    if sources.get("portwatch_live"):
+        pw = "cold"
+    elif sources.get("portwatch_cache"):
+        pw = "warm"
+    else:
+        pw = "static"
+    return {"portwatch": pw, "portwatch_sources": sources, "llm_client": llm_utils.llm_client_condition()}
+
+
 def _base_result(state, status):
     event = state["event"]
     return {
@@ -114,6 +134,7 @@ def _base_result(state, status):
         "llm_usage": llm_utils.usage_totals(),
         "llm_model": llm_utils.MODEL_NAME,
         "llm_enabled": not llm_utils.no_llm(),
+        "timing_condition": timing_condition(state.get("route_output")),
     }
 
 

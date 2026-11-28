@@ -12,6 +12,10 @@ Rules for every experiment (BUILD_PLAN sections 2 and 6):
   model and key constants (`experiments/common.py: run_metadata`).
 - **No numbers from memory.** Published values come only from the PDFs (`experiments/published_values.json`).
 - Static port utilisation (`ports.json`) is used so results are reproducible; live PortWatch values change daily.
+- **Response times: cold and warm runs are reported separately.** Every run result has `timing_condition`:
+  `portwatch` = `cold` (a utilisation was fetched live from PortWatch in that run), `warm` (all from the local cache)
+  or `static`, and `llm_client` = `new` (Groq client created in that run), `reused` or `disabled`.
+  Use `experiments.common.split_by_timing(results)`; never average cold and warm runs together.
 
 ## Stage 2a (no LLM)
 

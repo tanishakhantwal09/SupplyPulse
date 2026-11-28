@@ -112,3 +112,20 @@ def test_single_port_options_list_each_port_once(event):
     assert sorted(t for o in opts for t in o["tags"]) == ["Min Carbon", "Min Cost", "Min Time"]
     for o in opts:
         assert o["option"] == " + ".join(o["tags"]) and o["kind"] == "single-port option"
+
+
+def test_timing_condition_is_recorded():
+    r = run_supplypulse(SHANGHAI_CRITICAL)            # tests run with static utilisation and no LLM
+    assert r["timing_condition"]["portwatch"] == "static"
+    assert r["timing_condition"]["llm_client"] == "disabled"
+
+
+def test_timing_condition_cold_and_warm():
+    from agents.langgraph_orchestrator import timing_condition
+    live = {"alternate_ports_analyzed": [{"utilization_source": "portwatch_live"},
+                                         {"utilization_source": "portwatch_cache"}]}
+    cached = {"alternate_ports_analyzed": [{"utilization_source": "portwatch_cache"},
+                                           {"utilization_source": "static"}]}
+    assert timing_condition(live)["portwatch"] == "cold"
+    assert timing_condition(cached)["portwatch"] == "warm"
+    assert timing_condition(None)["portwatch"] == "static"

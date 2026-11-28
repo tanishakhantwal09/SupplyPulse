@@ -69,6 +69,29 @@ def apply_gate(df, enforce_gate):
     return out
 
 
+def split_by_timing(results):
+    """Response times grouped by run condition. Every response-time experiment must report
+    cold and warm runs separately (BUILD_PLAN 5): a cold run fetches PortWatch live and/or
+    creates the Groq client, which a warm run does not.
+
+    results: run-result dicts from run_supplypulse(). Returns {condition: summary}.
+    """
+    groups = {}
+    for r in results:
+        tc = r.get("timing_condition") or {}
+        key = f"portwatch={tc.get('portwatch', 'unknown')}, llm_client={tc.get('llm_client', 'unknown')}"
+        groups.setdefault(key, []).append(float(r["total_response_time_seconds"]))
+    out = {}
+    for key, times in sorted(groups.items()):
+        times = sorted(times)
+        n = len(times)
+        mid = n // 2
+        median = times[mid] if n % 2 else (times[mid - 1] + times[mid]) / 2
+        out[key] = {"runs": n, "mean_seconds": sum(times) / n, "median_seconds": median,
+                    "min_seconds": times[0], "max_seconds": times[-1]}
+    return out
+
+
 def _git(*args):
     try:
         return subprocess.run(["git", *args], cwd=ROOT, capture_output=True, text=True, check=True).stdout.strip()

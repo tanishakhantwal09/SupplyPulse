@@ -52,3 +52,13 @@ def test_result_file_refuses_missing_gate_setting(tmp_path):
 def test_result_file_refuses_unknown_split(tmp_path):
     with pytest.raises(ValueError):
         common.write_result("unit", {}, {"enforce_gate": False, "dataset_split": "whatever"}, out_dir=tmp_path)
+
+
+def test_response_times_are_split_cold_and_warm():
+    runs = [{"total_response_time_seconds": t, "timing_condition": {"portwatch": pw, "llm_client": c}}
+            for t, pw, c in [(9.0, "cold", "new"), (2.0, "warm", "reused"), (3.0, "warm", "reused"),
+                             (2.5, "warm", "reused")]]
+    s = common.split_by_timing(runs)
+    assert s["portwatch=cold, llm_client=new"]["runs"] == 1
+    warm = s["portwatch=warm, llm_client=reused"]
+    assert warm["runs"] == 3 and warm["median_seconds"] == 2.5 and warm["max_seconds"] == 3.0

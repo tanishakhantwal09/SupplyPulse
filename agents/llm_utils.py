@@ -83,11 +83,20 @@ class LLMError(RuntimeError):
 # ── Usage counter and prompt record ──────────────────────────────────────────
 USAGE = {}
 PROMPTS = {}  # agent -> the exact prompt text sent (for the number-and-wording check, Gap 3)
+RUN_STATE = {"clients_created": 0}  # Groq clients created during the current run (cold start)
 
 
 def reset_usage():
     USAGE.clear()
     PROMPTS.clear()
+    RUN_STATE["clients_created"] = 0
+
+
+def llm_client_condition():
+    """'disabled', 'new' (a Groq client was created in this run: cold) or 'reused' (warm)."""
+    if no_llm():
+        return "disabled"
+    return "new" if RUN_STATE["clients_created"] else "reused"
 
 
 def _record(agent, input_tokens, output_tokens, seconds, reasoning_tokens=0, wasted=False, truncated=False):
@@ -136,6 +145,7 @@ def get_llm(max_tokens):
             timeout=REQUEST_TIMEOUT_SECONDS,
             max_retries=0,  # retries are handled below, in one place
         )
+        RUN_STATE["clients_created"] += 1
     return _CLIENTS[max_tokens]
 
 
