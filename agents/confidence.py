@@ -45,15 +45,18 @@ def score_signal(num_mentions, goldstein, avg_tone):
         "signal_strength": min(abs(g) / GOLDSTEIN_MAX, 1.0),
         "tone": min(abs(t) / TONE_SATURATION, 1.0),
     }
-    score = round(sum(WEIGHTS[k] * v for k, v in factors.items()), 3)
+    raw = sum(WEIGHTS[k] * v for k, v in factors.items())
+    # Thresholds compare the UNROUNDED score (decided 28 Nov 2026); rounding is display-only.
+    # Otherwise a true score of 0.5995 would round to 0.600 and pass the 0.60 threshold.
+    score = round(raw, 3)
     # The signal verdict only; what happened to the agents is added by outcome_reason().
-    if score < REJECT_BELOW:
+    if raw < REJECT_BELOW:
         action, reason = REJECT, f"Score {score} < {REJECT_BELOW}: weak signal"
-    elif score < PROCEED_FROM:
+    elif raw < PROCEED_FROM:
         action, reason = MONITOR, f"Score {score} in [{REJECT_BELOW}, {PROCEED_FROM}): uncertain signal"
     else:
         action, reason = PROCEED, f"Score {score} >= {PROCEED_FROM}: strong signal"
-    return {"score": score, "action": action, "reason": reason,
+    return {"score": score, "score_unrounded": raw, "action": action, "reason": reason,
             "factors": {k: round(v, 3) for k, v in factors.items()},
             "weights": WEIGHTS, "thresholds": {"reject_below": REJECT_BELOW, "proceed_from": PROCEED_FROM}}
 

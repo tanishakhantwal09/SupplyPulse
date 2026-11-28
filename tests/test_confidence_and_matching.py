@@ -103,3 +103,18 @@ def test_reason_text_matches_what_happened(source, signal, expected):
     assert expected in gate["reason"]
     if not gate["enforced"]:
         assert "not activated" not in gate["reason"]
+
+
+def test_threshold_uses_the_unrounded_score():
+    # 0.40*(6/50) + 0.35*1.0 + 0.25*0.806 = 0.5995: displays as 0.6 but is below 0.60.
+    g = confidence.score_signal(6, -10.0, -8.06)
+    assert g["score_unrounded"] < 0.60 and g["score"] == 0.6
+    assert g["action"] == confidence.MONITOR
+    assert "uncertain signal" in g["reason"]
+
+
+def test_exactly_at_threshold_proceeds():
+    g = confidence.score_signal(50, -10.0, -4.0)        # 0.40 + 0.35 + 0.25*0.4 = 0.85
+    assert g["action"] == confidence.PROCEED
+    g = confidence.score_signal(0, -10.0, -10.0)        # 0.35 + 0.25 = 0.60 exactly (in floating point)
+    assert (g["action"] == confidence.PROCEED) == (g["score_unrounded"] >= 0.60)
