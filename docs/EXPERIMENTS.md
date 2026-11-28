@@ -22,7 +22,7 @@ Rules for every experiment (BUILD_PLAN sections 2 and 6):
 | Script | What it does | Data | Status |
 |---|---|---|---|
 | `experiments/common.py` | Loaders, held-out guard, seeded sampling, gate filter, result writer | — | built, tested |
-| `experiments/gap_ablation.py` | Gap 1 ablation: six strategies (nearest, score without BPR, free-capacity split, user equilibrium = SupplyPulse, system optimal, BPR without split). Over-capacity share, travel time, port time, system total time, M/G/1 wait, CO2 / EU ETS, gate split | development | built, tested; not yet run at full size |
+| `experiments/gap_ablation.py` | Gap 1 ablation: eight strategies (nearest, score without BPR, free-capacity split, user equilibrium = SupplyPulse, system optimal, BPR without split). Over-capacity share, travel time, port time, system total time, M/G/1 wait, CO2 / EU ETS, gate split | development | built, tested; not yet run at full size |
 | `experiments/labelling_kit.py` | Cohen's kappa between the two reviewers; gate precision / recall / F1 against agreed labels; severity baseline | 100 held-out events (final evaluation) | built, tested; waiting for labels |
 | `experiments/published_comparison.py` | C1-C4 comparison from `published_values.json` | PDFs | built; all values empty until copied from PDFs |
 | `experiments/llm_number_check.py` | Every number in an LLM text must come from that agent's prompt and be described as the right thing (split plan vs single-port option) | run output | built, tested |
@@ -123,32 +123,98 @@ Metrics (same definitions for every strategy), weighted by diverted ships and th
 Because utilisation is static and vessels / duration follow the dataset rules, the result depends only on
 (port, severity, vessels, duration, year). Each distinct case is computed once and weighted by its number of events.
 
-### Shanghai check (manual scenario, 350 ships over 144 h, static utilisation, p_i = 1.0 day, no LLM)
+### A3: candidate ports and waiting ships (since 28 Nov 2026)
 
-| Strategy | Ships (Busan / Shenzhen / Singapore) | % of capacity | Ship-weighted travel time | Ship-weighted port time | System total time | CO2 (t) |
-|---|---|---|---|---|---|---|
-| user equilibrium | 259 / 91 / 0 | 143% / 92% / 78% | 2.746 d | 1.489 d | 356.16 | 10,467 |
-| system optimal | 184 / 166 / 0 | 121% / 109% / 78% | 2.637 d | 1.270 d | 343.73 | 11,385 |
-| free-capacity split | 109 / 121 / 120 | 99% / 99% / 99% | 3.823 d | 1.144 d | 409.16 | 22,312 |
-| all-to-Busan | 350 / 0 / 0 | 169% / 71% / 78% | 3.356 d | 2.233 d | 411.55 | 9,353 |
+**Candidate ports.** The hand-made 3-port `alternate_ports` lists left out obvious ports (Shanghai never got
+Ningbo-Zhoushan, 82 nm away). For a disrupted **cargo port**, the candidates are now every cargo port within
+**1,500 nm (ASSUMPTION: about 3.75 days at 400 nm/day; no source)**, excluding the disrupted port; if fewer than
+**3 (ASSUMPTION)** are inside the radius, the nearest cargo ports are added (Santos and Lagos have none within 1,500 nm;
+Callao, Durban and Cape Town have one). For a disrupted **canal, strait or bypass route** the alternative is a
+different route, so its hand-made list (with the bypass routes) is kept (ASSUMPTION, no source).
 
-Sensitivity of ship-weighted travel time to p_i (ships Busan / Shenzhen / Singapore):
+**Waiting ships** (Newell, G.F. (1982), *Applications of Queueing Theory*, 2nd ed., deterministic queueing).
+With diverted arrivals λ ships/day, room under the ceiling μ ships/day and event length D days (λ > μ, no bypass):
 
-| p_i | user equilibrium | system optimal | free-capacity split | all-to-Busan |
+- **E = (λ − μ) · D** is the number of ships that **cannot be placed immediately** and wait at anchorage;
+- **W = λ · D / (2μ)** is the average wait of a waiting ship;
+- **total waiting = E × W ship-days**, which is the area between the cumulative arrival and departure curves
+  (checked numerically in `tests/test_queueing.py`);
+- the average wait over all diverted ships is E × W / (λ · D) = (λ − μ) · D / (2μ).
+
+ASSUMPTIONS: arrivals spread evenly; after the event the ports keep the same room μ; first-in first-out; waiting
+ships then sail to the same ports in proportion to the placed flow. **Every time average is over ALL ships**
+(waiting ships included), so all strategies are compared over the same ships; "ships waiting" and "average wait of
+waiting ships" are reported separately.
+
+### Shanghai check (manual scenario, 350 ships over 144 h, 1,500 nm candidates, p_i 1.0 d, RHO_MAX 0.95, static utilisation, no LLM)
+
+Candidates: Ningbo-Zhoushan (82 nm), Busan, Guangzhou, Shenzhen, Osaka-Kobe, Tokyo-Yokohama, Ho Chi Minh City.
+
+| Strategy | Ships per port | Max utilisation | Ships waiting | Avg travel time, all ships | Avg port time | Over-capacity share | Unstable-queue share | CO2 (t) |
+|---|---|---|---|---|---|---|---|---|
+| capped UE (main) | Ningbo 101, Busan 96, Guangzhou 78, Shenzhen 75 | 95% | 0 | 2.193 d | 1.109 d | 0.00 | 0.00 | 9,016 |
+| uncapped UE | Ningbo 350 | 144% | 0 | 1.858 d | 1.653 d | 1.00 | 1.00 | 1,705 |
+| capped SO | Ningbo 101, Busan 96, Guangzhou 66, Shenzhen 63, Osaka 24 | 95% | 0 | 2.199 d | 1.101 d | 0.00 | 0.00 | 9,131 |
+| uncapped SO | Ningbo 233, Busan 107, Guangzhou 10 | 121% | 0 | 1.786 d | 1.259 d | 0.67 | 0.67 | 4,384 |
+| free-capacity split | all 7 ports | 87% | 0 | 2.653 d | 1.072 d | 0.00 | 0.00 | 13,175 |
+| all-to-Ningbo (nearest) | Ningbo 350 | 144% | 0 | 1.858 d | 1.653 d | 1.00 | 1.00 | 1,705 |
+| all-to-Busan | Busan 350 | 169% | 0 | 3.356 d | 2.233 d | 1.00 | 1.00 | 9,353 |
+
+With a 500 nm radius (fallback gives Ningbo, Busan, Guangzhou; room 49.5 ships/day for 58.3/day) the capped UE leaves
+**53 ships waiting, 3.54 d each**, average travel time of all ships 2.642 d. Radius 1,000 / 1,500 / 2,000 nm all give
+the same Shanghai plan (no waiting, 2.193 d).
+
+### Full gap ablation (development set, seed 42, no sampling, static utilisation)
+
+Result files in `experiments/results/`: `gap_ablation.json` (gate enforced, main), `gap_ablation_gate_off.json.gz`
+(gate off; gzip-compressed to keep the repository small), `gap_ablation_radius_1000.json`,
+`gap_ablation_radius_2000.json`, `gap_ablation_scv_0.04.json`. Every file records its configuration (git commit,
+gate setting, radius, RHO_MAX, p_i, service-time SCV, capacities marked ASSUMPTION).
+
+**Run 1, gate enforced: 13,272 events, 852 distinct cases** (the expected count after comparing the unrounded gate
+score; 13,332 and 13,338 were rounding artefacts). Means are event-weighted; "waiting share" is ship-weighted.
+
+| Strategy | Over-capacity share | Unstable-queue share | Avg travel time, all ships | Avg port time | Waiting-ship share | Avg wait of waiting ships | M/G/1 wait (stable ports) | Max utilisation | CO2 (t) |
+|---|---|---|---|---|---|---|---|---|---|
+| nearest | 0.991 | 0.991 | 11.654 d | 10.052 d | 0 | – | 0.744 d | 2.28 | 5,103 |
+| score without BPR | 0.931 | 0.931 | 9.096 d | 7.372 d | 0 | – | 0.348 d | 2.16 | 5,450 |
+| free-capacity split | 0.392 | 0.392 | 3.947 d | 1.200 d | 0 | – | 0.364 d | 1.01 | 8,588 |
+| uncapped UE | 0.825 | 0.825 | 3.929 d | 1.998 d | 0 | – | 0.405 d | 1.63 | 6,382 |
+| **capped UE (SupplyPulse)** | **0** | **0** | 4.137 d | 1.070 d | 0.231 | 3.407 d | 0.735 d | 0.95 | 8,265 |
+| uncapped SO | 0.577 | 0.577 | 3.583 d | 1.299 d | 0 | – | 7.493 d | 1.27 | 7,516 |
+| capped SO | 0 | 0 | 4.137 d | 1.064 d | 0.231 | 3.407 d | 0.647 d | 0.94 | 8,278 |
+| BPR without split | 0.931 | 0.931 | 8.966 d | 6.860 d | 0 | – | 0.348 d | 2.02 | 6,355 |
+
+**Run 2, gate off: 435,889 events, 3,221 distinct cases.**
+
+| Strategy | Over-capacity share | Unstable-queue share | Avg travel time, all ships | Avg port time | Waiting-ship share | Avg wait of waiting ships | M/G/1 wait (stable ports) | Max utilisation | CO2 (t) |
+|---|---|---|---|---|---|---|---|---|---|
+| nearest | 0.845 | 0.845 | 6.151 d | 4.545 d | 0 | – | 0.275 d | 1.65 | 1,886 |
+| score without BPR | 0.759 | 0.759 | 5.216 d | 3.466 d | 0 | – | 0.515 d | 1.57 | 2,031 |
+| free-capacity split | 0.133 | 0.133 | 3.812 d | 1.069 d | 0 | – | 0.289 d | 0.86 | 3,124 |
+| uncapped UE | 0.730 | 0.730 | 3.376 d | 1.618 d | 0 | – | 0.258 d | 1.37 | 2,232 |
+| **capped UE (SupplyPulse)** | **0** | **0** | 3.487 d | 1.048 d | 0.164 | 2.518 d | 0.606 d | 0.93 | 2,903 |
+| uncapped SO | 0.495 | 0.495 | 3.179 d | 1.183 d | 0 | – | 60.413 d | 1.13 | 2,587 |
+| capped SO | 0 | 0 | 3.488 d | 1.042 d | 0.164 | 2.518 d | 0.541 d | 0.92 | 2,907 |
+| BPR without split | 0.752 | 0.752 | 5.284 d | 3.318 d | 0 | – | 0.513 d | 1.51 | 2,271 |
+
+Reading: the uncapped strategies send 13–99 % of ships into ports above capacity (unstable M/G/1 queues); the capped
+plans never do, at the price of 16–23 % of ships waiting about 2.5–3.4 days. The uncapped system optimum's M/G/1 wait at
+its stable ports is very large because many of them sit just below ρ = 1.
+
+**Radius sensitivity (SupplyPulse, gate enforced):**
+
+| Radius | Avg travel time, all ships | Waiting-ship share | Avg wait of waiting ships | CO2 (t) |
 |---|---|---|---|---|
-| 0.5 d | 2.162 (331 / 19 / 0) | 1.988 (204 / 146 / 0) | 3.251 (109 / 121 / 120) | 2.240 (350 / 0 / 0) |
-| 1.0 d | 2.746 (259 / 91 / 0) | 2.637 (184 / 166 / 0) | 3.823 (109 / 121 / 120) | 3.356 (350 / 0 / 0) |
-| 2.0 d | 3.969 (214 / 136 / 0) | 3.905 (173 / 177 / 0) | 4.967 (109 / 121 / 120) | 5.590 (350 / 0 / 0) |
+| 1,000 nm | 4.209 d | 0.271 | 3.524 d | 8,080 |
+| 1,500 nm (main) | 4.137 d | 0.231 | 3.407 d | 8,265 |
+| 2,000 nm | 4.148 d | 0.199 | 3.488 d | 8,547 |
 
-**Resolved (A2):** the uncapped equilibrium accepts V/C above 1 (Busan 143%) while M/G/1 calls ρ ≥ 1 unstable;
-SupplyPulse now uses the capacity-constrained equilibrium below.
-
-### Proposed full runs (waiting for approval)
-
-| Run | Command | Events | Distinct cases | Seed |
-|---|---|---|---|---|
-| 1, primary | `python3 -m experiments.gap_ablation --gate enforce` | 13,332 (gate PROCEED) | 852 | 42 (no sampling) |
-| 2, sensitivity | `python3 -m experiments.gap_ablation --gate off --name gap_ablation_gate_off` | 435,889 (all) | 3,221 | 42 (no sampling) |
+**Service-time spread (Cs) sensitivity (gate enforced).** Main setting SCV = 1.0 (ASSUMPTION). Rauca et al. use
+Cs = 0.2 for a bulk pier (Logistics 9, 122, 2025, p. 16), i.e. SCV = 0.04; it does not transfer directly to container
+ports, so it is a sensitivity only. Changing Cs changes **only the M/G/1 waiting time** (for SupplyPulse
+0.735 d → 0.382 d; uncapped SO 7.493 d → 3.896 d). Over-capacity share, unstable-queue share, travel and port time,
+waiting ships and CO2 are identical, as expected: the allocation does not use the M/G/1 model.
 
 ## Stage 2b (LLM, not started)
 
