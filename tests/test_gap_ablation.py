@@ -37,18 +37,31 @@ def test_shanghai_case_strategies():
     assert out["free_capacity_split"]["ports_used"] == 3
     assert "Port of Singapore" not in out["user_equilibrium"]["ports"]
     for s in ga.STRATEGIES:
-        assert sum(out[s]["ports"].values()) == 350
+        assert sum(out[s]["ports"].values()) + out[s]["excess_ships"] == 350
         assert out[s]["ets_cost_usd"] == 0                           # no EU port involved
-    # Wardrop's second principle: the system optimum has the lowest total time of all strategies
+    # A2: capped strategies never exceed the ceiling and report the overflow as excess demand
+    for s in ("capped_user_equilibrium", "capped_system_optimal"):
+        assert out[s]["max_utilisation"] <= 0.95 + 1e-6
+        assert out[s]["unstable_queue_share"] == 0                   # M/G/1 stays stable
+        assert out[s]["excess_ships"] == 55 and out[s]["excess_demand_share"] > 0
+    for s in ("nearest", "free_capacity_split", "user_equilibrium", "system_optimal"):
+        assert out[s]["excess_demand_share"] == 0                    # uncapped: every ship forced in
+    assert out["user_equilibrium"]["max_utilisation"] > 1             # why the cap is needed
+    # Wardrop's second principle: the uncapped system optimum has the lowest total time among the
+    # strategies that assign every ship (capped ones assign fewer ships, so they are not comparable)
     so = out["system_optimal"]["system_total_time"]
-    assert all(so <= out[s]["system_total_time"] + 1e-9 for s in ga.STRATEGIES)
+    full = [s for s in ga.STRATEGIES if out[s]["excess_ships"] == 0]
+    assert all(so <= out[s]["system_total_time"] + 1e-9 for s in full)
 
 
 def test_allocations_always_place_every_ship():
     alts = route.get_alternate_ports("P021", "high", 90, 72)
     per_day = route.ships_per_day(90, 72)
-    for flows in ga.allocations(alts, 90, 72).values():
-        assert sum(flows) == pytest.approx(per_day)
+    for name, flows in ga.allocations(alts, 90, 72).items():
+        if name.startswith("capped_"):
+            assert sum(flows) <= per_day + 1e-9          # the rest is excess demand (Rotterdam: 7 ships wait)
+        else:
+            assert sum(flows) == pytest.approx(per_day)
 
 
 def _events():

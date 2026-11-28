@@ -3,10 +3,12 @@
 Strategies compared for every event (ships per day = vessels / max(duration_days, 1)):
   nearest             : all ships to the nearest usable alternate (Haversine distance)
   score_no_bpr        : all ships to the best port by the 0.40/0.35/0.25 score, using sailing time only
-  free_capacity_split : the old split, in proportion to free daily capacity (ignores distance)
-  user_equilibrium    : SupplyPulse: Wardrop (1952) user equilibrium (agents/wardrop.py)
-  system_optimal      : Wardrop system optimum (minimum total time of all ships at the ports)
-  bpr_no_split        : all ships to the best port by the score, using travel time with all ships there
+  free_capacity_split     : the old split, in proportion to free daily capacity (ignores distance)
+  user_equilibrium        : uncapped Wardrop (1952) user equilibrium (agents/wardrop.py)
+  capped_user_equilibrium : SupplyPulse: capacity-constrained user equilibrium (ceiling RHO_MAX)
+  system_optimal          : uncapped Wardrop system optimum (minimum total time of all ships)
+  capped_system_optimal   : capacity-constrained system optimum (ceiling RHO_MAX)
+  bpr_no_split            : all ships to the best port by the score, using travel time with all ships there
 
 Same metric definitions for every strategy, weighted by diverted ships:
   - over-capacity share : share of ships sent to a congested link with V/C > 1
@@ -16,6 +18,10 @@ Same metric definitions for every strategy, weighted by diverted ships:
   - M/G/1 waiting time  : Pollaczek-Khinchine mean wait at congested links (application to ports:
                           Rauca et al. 2025); unstable-queue share; open-ocean bypasses have no queue
   - CO2 and EU ETS cost : agents/carbon.py
+  - excess-demand share : share of diverted ships per day that do not fit under the ceiling and wait
+                          (capped strategies only; uncapped strategies force every ship in)
+  - max utilisation     : highest V/C of any congested link that receives ships
+Time metrics are averaged over the ships that ARE assigned.
 Plus the signal-gate outcome counts by severity.
 
 The routing result depends only on (port, severity, vessels, duration, year) when utilisation
@@ -44,10 +50,12 @@ SERVICE_TIME_SCV = 1.0  # ASSUMPTION: squared coefficient of variation of servic
 
 COLUMNS = ["event_id", "event_date", "severity", "nearest_port_id", "vessels_affected", "duration_hours",
            "num_mentions", "goldstein_scale", "avg_tone"]
-STRATEGIES = ["nearest", "score_no_bpr", "free_capacity_split", "user_equilibrium", "system_optimal",
-              "bpr_no_split"]
+STRATEGIES = ["nearest", "score_no_bpr", "free_capacity_split", "user_equilibrium", "capped_user_equilibrium",
+              "system_optimal", "capped_system_optimal", "bpr_no_split"]
+SUPPLYPULSE_STRATEGY = "capped_user_equilibrium"
 METRICS = ["over_capacity_share", "travel_time_days", "port_time_days", "system_total_time",
-           "unstable_queue_share", "mg1_wait_days_stable_ports", "co2_tonnes", "ets_cost_usd", "ports_used"]
+           "unstable_queue_share", "mg1_wait_days_stable_ports", "excess_demand_share", "max_utilisation",
+           "co2_tonnes", "ets_cost_usd", "ports_used"]
 
 
 def mg1_wait_days(arrivals_per_day, capacity_per_day, scv=SERVICE_TIME_SCV):
@@ -79,21 +87,36 @@ def allocations(alts, vessels, duration_hours):
     sail = [a["sailing_time_days"] for a in alts]
     t_all = [route.link_times(a, per_day)["travel_time_days"] for a in alts]
     links = [route.to_link(a) for a in alts]
+    capped = [route.to_link(a, capped=True) for a in alts]
     return {
         "nearest": _single(alts, min(range(len(alts)), key=lambda i: alts[i]["distance_nm"]), per_day),
         "score_no_bpr": _single(alts, min(range(len(alts)), key=lambda i: score(alts[i], sail[i], max(sail))), per_day),
         "free_capacity_split": route.free_capacity_flows(alts, per_day),
         "user_equilibrium": wardrop.solve(links, per_day, wardrop.UE)["flows"],
+        "capped_user_equilibrium": wardrop.solve(capped, per_day, wardrop.UE)["flows"],
         "system_optimal": wardrop.solve(links, per_day, wardrop.SO)["flows"],
+        "capped_system_optimal": wardrop.solve(capped, per_day, wardrop.SO)["flows"],
         "bpr_no_split": _single(alts, min(range(len(alts)), key=lambda i: score(alts[i], t_all[i], max(t_all))), per_day),
     }
 
 
-def evaluate_allocation(alts, flows, vessels, origin_cc, year):
-    """Metrics for one allocation (flows = diverted ships per day per alternate)."""
+def _excess(demand, flows):
+    """Ships per day not assigned; floating-point noise below 1e-9 of demand counts as 0."""
+    gap = demand - sum(flows)
+    return gap if gap > 1e-9 * max(demand, 1.0) else 0.0
+
+
+def evaluate_allocation(alts, flows, vessels, origin_cc, year, demand_per_day=None):
+    """Metrics for one allocation (flows = diverted ships per day per alternate).
+
+    demand_per_day: ships per day that needed a port; demand minus assigned flow is excess demand.
+    """
+    demand = demand_per_day if demand_per_day is not None else sum(flows)
     total = sum(flows) or 1.0
-    ships = route.split_vessels(vessels, flows)
+    assigned_ships = round(vessels * sum(flows) / demand) if demand > 0 else 0
+    ships = route.split_vessels(assigned_ships, flows)
     over = travel = port = wait_w = unstable = finite = 0.0
+    max_util = None
     co2 = ets = 0.0
     for a, x, n in zip(alts, flows, ships):
         if x <= 0:
@@ -102,6 +125,7 @@ def evaluate_allocation(alts, flows, vessels, origin_cc, year):
         travel += t["travel_time_days"] * x
         port += t["port_time_days"] * x
         if a["congested"]:
+            max_util = t["volume_ratio"] if max_util is None else max(max_util, t["volume_ratio"])
             over += x if t["volume_ratio"] > 1 else 0
             load = a["port_capacity"] * a["port_utilization"]
             wq = mg1_wait_days(load + x, a["port_capacity"])
@@ -122,6 +146,9 @@ def evaluate_allocation(alts, flows, vessels, origin_cc, year):
         "system_total_time": wardrop.system_total_time([route.to_link(a) for a in alts], flows),
         "unstable_queue_share": unstable / total,
         "mg1_wait_days_stable_ports": (wait_w / finite) if finite else None,
+        "excess_demand_share": _excess(demand, flows) / demand if demand > 0 else 0.0,
+        "excess_ships": vessels - assigned_ships,
+        "max_utilisation": max_util,
         "co2_tonnes": co2,
         "ets_cost_usd": ets,
         "ports_used": sum(1 for n in ships if n > 0),
@@ -133,8 +160,9 @@ def evaluate_case(port_id, severity, vessels, duration_hours, year):
     alts = route.get_alternate_ports(port_id, severity, int(vessels), float(duration_hours))
     origin_cc = (port_by_id(port_id) or {}).get("country_code")
     out = {}
+    per_day = route.ships_per_day(int(vessels), duration_hours)
     for name, flows in allocations(alts, int(vessels), duration_hours).items():
-        out[name] = evaluate_allocation(alts, flows, int(vessels), origin_cc, year)
+        out[name] = evaluate_allocation(alts, flows, int(vessels), origin_cc, year, per_day)
     return out
 
 
@@ -203,7 +231,8 @@ def main(argv=None):
         "enforce_gate": enforce, "dataset_split": "development", "seed": args.seed,
         "sample_size": args.sample, "utilisation": "static (ports.json)",
         "mg1_service_time_scv": SERVICE_TIME_SCV, "mg1_scv_status": "ASSUMPTION until Rauca et al. (2025) PDF",
-        "strategies": STRATEGIES, "supplypulse_strategy": "user_equilibrium",
+        "strategies": STRATEGIES, "supplypulse_strategy": SUPPLYPULSE_STRATEGY,
+        "rho_max": route.RHO_MAX, "rho_max_status": "ASSUMPTION (keeps M/G/1 stable; no source yet)",
         "port_free_flow_days": route.PORT_FREE_FLOW_DAYS, "canal_free_flow_days": route.CANAL_FREE_FLOW_DAYS,
         "free_flow_status": "ASSUMPTION (no source yet)",
         "capacities_status": "ASSUMPTION: vessel_capacity, current_utilization and chokepoint values in "
@@ -213,9 +242,11 @@ def main(argv=None):
           f"skipped {results['events_skipped']:,}, distinct cases {results['distinct_cases']}")
     for s, m in results["summary_event_weighted"].items():
         wait = m["mg1_wait_days_stable_ports"]
-        print(f"  {s:<20} over-capacity {m['over_capacity_share']:.3f}  travel {m['travel_time_days']:.2f} d  "
-              f"port {m['port_time_days']:.2f} d  unstable {m['unstable_queue_share']:.3f}  "
-              f"M/G/1 wait {('%.3f d' % wait) if wait is not None else 'n/a'}  CO2 {m['co2_tonnes']:,.0f} t")
+        print(f"  {s:<24} over-cap {m['over_capacity_share']:.3f}  travel {m['travel_time_days']:.3f} d  "
+              f"port {m['port_time_days']:.3f} d  unstable {m['unstable_queue_share']:.3f}  "
+              f"M/G/1 {('%.3f d' % wait) if wait is not None else 'n/a'}  excess {m['excess_demand_share']:.3f}  "
+              f"max util {m['max_utilisation'] if m['max_utilisation'] is None else round(m['max_utilisation'], 3)}  "
+              f"CO2 {m['co2_tonnes']:,.0f} t")
     print(f"written: {path}")
     return results
 
