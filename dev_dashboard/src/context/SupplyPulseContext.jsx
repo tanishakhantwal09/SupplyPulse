@@ -61,6 +61,36 @@ function toSelectedEvent(item) {
 
 const SYNTHETIC = (sampleScenarios || []).map(fromSynthetic);
 
+// Last run, kept for this browser tab only (sessionStorage), so a page refresh shows it again.
+// Every access is wrapped in try/catch: storage can be blocked (private mode, browser settings).
+const LAST_RUN_KEY = 'supplypulse:lastRun';
+
+function loadLastRun() {
+  try {
+    const raw = window.sessionStorage.getItem(LAST_RUN_KEY);
+    const saved = raw ? JSON.parse(raw) : null;
+    return saved?.result && saved?.eventKey ? saved : null;
+  } catch {
+    return null;
+  }
+}
+
+function saveLastRun(result, eventKey) {
+  try {
+    window.sessionStorage.setItem(LAST_RUN_KEY, JSON.stringify({ result, eventKey, savedAt: new Date().toISOString() }));
+  } catch {
+    // storage unavailable: the run still shows until the page is refreshed
+  }
+}
+
+function clearLastRun() {
+  try {
+    window.sessionStorage.removeItem(LAST_RUN_KEY);
+  } catch {
+    // ignore
+  }
+}
+
 export function SupplyPulseProvider({ children }) {
   const [serverStatus, setServerStatus] = useState('checking');
   const [eventsStatus, setEventsStatus] = useState('idle');
@@ -69,7 +99,8 @@ export function SupplyPulseProvider({ children }) {
   const [scenariosList, setScenariosList] = useState(SYNTHETIC);
   const [selectedScenarioIndex, setSelectedScenarioIndex] = useState(0);
   const [menuOpen, setMenuOpen] = useState(false);
-  const [pipelineResult, setPipelineResult] = useState(null);
+  const [restored] = useState(loadLastRun);
+  const [pipelineResult, setPipelineResult] = useState(() => restored?.result ?? null);
   const [lastError, setLastError] = useState(null);
   const [terminalLogs, setTerminalLogs] = useState([
     `[INFO] Dashboard loaded. Reference data: ${portsData.length} ports, ${commoditiesData.length} commodities.`,
@@ -99,6 +130,7 @@ export function SupplyPulseProvider({ children }) {
     } catch (err) {
       setServerStatus('offline');
       setEventsStatus('idle');
+      if (restored) setPipelineResult(null); // its event is not listed offline; kept in storage for later
       addLog(`[INFO] API server offline (${err.message}): showing SYNTHETIC scenarios only. Runs are disabled.`);
       return;
     }
@@ -107,8 +139,17 @@ export function SupplyPulseProvider({ children }) {
       const d = JSON.parse(await res.text()); // strict JSON, same as the browser's res.json()
       if (!res.ok) throw new Error(d.error || `HTTP ${res.status}`);
       if (d.events?.length) {
-        setScenariosList(d.events.map(fromDevEvent));
-        setSelectedScenarioIndex(0);
+        const list = d.events.map(fromDevEvent);
+        setScenariosList(list);
+        // Re-select the event of the restored run; drop the run if its event is no longer listed.
+        const idx = restored ? list.findIndex(e => e.scenario_id === restored.eventKey) : -1;
+        setSelectedScenarioIndex(idx >= 0 ? idx : 0);
+        if (restored && idx >= 0) {
+          addLog(`[INFO] Restored the last run for ${restored.eventKey} (saved ${restored.savedAt}).`);
+        } else if (restored) {
+          setPipelineResult(null);
+          clearLastRun();
+        }
         setEventsStatus('loaded');
         addLog(`[INFO] Loaded ${d.events.length} events from the ${d.source}.`);
       } else {
@@ -120,7 +161,7 @@ export function SupplyPulseProvider({ children }) {
       setEventsError(err.message);
       addLog(`[ERROR] Server reachable but event list failed: ${err.message}`);
     }
-  }, []);
+  }, [restored]);
 
   useEffect(() => { checkServer(); }, [checkServer]);
 
@@ -155,6 +196,7 @@ export function SupplyPulseProvider({ children }) {
         return null;
       }
       setPipelineResult(data.result);
+      saveLastRun(data.result, selectedEvent.scenario_id);
       addLog(`[SUCCESS] Run ${data.result.status} in ${data.result.total_response_time_seconds}s. Decision: ${data.result.decision}`);
       return data.result;
     } catch (err) {
@@ -171,6 +213,7 @@ export function SupplyPulseProvider({ children }) {
     if (index >= 0 && index < scenariosList.length) {
       setSelectedScenarioIndex(index);
       setPipelineResult(null);
+      clearLastRun();
       setLastError(null);
       addLog(`[EVENT] Selected ${scenariosList[index].scenario_id} (${scenariosList[index].affected_port})`);
     }

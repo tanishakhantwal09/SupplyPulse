@@ -5,6 +5,23 @@ import { ArrowDownRight } from 'lucide-react';
 const SPRING = { stiffness: 550, damping: 42, mass: 0.5 };
 const RING_SPRING = { type: 'spring', duration: 0.45, bounce: 0.12 };
 
+const MAX_LABEL_CHARS = 14;
+
+// Readable label from an element's visible text. textContent glues child texts together
+// ("01" + "Overview" + "Overview" -> "01OverviewOverview"), so use innerText (keeps line
+// breaks), drop pure numbers and repeated words, and fall back when it is still too long.
+function cleanLabel(el, fallback) {
+  const raw = (el.innerText || el.textContent || '').replace(/\s+/g, ' ').trim();
+  const words = [];
+  for (const w of raw.split(' ')) {
+    if (!w || /^\d+$/.test(w)) continue;
+    if (words.length && words[words.length - 1].toLowerCase() === w.toLowerCase()) continue;
+    words.push(w);
+  }
+  const text = words.join(' ');
+  return text && text.length <= MAX_LABEL_CHARS ? text : fallback;
+}
+
 function resolveHover(target) {
   if (!(target instanceof Element)) return { label: null, link: false };
 
@@ -24,16 +41,10 @@ function resolveHover(target) {
     el.getAttribute('data-cursor-label') || el.getAttribute('aria-label');
   if (explicit) return { label: explicit, link: false };
 
-  if (el.tagName === 'A') {
-    const text = (el.textContent || '').trim().replace(/\s+/g, ' ');
-    if (text && text.length <= 18) return { label: text, link: false };
-    return { label: 'Open', link: false };
-  }
+  if (el.tagName === 'A') return { label: cleanLabel(el, 'Open'), link: false };
 
   if (el.tagName === 'BUTTON' || el.getAttribute('role') === 'button') {
-    const text = (el.textContent || '').trim().replace(/\s+/g, ' ');
-    if (text && text.length <= 18) return { label: text, link: false };
-    return { label: 'Click', link: false };
+    return { label: cleanLabel(el, 'Click'), link: false };
   }
 
   return { label: 'Select', link: false };
@@ -161,10 +172,10 @@ export default function CustomCursor() {
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 exit={{ opacity: 0, y: -4, scale: 0.95 }}
                 transition={{ duration: 0.18, ease: [0.16, 1, 0.3, 1] }}
-                className="relative flex max-w-[120px] flex-col items-center gap-1 px-2 text-center"
+                className="relative flex max-w-[104px] flex-col items-center gap-1 overflow-hidden px-2 text-center"
               >
                 <ArrowDownRight className="h-4 w-4 flex-none text-white" strokeWidth={2} />
-                <span className="pl-display whitespace-nowrap text-[10px] font-medium uppercase leading-tight tracking-[0.14em] text-white">
+                <span className="pl-display line-clamp-2 break-words text-[10px] font-medium uppercase leading-tight tracking-[0.14em] text-white">
                   {label}
                 </span>
               </motion.span>

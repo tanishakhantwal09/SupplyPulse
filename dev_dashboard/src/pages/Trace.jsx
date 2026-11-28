@@ -102,9 +102,9 @@ export default function Trace() {
                       : 'bg-transparent border-transparent hover:bg-white/[0.03] hover:border-[rgba(225,29,72,0.25)]'
                   }`}
                 >
-                  <div className="flex w-52 shrink-0 items-center gap-3">
-                    <span className="mono text-xs text-neutral-500">{step.timestamp}</span>
-                    <span className="text-xs sm:text-sm font-bold text-white truncate">{step.agent}</span>
+                  <div className="flex w-56 sm:w-72 shrink-0 items-center gap-3">
+                    <span className="mono text-xs text-neutral-500 shrink-0">{step.timestamp}</span>
+                    <span className="text-xs sm:text-sm font-bold text-white leading-tight break-words" title={step.agent}>{step.agent}</span>
                   </div>
 
                   <div className="relative mx-3 h-2 flex-1 overflow-hidden bg-black/40">
@@ -148,7 +148,7 @@ export default function Trace() {
               >
                 <div>
                   <span className="mono text-[10px] text-neutral-500 block">{step.timestamp}</span>
-                  <span className="text-xs font-semibold truncate block mt-0.5">{step.agent}</span>
+                  <span className="text-xs font-semibold block mt-0.5 leading-tight break-words" title={step.agent}>{step.agent}</span>
                 </div>
                 <ChevronRight className={`h-4 w-4 ${selectedTraceStep === step.id ? 'text-rose-400' : 'text-neutral-600'}`} />
               </button>
