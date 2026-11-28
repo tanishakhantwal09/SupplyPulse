@@ -7,6 +7,9 @@ os.makedirs("dataset/reference", exist_ok=True)
 # ── DATABASE 1: MAJOR WORLD PORTS ─────────────────────────────────────────────
 # 50 major ports covering all global trade corridors
 # Data: real port coordinates, country, annual TEU capacity, port type
+# ASSUMPTION: annual_teu_millions: the source and year of these TEU figures were not
+#   recorded when this database was built; they must be checked against a dated
+#   published source before any capacity-based result is reported (BUILD_PLAN 5).
 
 ports = [
     # EAST ASIA
@@ -376,14 +379,19 @@ ports = [
 # Chokepoints/alternate routes have annual_teu_millions=0 (they're transit
 # corridors, not cargo-handling ports) so they're calibrated by hand against
 # real transit rates; regular ports scale off annual_teu_millions instead.
+# ASSUMPTION (all 6 values below): set by hand when the database was built; the
+# transit-rate figures in the comments were not taken from a cited source.
+# Since 28 Nov 2026 the routing code treats the three 'alternate_route' entries
+# (P046, P048, P050) as uncongested open-ocean bypasses and ignores their capacity.
 CHOKEPOINT_CAPACITY = {
-    "P045": 55,   # Suez Canal — ~50-80 vessel transits/day
-    "P046": 300,  # Cape of Good Hope — open ocean bypass, effectively uncongested
-    "P047": 220,  # Strait of Malacca — highest-traffic strait globally
-    "P048": 150,  # Lombok Strait — Malacca bypass, ample spare capacity
-    "P049": 38,   # Panama Canal — lock-limited throughput
-    "P050": 250,  # Cape Horn Route — open ocean bypass, effectively uncongested
+    "P045": 55,   # ASSUMPTION: Suez Canal; comment said "~50-80 vessel transits/day", no source
+    "P046": 300,  # ASSUMPTION: Cape of Good Hope; open-ocean bypass, number only meant "very large"
+    "P047": 220,  # ASSUMPTION: Strait of Malacca; "highest-traffic strait", no source for 220
+    "P048": 150,  # ASSUMPTION: Lombok Strait; Malacca bypass, number only meant "ample spare capacity"
+    "P049": 38,   # ASSUMPTION: Panama Canal; "lock-limited throughput", no source for 38
+    "P050": 250,  # ASSUMPTION: Cape Horn Route; open-ocean bypass, number only meant "very large"
 }
+# ASSUMPTION: baseline utilisation of each chokepoint, set by hand, no source.
 CHOKEPOINT_UTILIZATION = {
     "P045": 0.88, "P046": 0.15, "P047": 0.85,
     "P048": 0.20, "P049": 0.90, "P050": 0.10,
@@ -394,7 +402,14 @@ for p in ports:
         p["vessel_capacity"] = CHOKEPOINT_CAPACITY[p["port_id"]]
         p["current_utilization"] = CHOKEPOINT_UTILIZATION[p["port_id"]]
     else:
+        # ASSUMPTION: vessel_capacity = max(20, round(annual_teu_millions * 2.5)) vessels per day.
+        # ASSUMPTION: the factor 2.5 vessels/day per million TEU/year has no source; it was chosen
+        #   so that capacity scales with port size.
+        # ASSUMPTION: the floor of 20 vessels/day has no source; it stops small ports from getting a
+        #   tiny capacity. It sets 25 of the 44 cargo ports to exactly 20 (BUILD_PLAN 5).
         p["vessel_capacity"] = max(20, round(p["annual_teu_millions"] * 2.5))
+        # ASSUMPTION: baseline utilisation = min(0.50 + 0.35 * TEU / largest TEU, 0.92): bigger ports
+        #   are assumed busier. The 0.50, 0.35 and 0.92 have no source.
         p["current_utilization"] = round(
             min(0.50 + 0.35 * (p["annual_teu_millions"] / _max_teu), 0.92), 2
         )
