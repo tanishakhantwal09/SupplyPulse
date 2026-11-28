@@ -26,8 +26,8 @@ export default function Explainability() {
         { label: 'Equilibrium Travel Time T', value: v(`${r?.equilibrium_time_days} days`) },
         { label: 'Ports Receiving Ships', value: v((r?.ship_allocation || []).filter(a => a.vessels > 0).map(a => `${a.port} (${a.vessels})`).join(', ')) }
       ],
-      formula: 't_i = s_i + p_i·(1 + 0.15·((L_i + x_i)/C_i)^4) = T at every port used;  s_i = d_i / 400 nm/day,  d = 2R·arcsin(√(sin²(Δφ/2) + cos φ1·cos φ2·sin²(Δλ/2))), R = 3440.065 nm',
-      note: 'Ships are allocated by a Wardrop (1952) user equilibrium: every port used has the same travel time T, and no unused port is faster. Port time uses the BPR function, U.S. Bureau of Public Roads (1964). s_i = sailing time, p_i = free-flow port time (1.0 day, ASSUMPTION), L_i = ships already at the port per day, C_i = daily capacity (ASSUMPTION, not yet calibrated), x_i = diverted ships per day. Open-ocean bypass routes have no port time. The 0.40 risk + 0.35 time + 0.25 cost score is shown for comparison only and is not used for allocation.'
+      formula: 't_i = s_i + p_i·(1 + 0.15·((L_i + x_i)/C_i)^4) = T at every port below the ceiling, L_i + x_i ≤ 0.95·C_i;  s_i = d_i / 400 nm/day,  d = 2R·arcsin(√(sin²(Δφ/2) + cos φ1·cos φ2·sin²(Δλ/2))), R = 3440.065 nm',
+      note: 'Ships are allocated by a capacity-constrained Wardrop (1952) user equilibrium: no port is filled above 95% of capacity (ASSUMPTION, keeps the queue stable); ports below that share the same travel time T, a full port may be faster, and no unused port is faster. Ships that do not fit wait (excess demand). Port time uses the BPR function, U.S. Bureau of Public Roads (1964). s_i = sailing time, p_i = free-flow port time (1.0 day, ASSUMPTION), L_i = ships already at the port per day, C_i = daily capacity (ASSUMPTION, not yet calibrated), x_i = diverted ships per day. Open-ocean bypass routes have no port time. The 0.40 risk + 0.35 time + 0.25 cost score is shown for comparison only and is not used for allocation.'
     },
     {
       icon: Package,

@@ -54,6 +54,41 @@ every port used has the same marginal time `s_i + p_i · (1 + 0.75 · v_i^4)`, v
 The recommended port is the port with the most ships. The 0.40 risk + 0.35 time + 0.25 cost score is shown for
 comparison only and is not used for allocation.
 
+### A2: capacity-constrained equilibrium (since 28 Nov 2026, SupplyPulse's plan)
+
+BPR has no hard capacity limit, but the M/G/1 queue is unstable at utilisation ≥ 1, so the two models disagreed
+above capacity. SupplyPulse now uses a **utilisation ceiling RHO_MAX = 0.95 (ASSUMPTION: keeps M/G/1 stable; no source)**:
+each congested link takes at most `L_i + x_i <= RHO_MAX · C_i`, so `x_i(T) = min(uncapped x_i(T), RHO_MAX·C_i − L_i)`
+(0 if the link is already at or above the ceiling). Open-ocean bypass routes have no cap. Ports below the ceiling share
+one travel time T; a port at the ceiling may be faster (t_i < T); unused ports have t_i(0) ≥ T. If demand is larger
+than the total capped room and no bypass route exists, the ships that fit are assigned and the rest is reported as
+**excess demand (ships waiting)**: never hidden, never forced over the cap, and not priced (no sourced waiting-cost model).
+The uncapped user equilibrium and system optimum are kept as ablation strategies, plus a capped system optimum.
+
+Shanghai (manual scenario, 350 ships over 144 h = 58.33 ships/day, p_i = 1.0 d, static utilisation, no LLM).
+Per-port columns are Busan / Shenzhen / Singapore; M/G/1 wait in hours:
+
+| Strategy | Ships per port | % of capacity | BPR port time (d) | M/G/1 wait | Avg travel time | Avg port time | Max utilisation | Excess demand | CO2 (t) |
+|---|---|---|---|---|---|---|---|---|---|
+| capped UE (main) | 96 / 103 / 96 | 95% / 95% / 95% | 1.122 / 1.122 / 1.122 | 8.0 h / 6.3 h / 4.9 h | 3.731 d | 1.122 d | 95% | 55 ships (9.11/day) | 18,326 |
+| uncapped UE | 259 / 91 / 0 | 143% / 92% / 78% | 1.623 / 1.108 / 1.056 | unstable / 3.9 h / 0.9 h | 2.746 d | 1.489 d | 143% | 0 | 10,467 |
+| capped SO | 96 / 103 / 96 | 95% / 95% / 95% | 1.122 / 1.122 / 1.122 | 8.0 h / 6.3 h / 4.9 h | 3.731 d | 1.122 d | 95% | 55 ships (9.11/day) | 18,326 |
+| uncapped SO | 184 / 166 / 0 | 121% / 109% / 78% | 1.319 / 1.216 / 1.056 | unstable / unstable / 0.9 h | 2.637 d | 1.270 d | 121% | 0 | 11,385 |
+| free-capacity split | 109 / 121 / 120 | 99% / 99% / 99% | 1.143 / 1.144 / 1.146 | 37.4 h / 33.7 h / 34.1 h | 3.823 d | 1.144 d | 99% | 0 | 22,312 |
+| all-to-Busan | 350 / 0 / 0 | 169% / 71% / 78% | 2.233 / 1.038 / 1.056 | unstable / 0.8 h / 0.9 h | 3.356 d | 2.233 d | 169% | 0 | 9,353 |
+
+Times are averaged over the ships that are assigned, so capped and uncapped rows are not directly comparable on time
+(the capped rows leave 55 ships waiting). Shanghai's demand exceeds the total capped room (49.2 ships/day), so all three
+ports fill to the ceiling and the capped UE equals the capped SO.
+
+RHO_MAX sensitivity of the main plan:
+
+| RHO_MAX | Ships (B / Sh / Si) | % of capacity | Excess demand | Avg travel time | Max M/G/1 wait |
+|---|---|---|---|---|---|
+| 0.90 | 78 / 82 / 68 | 90% / 90% / 90% | 122 ships (20.26/day) | 3.598 d | 3.8 h |
+| 0.95 | 96 / 103 / 96 | 95% / 95% / 95% | 55 ships (9.11/day) | 3.731 d | 8.0 h |
+| 0.98 | 106 / 116 / 113 | 98% / 98% / 98% | 15 ships (2.42/day) | 3.793 d | 20.6 h |
+
 ### Gap ablation: method
 
 For each event, the alternates of its port are taken from `ports.json`. Ships are spread over the event,
@@ -64,8 +99,10 @@ For each event, the alternates of its port are taken from `ports.json`. Ships ar
 | `nearest` | all to the nearest usable alternate (Haversine) |
 | `score_no_bpr` | all to the best port by 0.40 risk + 0.35 sailing time + 0.25 cost |
 | `free_capacity_split` | in proportion to free daily capacity (the old split; ignores distance) |
-| `user_equilibrium` | **SupplyPulse**: Wardrop user equilibrium |
-| `system_optimal` | Wardrop system optimum |
+| `user_equilibrium` | uncapped Wardrop user equilibrium (ablation) |
+| `capped_user_equilibrium` | **SupplyPulse**: capacity-constrained user equilibrium, ceiling RHO_MAX = 0.95 |
+| `system_optimal` | uncapped Wardrop system optimum (ablation) |
+| `capped_system_optimal` | capacity-constrained system optimum, ceiling RHO_MAX = 0.95 |
 | `bpr_no_split` | all to the best port by the same score, using travel time with all ships there |
 
 Metrics (same definitions for every strategy), weighted by diverted ships and then by events:
@@ -79,6 +116,9 @@ Metrics (same definitions for every strategy), weighted by diverted ships and th
   Unstable queues (ρ ≥ 1) are reported as a share of ships; the mean wait is over stable links only. Open-ocean bypasses
   have no queue.
 - **CO2 and EU ETS cost**: `agents/carbon.py` (Directive (EU) 2023/959), with the event year for the phase-in.
+- **Excess-demand share**: ships per day that do not fit under the ceiling and wait (capped strategies only).
+- **Max utilisation**: highest V/C of any congested link receiving ships.
+- **Limitation:** M/G/1 assumes a steady state; a 6-day surge is not a steady state, so the waits are indicative only.
 
 Because utilisation is static and vessels / duration follow the dataset rules, the result depends only on
 (port, severity, vessels, duration, year). Each distinct case is computed once and weighted by its number of events.
@@ -100,9 +140,8 @@ Sensitivity of ship-weighted travel time to p_i (ships Busan / Shenzhen / Singap
 | 1.0 d | 2.746 (259 / 91 / 0) | 2.637 (184 / 166 / 0) | 3.823 (109 / 121 / 120) | 3.356 (350 / 0 / 0) |
 | 2.0 d | 3.969 (214 / 136 / 0) | 3.905 (173 / 177 / 0) | 4.967 (109 / 121 / 120) | 5.590 (350 / 0 / 0) |
 
-**Open point:** the equilibrium accepts V/C above 1 (Busan 143%), because BPR has no hard capacity limit, while the
-M/G/1 model calls any link with ρ ≥ 1 an unstable queue. The two congestion models disagree above capacity; to be
-decided before the full ablation is reported.
+**Resolved (A2):** the uncapped equilibrium accepts V/C above 1 (Busan 143%) while M/G/1 calls ρ ≥ 1 unstable;
+SupplyPulse now uses the capacity-constrained equilibrium below.
 
 ### Proposed full runs (waiting for approval)
 
