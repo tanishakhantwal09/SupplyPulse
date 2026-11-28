@@ -138,15 +138,21 @@ def calculate_pareto_options(state, alternates, year):
         })
     if not options:
         return []
-    return [
-        {**min(options, key=lambda x: (x["cost_usd"], x["co2_tonnes"], x["delay_days"])),
-         "option": "Min Cost", "best_for": "Cost-priority operators", "kind": "single-port option"},
-        {**min(options, key=lambda x: (x["co2_tonnes"], x["cost_usd"], x["delay_days"])),
-         "option": "Min Carbon", "best_for": "Lowest CO2", "kind": "single-port option"},
-        {**min(options, key=lambda x: (x["delay_days"], x["cost_usd"], x["co2_tonnes"])),
-         "option": "Min Time", "best_for": "Time-priority (travel time, all ships to one port)",
-         "kind": "single-port option"},
+    winners = [
+        ("Min Cost", "Cost-priority operators", min(options, key=lambda x: (x["cost_usd"], x["co2_tonnes"], x["delay_days"]))),
+        ("Min Carbon", "Lowest CO2", min(options, key=lambda x: (x["co2_tonnes"], x["cost_usd"], x["delay_days"]))),
+        ("Min Time", "Time-priority (travel time, all ships to one port)",
+         min(options, key=lambda x: (x["delay_days"], x["cost_usd"], x["co2_tonnes"]))),
     ]
+    # Each port appears ONCE, with every tag it wins (e.g. "Min Cost + Min Carbon").
+    grouped = {}
+    for tag, best_for, o in winners:
+        g = grouped.setdefault(o["port"], {**o, "tags": [], "best_for": [], "kind": "single-port option"})
+        g["tags"].append(tag)
+        g["best_for"].append(best_for)
+    for g in grouped.values():
+        g["option"] = " + ".join(g["tags"])
+    return list(grouped.values())
 
 
 SYSTEM_PROMPT = """You are the Financial Auditor Agent in SupplyPulse.

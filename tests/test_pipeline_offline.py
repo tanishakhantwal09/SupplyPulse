@@ -102,3 +102,13 @@ def test_manual_run_reason_says_agents_ran():
     assert r["status"] == "completed" and "agents ran anyway" in r["signal_gate"]["reason"]
     forced = run_supplypulse(WEAK_SIGNAL, enforce_gate=True)
     assert forced["status"] == "gated" and "agents not activated" in forced["signal_gate"]["reason"]
+
+
+@pytest.mark.parametrize("event", [SHANGHAI_CRITICAL, SUEZ_CRITICAL, ROTTERDAM_HIGH], ids=["shanghai", "suez", "rotterdam"])
+def test_single_port_options_list_each_port_once(event):
+    opts = run_supplypulse(event)["single_port_options"]
+    ports = [o["port"] for o in opts]
+    assert len(ports) == len(set(ports))                                   # no port listed twice
+    assert sorted(t for o in opts for t in o["tags"]) == ["Min Carbon", "Min Cost", "Min Time"]
+    for o in opts:
+        assert o["option"] == " + ".join(o["tags"]) and o["kind"] == "single-port option"
